@@ -13,6 +13,7 @@ from torch import nn
 import torch.optim as optim
 from torch.nn.utils.rnn import pack_padded_sequence
 from nltk.translate.bleu_score import corpus_bleu
+import pandas as pd
 
 # Set device to GPU (if available) or CPU
 device = torch.device("mps")
@@ -29,8 +30,8 @@ dropout = 0.5
 
 # Training parameters
 startEpoch = 0
-epochs = 20  # number of epochs to train for (if early stopping is not triggered)
-batchSize = 32
+epochs = 2  # number of epochs to train for (if early stopping is not triggered)
+batchSize = 10
 encoderLr = 1e-4  # learning rate for encoder if fine-tuning
 decoderLr = 4e-4  # learning rate for decoder
 alpha_c = 1.  # regularization parameter for 'doubly stochastic attention', as in the paper
@@ -69,9 +70,11 @@ def main():
     valDataset = CaptionDataset(dataFolder, dataName, 'VAL', transform=transforms.Compose([normalize]))
     valDataLoader = DataLoader(valDataset, batch_size=batchSize, shuffle=False, num_workers=4, pin_memory=True)
 
+    results = []
+
     for epoch in range(startEpoch, epochs):
 
-        train(trainDataLoader=trainDataLoader,
+        trainLoss = train(trainDataLoader=trainDataLoader,
             encoder=encoder,
             decoder=decoder,
             criterion=criterion,
@@ -79,10 +82,21 @@ def main():
             decoderOptimizer=decoderOptimizer,
             epoch=epoch)
         
-        recentBleu4 = validate(valDataLoader=valDataLoader,
+        valLoss, recentBleu4 = validate(valDataLoader=valDataLoader,
                             encoder=encoder,
                             decoder=decoder,
                             criterion=criterion)
+        
+        results.append({
+            'epoch': epoch,
+            'trainLoss': trainLoss,
+            'valLoss': valLoss,
+            'bleu4': recentBleu4
+        })
+
+    resultsDF = pd.DataFrame(results)
+    os.makedirs('results', exist_ok=True)
+    resultsDF.to_csv('results/metrics.csv', index=False)
 
 
 def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decoderOptimizer, epoch):
@@ -99,7 +113,7 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
 
     start = time.time()
     for i, (imgs, caps, caplens) in enumerate(trainDataLoader):
-        if (i == 1):
+        if (i == 5):
             break
 
         dataTime = time.time() - start
@@ -143,6 +157,8 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
 
     print(f"Epoch {epoch}: Training Loss = {avgLoss:.4f}")
 
+    return avgLoss
+
 
 def validate(valDataLoader, encoder, decoder, criterion):
 
@@ -163,7 +179,7 @@ def validate(valDataLoader, encoder, decoder, criterion):
 
     with torch.no_grad():
         for i, (imgs, caps, caplens, allcaps) in enumerate(valDataLoader):
-            if (i == 1):
+            if (i == 5):
                 break
 
             imgs = imgs.to(device)
@@ -193,8 +209,8 @@ def validate(valDataLoader, encoder, decoder, criterion):
             # references = [[ref1a, ref1b, ref1c], [ref2a, ref2b], ...], hypotheses = [hyp1, hyp2, ...]
 
             # References
-            sortInd = sortInd.to(device)
-            allcaps = allcaps.to(device)
+            sortInd = sortInd.to(torch.device('mps'))
+            allcaps = allcaps.to(torch.device('mps'))
             allcaps = allcaps[sortInd]  # because images were sorted in the decoder
             for j in range(allcaps.shape[0]):
                 imgCaps = allcaps[j].tolist()
@@ -202,7 +218,7 @@ def validate(valDataLoader, encoder, decoder, criterion):
                     map(lambda c: [w for w in c if w not in {wordMap['<start>'], wordMap['<pad>']}],
                         imgCaps))  # remove <start> and pads
                 references.append(imgCaptions)
-
+            
             # Hypotheses
             _, preds = torch.max(scoresCopy, dim=2)
             preds = preds.tolist()
@@ -221,7 +237,7 @@ def validate(valDataLoader, encoder, decoder, criterion):
 
         print(f"Validation Loss = {avgLoss:.4f}, BLEU-4 = {bleu4:.4f}")
     
-    return bleu4
+    return avgLoss, bleu4
 
 
     
