@@ -11,15 +11,8 @@ class Encoder(nn.Module):
     def __init__(self, encoded_image_size=7):
         super(Encoder, self).__init__()
         self.enc_image_size = encoded_image_size  #Be aware about encode dim
-        #convnext = torchvision.models.convnext_tiny(pretrained=True) 
-        # convnext = torchvision.models.convnext_small(pretrained=True) 
-        # convnext = torchvision.models.convnext_base(pretrained=True) 
-        #convnext = torchvision.models.convnext_large(pretrained=True) 
         convnext = torchvision.models.convnext_small(weights=ConvNeXt_Small_Weights.IMAGENET1K_V1)
-
         # Remove linear and pool layers (since we're not doing classification)
-        # modules = list(convnext.children())[:-2]
-        # self.convnext = nn.Sequential(*modules)
         self.convnext = convnext.features
         # Resize image to fixed size to allow input images of variable size
         self.adaptive_pool = nn.AdaptiveAvgPool2d((encoded_image_size, encoded_image_size))
@@ -31,7 +24,6 @@ class Encoder(nn.Module):
         :param images: images, a tensor of dimensions (batch_size, 3, image_size, image_size)
         :return: encoded images
         """
-
         out = self.convnext(images)  # (batch_size, 768, image_size/32, image_size/32)
         _, _, h, w = out.shape
         pad_h = (self.enc_image_size - h % self.enc_image_size) % self.enc_image_size

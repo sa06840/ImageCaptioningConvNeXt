@@ -1,3 +1,4 @@
 .DS_Store
 cocoDataset/
+flickr8kDataset/
 __pycache__/
