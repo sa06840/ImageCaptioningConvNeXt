@@ -109,7 +109,7 @@ def main():
             decoderOptimizer=decoderOptimizer,
             epoch=epoch)
         
-        valLoss, recentBleu4 = validate(valDataLoader=valDataLoader,
+        valLoss, valTop5Acc, recentBleu4 = validate(valDataLoader=valDataLoader,
                             encoder=encoder,
                             decoder=decoder,
                             criterion=criterion)
@@ -121,6 +121,7 @@ def main():
             'trainBatchTime': trainBatchTime,
             'trainDataTime': trainDataTime,
             'valLoss': valLoss,
+            'valTop5Acc': valTop5Acc,
             'bleu4': recentBleu4
         })
 
@@ -147,23 +148,14 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
     encoder.train()
     decoder.train()
 
-    # metrics = {
-    #     'lossSum': 0.0,
-    #     'lossCount': 0,
-    #     'top5accSum': 0.0,
-    #     'top5accCount': 0,
-    #     'batchTimes': [],
-    #     'dataTimes': [],
-    # }
-
     batchTime = AverageMeter()  # forward prop. + back prop. time
     dataTime = AverageMeter()  # data loading time
     losses = AverageMeter()  # loss (per word decoded)
     top5accs = AverageMeter()  # top5 accuracy
 
     start = time.time()
+
     for i, (imgs, caps, caplens) in enumerate(trainDataLoader):
-        # dataTime = time.time() - start
         dataTime.update(time.time() - start)
 
         print(f"Epoch {epoch}, Batch {i + 1}/{len(trainDataLoader)}")
@@ -206,14 +198,6 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
 
         top5 = accuracy(scores, targets, 5)
 
-        # metrics['dataTimes'].append(dataTime)
-        # numWords = sum(decodeLengths)
-        # metrics['lossSum'] += loss.item() * numWords
-        # metrics['lossCount'] += numWords
-        # metrics['top5accSum'] += top5 * numWords
-        # metrics['top5accCount'] += numWords
-        # metrics['batchTimes'].append(time.time() - start)
-
         # Keep track of metrics
         losses.update(loss.item(), sum(decodeLengths))
         top5accs.update(top5, sum(decodeLengths))
@@ -231,16 +215,8 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
         #                                                                   batch_time=batchTime,
         #                                                                   data_time=dataTime, loss=losses,
         #                                                                   top5=top5accs))
-    
-    # avgLoss = metrics['lossSum'] / metrics['lossCount']
-    # avgTop5Acc = metrics['top5accSum'] / metrics['top5accCount']
-    # avgBatchTime = sum(metrics['batchTimes']) / len(metrics['batchTimes'])
-    # avgDataTime = sum(metrics['dataTimes']) / len(metrics['dataTimes'])
 
-    # print(f"Epoch {epoch}: Training Loss = {avgLoss:.4f}, Top-5 Accuracy = {avgTop5Acc:.4f}")
     print(f"Epoch {epoch}: Training Loss = {losses.avg:.4f}, Top-5 Accuracy = {top5accs.avg:.4f}")
-
-    # return avgLoss, avgTop5Acc, avgBatchTime, avgDataTime
     return losses.avg, top5accs.avg, batchTime.avg, dataTime.avg
 
 
@@ -250,11 +226,9 @@ def validate(valDataLoader, encoder, decoder, criterion):
     if encoder is not None:
         encoder.eval()
 
-    metrics = {
-        'lossSum': 0.0,
-        'lossCount': 0,
-        'batchTimes': [],
-    }
+    batchTime = AverageMeter()
+    losses = AverageMeter()
+    top5accs = AverageMeter()
 
     start = time.time()
 
@@ -282,12 +256,23 @@ def validate(valDataLoader, encoder, decoder, criterion):
             targets = pack_padded_sequence(targets, decodeLengths, batch_first=True).data
 
             loss = criterion(scores, targets)
+            # Add doubly stochastic attention regularization
+            loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
 
-            numWords = sum(decodeLengths)
-            metrics['lossSum'] += loss.item() * numWords
-            metrics['lossCount'] += numWords
-            metrics['batchTimes'].append(time.time() - start)
+            top5 = accuracy(scores, targets, 5)
+
+            losses.update(loss.item(), sum(decodeLengths))
+            top5accs.update(top5, sum(decodeLengths))
+            batchTime.update(time.time() - start)
+
             start = time.time()
+
+            # if i % printFreq == 0:
+            #     print('Validation: [{0}/{1}]\t'
+            #           'Batch Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
+            #           'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
+            #           'Top-5 Accuracy {top5.val:.3f} ({top5.avg:.3f})\t'.format(i, len(valDataLoader), batch_time=batchTime,
+            #                                                                     loss=losses, top5=top5accs))
 
             # Store references (true captions), and hypothesis (prediction) for each image
             # If for n images, we have n hypotheses, and references a, b, c... for each image, we need -
@@ -317,16 +302,12 @@ def validate(valDataLoader, encoder, decoder, criterion):
         
         bleu4 = corpus_bleu(references, hypotheses)
 
-        avgLoss = metrics['lossSum'] / metrics['lossCount']
-        avgBatchTime = sum(metrics['batchTimes']) / len(metrics['batchTimes'])
-
-        print(f"Validation Loss = {avgLoss:.4f}, BLEU-4 = {bleu4:.4f}")
+        print(f"Validation Loss = {losses.avg:.4f}, Top-5 Accuracy = {top5accs.avg:.4f} BLEU-4 = {bleu4:.4f}")
     
-    return avgLoss, bleu4
+    return losses.avg, top5accs.avg, bleu4
 
 
     
-
 if __name__ == '__main__':
     main()
            
