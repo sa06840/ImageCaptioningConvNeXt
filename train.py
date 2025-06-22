@@ -1,5 +1,6 @@
 import torch
 from torch.utils.data import DataLoader
+import torch.backends.cudnn as cudnn
 from models.encoder import Encoder 
 from models.decoder import DecoderWithAttention
 from dataLoader import CaptionDataset
@@ -14,6 +15,7 @@ import torch.optim as optim
 from torch.nn.utils.rnn import pack_padded_sequence
 from nltk.translate.bleu_score import corpus_bleu
 import pandas as pd
+from utils.utils import *
 
 # Set device to GPU (if available) or CPU
 device = torch.device("mps")
@@ -27,39 +29,56 @@ embDim = 512  # dimension of word embeddings
 attentionDim = 512  # dimension of attention linear layers
 decoderDim = 512  # dimension of decoder RNN
 dropout = 0.5
+cudnn.benchmark = True
 
 # Training parameters
 startEpoch = 0
 epochs = 2  # number of epochs to train for (if early stopping is not triggered)
+epochsSinceImprovement = 0  # keeps track of number of epochs since there's been an improvement in validation BLEU
 batchSize = 10
 encoderLr = 1e-4  # learning rate for encoder if fine-tuning
 decoderLr = 4e-4  # learning rate for decoder
-alpha_c = 1.  # regularization parameter for 'doubly stochastic attention', as in the paper
-best_bleu4 = 0.  # BLEU-4 score right now
-print_freq = 100  # print training/validation stats every __ batches
-fineTuneEncoder = False  # fine-tune encoder
+gradClip = 5  # clip gradients at an absolute value of
+alphaC = 1  # regularization parameter for 'doubly stochastic attention', as in the paper
+bestBleu4 = 0  # BLEU-4 score right now
+printFreq = 100  # print training/validation stats every __ batches
+fineTuneEncoder = True  # fine-tune encoder
+checkpoint = None  # path to checkpoint, None if none
 
 
 def main():
 
-    global best_bleu4, start_epoch, fine_tune_encoder, dataName, wordMap
+    global bestBleu4, epochsSinceImprovement, checkpoint, startEpoch, fineTuneEncoder, dataName, wordMap
 
     # Load word map
-    word_map_file = os.path.join(dataFolder, 'WORDMAP_' + dataName + '.json')
-    with open(word_map_file, 'r') as j:
+    wordMapFile = os.path.join(dataFolder, 'WORDMAP_' + dataName + '.json')
+    with open(wordMapFile, 'r') as j:
         wordMap = json.load(j)
 
-    decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout)
-    decoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, decoder.parameters()), lr=decoderLr)
+    if checkpoint is None:
 
-    encoder = Encoder()
-    encoder.fine_tune(fineTuneEncoder)
-    if fineTuneEncoder:
-        encoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, encoder.parameters()), lr=encoderLr)
+        decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout)
+        decoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, decoder.parameters()), lr=decoderLr)
+
+        encoder = Encoder()
+        encoder.fine_tune(fineTuneEncoder)
+        if fineTuneEncoder:
+            encoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, encoder.parameters()), lr=encoderLr)
+        else:
+            encoderOptimizer = None
     else:
-        encoderOptimizer = None
-    
-
+        checkpoint = torch.load(checkpoint)
+        startEpoch = checkpoint['epoch'] + 1
+        epochsSinceImprovement = checkpoint['epochsSinceImprovement']
+        bestBleu4 = checkpoint['bleu-4']
+        decoder = checkpoint['decoder']
+        decoderOptimizer = checkpoint['decoderOptimizer']
+        encoder = checkpoint['encoder']
+        encoderOptimizer = checkpoint['encoderOptimizer']
+        if fineTuneEncoder is True and encoderOptimizer is None:
+            encoder.fine_tune(fineTuneEncoder)
+            encoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, encoder.parameters()), lr=encoderLr)
+        
     decoder = decoder.to(device)
     encoder = encoder.to(device)
     criterion = nn.CrossEntropyLoss().to(device)
@@ -68,13 +87,21 @@ def main():
     trainDataset = CaptionDataset(dataFolder, dataName, 'TRAIN', transform=transforms.Compose([normalize]))
     trainDataLoader = DataLoader(trainDataset, batch_size=batchSize, shuffle=True, num_workers=4, pin_memory=True)
     valDataset = CaptionDataset(dataFolder, dataName, 'VAL', transform=transforms.Compose([normalize]))
-    valDataLoader = DataLoader(valDataset, batch_size=batchSize, shuffle=False, num_workers=4, pin_memory=True)
+    valDataLoader = DataLoader(valDataset, batch_size=batchSize, shuffle=True, num_workers=4, pin_memory=True)
 
     results = []
 
     for epoch in range(startEpoch, epochs):
 
-        trainLoss = train(trainDataLoader=trainDataLoader,
+        # Decay learning rate if there is no improvement for 8 consecutive epochs, and terminate training after 20
+        if epochsSinceImprovement == 20:
+            break
+        if epochsSinceImprovement > 0 and epochsSinceImprovement % 8 == 0:
+            adjust_learning_rate(decoderOptimizer, 0.8)
+            if fineTuneEncoder:
+                adjust_learning_rate(encoderOptimizer, 0.8)
+
+        trainLoss, trainTop5Acc, trainBatchTime, trainDataTime = train(trainDataLoader=trainDataLoader,
             encoder=encoder,
             decoder=decoder,
             criterion=criterion,
@@ -90,9 +117,25 @@ def main():
         results.append({
             'epoch': epoch,
             'trainLoss': trainLoss,
+            'trainTop5Acc': trainTop5Acc,
+            'trainBatchTime': trainBatchTime,
+            'trainDataTime': trainDataTime,
             'valLoss': valLoss,
             'bleu4': recentBleu4
         })
+
+        # Check if there was an improvement
+        isBest = recentBleu4 > bestBleu4
+        bestBleu4 = max(recentBleu4, bestBleu4)
+        if not isBest:
+            epochsSinceImprovement += 1
+            print("\nEpochs since last improvement: %d\n" % (epochsSinceImprovement,))
+        else:
+            epochsSinceImprovement = 0
+
+         # Save checkpoint
+        save_checkpoint(dataName, epoch, epochsSinceImprovement, encoder, decoder, encoderOptimizer,
+                        decoderOptimizer, recentBleu4, isBest)
 
     resultsDF = pd.DataFrame(results)
     os.makedirs('results', exist_ok=True)
@@ -104,19 +147,28 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
     encoder.train()
     decoder.train()
 
-    metrics = {
-        'lossSum': 0.0,
-        'lossCount': 0,
-        'batchTimes': [],
-        'dataTimes': [],
-    }
+    # metrics = {
+    #     'lossSum': 0.0,
+    #     'lossCount': 0,
+    #     'top5accSum': 0.0,
+    #     'top5accCount': 0,
+    #     'batchTimes': [],
+    #     'dataTimes': [],
+    # }
+
+    batchTime = AverageMeter()  # forward prop. + back prop. time
+    dataTime = AverageMeter()  # data loading time
+    losses = AverageMeter()  # loss (per word decoded)
+    top5accs = AverageMeter()  # top5 accuracy
 
     start = time.time()
     for i, (imgs, caps, caplens) in enumerate(trainDataLoader):
-        if (i == 5):
-            break
+        # dataTime = time.time() - start
+        dataTime.update(time.time() - start)
 
-        dataTime = time.time() - start
+        print(f"Epoch {epoch}, Batch {i + 1}/{len(trainDataLoader)}")
+        if (i == 1):
+            break
 
         imgs = imgs.to(device)
         caps = caps.to(device)
@@ -134,30 +186,62 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
         targets = pack_padded_sequence(targets, decodeLengths, batch_first=True).data
 
         loss = criterion(scores, targets)
+        # Add doubly stochastic attention regularization
+        loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
 
         if encoderOptimizer is not None:
             encoderOptimizer.zero_grad()
         decoderOptimizer.zero_grad()
         loss.backward()
 
+        # Clip gradients
+        if gradClip is not None:
+            clip_gradient(decoderOptimizer, gradClip)
+            if encoderOptimizer is not None:
+                clip_gradient(encoderOptimizer, gradClip)
+
         if encoderOptimizer is not None:
             encoderOptimizer.step()
         decoderOptimizer.step()
 
-        metrics['dataTimes'].append(dataTime)
-        numWords = sum(decodeLengths)
-        metrics['lossSum'] += loss.item() * numWords
-        metrics['lossCount'] += numWords
-        metrics['batchTimes'].append(time.time() - start)
+        top5 = accuracy(scores, targets, 5)
+
+        # metrics['dataTimes'].append(dataTime)
+        # numWords = sum(decodeLengths)
+        # metrics['lossSum'] += loss.item() * numWords
+        # metrics['lossCount'] += numWords
+        # metrics['top5accSum'] += top5 * numWords
+        # metrics['top5accCount'] += numWords
+        # metrics['batchTimes'].append(time.time() - start)
+
+        # Keep track of metrics
+        losses.update(loss.item(), sum(decodeLengths))
+        top5accs.update(top5, sum(decodeLengths))
+        batchTime.update(time.time() - start)
+
         start = time.time()
+
+        # Print status
+        # if i % printFreq == 0:
+        #     print('Epoch: [{0}][{1}/{2}]\t'
+        #           'Batch Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
+        #           'Data Load Time {data_time.val:.3f} ({data_time.avg:.3f})\t'
+        #           'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
+        #           'Top-5 Accuracy {top5.val:.3f} ({top5.avg:.3f})'.format(epoch, i, len(trainDataLoader),
+        #                                                                   batch_time=batchTime,
+        #                                                                   data_time=dataTime, loss=losses,
+        #                                                                   top5=top5accs))
     
-    avgLoss = metrics['lossSum'] / metrics['lossCount']
-    avgBatchTime = sum(metrics['batchTimes']) / len(metrics['batchTimes'])
-    avgDataTime = sum(metrics['dataTimes']) / len(metrics['dataTimes'])
+    # avgLoss = metrics['lossSum'] / metrics['lossCount']
+    # avgTop5Acc = metrics['top5accSum'] / metrics['top5accCount']
+    # avgBatchTime = sum(metrics['batchTimes']) / len(metrics['batchTimes'])
+    # avgDataTime = sum(metrics['dataTimes']) / len(metrics['dataTimes'])
 
-    print(f"Epoch {epoch}: Training Loss = {avgLoss:.4f}")
+    # print(f"Epoch {epoch}: Training Loss = {avgLoss:.4f}, Top-5 Accuracy = {avgTop5Acc:.4f}")
+    print(f"Epoch {epoch}: Training Loss = {losses.avg:.4f}, Top-5 Accuracy = {top5accs.avg:.4f}")
 
-    return avgLoss
+    # return avgLoss, avgTop5Acc, avgBatchTime, avgDataTime
+    return losses.avg, top5accs.avg, batchTime.avg, dataTime.avg
 
 
 def validate(valDataLoader, encoder, decoder, criterion):
@@ -179,7 +263,8 @@ def validate(valDataLoader, encoder, decoder, criterion):
 
     with torch.no_grad():
         for i, (imgs, caps, caplens, allcaps) in enumerate(valDataLoader):
-            if (i == 5):
+            print(f"Validation Batch {i + 1}/{len(valDataLoader)}")
+            if (i == 1):
                 break
 
             imgs = imgs.to(device)

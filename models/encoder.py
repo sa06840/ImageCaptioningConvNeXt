@@ -16,7 +16,7 @@ class Encoder(nn.Module):
         self.convnext = convnext.features
         # Resize image to fixed size to allow input images of variable size
         self.adaptive_pool = nn.AdaptiveAvgPool2d((encoded_image_size, encoded_image_size))
-        # self.fine_tune()
+        self.fine_tune()
 
     def forward(self, images):
         """
