@@ -109,7 +109,7 @@ def main():
             decoderOptimizer=decoderOptimizer,
             epoch=epoch)
         
-        valLoss, valTop5Acc, recentBleu4 = validate(valDataLoader=valDataLoader,
+        valLoss, valTop5Acc, bleu1, bleu2, bleu3, recentBleu4 = validate(valDataLoader=valDataLoader,
                             encoder=encoder,
                             decoder=decoder,
                             criterion=criterion)
@@ -122,6 +122,9 @@ def main():
             'trainDataTime': trainDataTime,
             'valLoss': valLoss,
             'valTop5Acc': valTop5Acc,
+            'bleu1': bleu1,
+            'bleu2': bleu2,
+            'bleu3': bleu3,
             'bleu4': recentBleu4
         })
 
@@ -140,7 +143,8 @@ def main():
 
     resultsDF = pd.DataFrame(results)
     os.makedirs('results', exist_ok=True)
-    resultsDF.to_csv('results/metrics.csv', index=False)
+    resultsDF.to_csv('results/metrics(23-06-2025).csv', index=False)
+
 
 
 def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decoderOptimizer, epoch):
@@ -158,9 +162,10 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
     for i, (imgs, caps, caplens) in enumerate(trainDataLoader):
         dataTime.update(time.time() - start)
 
-        print(f"Epoch {epoch}, Batch {i + 1}/{len(trainDataLoader)}")
-        if (i == 1):
+        if (i == 2):
             break
+
+        print(f"Epoch {epoch}, Batch {i + 1}/{len(trainDataLoader)}")
 
         imgs = imgs.to(device)
         caps = caps.to(device)
@@ -237,9 +242,10 @@ def validate(valDataLoader, encoder, decoder, criterion):
 
     with torch.no_grad():
         for i, (imgs, caps, caplens, allcaps) in enumerate(valDataLoader):
-            print(f"Validation Batch {i + 1}/{len(valDataLoader)}")
-            if (i == 1):
+            if (i == 2):
                 break
+
+            print(f"Validation Batch {i + 1}/{len(valDataLoader)}")
 
             imgs = imgs.to(device)
             caps = caps.to(device)
@@ -300,11 +306,15 @@ def validate(valDataLoader, encoder, decoder, criterion):
 
             assert len(references) == len(hypotheses)
         
-        bleu4 = corpus_bleu(references, hypotheses)
+        # bleu4 = corpus_bleu(references, hypotheses)
+        bleu1 = corpus_bleu(references, hypotheses, weights=(1.0, 0.0, 0.0, 0.0))
+        bleu2 = corpus_bleu(references, hypotheses, weights=(0.5, 0.5, 0.0, 0.0))
+        bleu3 = corpus_bleu(references, hypotheses, weights=(0.33, 0.33, 0.33, 0.0))
+        bleu4 = corpus_bleu(references, hypotheses, weights=(0.25, 0.25, 0.25, 0.25))
 
-        print(f"Validation Loss = {losses.avg:.4f}, Top-5 Accuracy = {top5accs.avg:.4f} BLEU-4 = {bleu4:.4f}")
+        print(f"Validation Loss = {losses.avg:.4f}, Top-5 Accuracy = {top5accs.avg:.4f}, Bleu-1 = {bleu1:.4f}, Bleu-2 = {bleu2:.4f}, Bleu-3 = {bleu3:.4f}, Bleu-4 = {bleu4:.4f}")
     
-    return losses.avg, top5accs.avg, bleu4
+    return losses.avg, top5accs.avg, bleu1, bleu2, bleu3, bleu4
 
 
     
