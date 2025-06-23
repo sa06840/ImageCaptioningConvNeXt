@@ -33,16 +33,17 @@ cudnn.benchmark = True
 
 # Training parameters
 startEpoch = 0
-epochs = 2  # number of epochs to train for (if early stopping is not triggered)
+epochs = 5  # number of epochs to train for (if early stopping is not triggered)
 epochsSinceImprovement = 0  # keeps track of number of epochs since there's been an improvement in validation BLEU
-batchSize = 10
+batchSize = 32
+workers = 4
 encoderLr = 1e-4  # learning rate for encoder if fine-tuning
-decoderLr = 4e-4  # learning rate for decoder
+decoderLr = 1e-4  # learning rate for decoder
 gradClip = 5  # clip gradients at an absolute value of
 alphaC = 1  # regularization parameter for 'doubly stochastic attention', as in the paper
 bestBleu4 = 0  # BLEU-4 score right now
 printFreq = 100  # print training/validation stats every __ batches
-fineTuneEncoder = True  # fine-tune encoder
+fineTuneEncoder = False  # fine-tune encoder
 checkpoint = None  # path to checkpoint, None if none
 
 
@@ -85,9 +86,9 @@ def main():
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 
     trainDataset = CaptionDataset(dataFolder, dataName, 'TRAIN', transform=transforms.Compose([normalize]))
-    trainDataLoader = DataLoader(trainDataset, batch_size=batchSize, shuffle=True, num_workers=4, pin_memory=True)
+    trainDataLoader = DataLoader(trainDataset, batch_size=batchSize, shuffle=True, num_workers=workers, persistent_workers=True, pin_memory=True)
     valDataset = CaptionDataset(dataFolder, dataName, 'VAL', transform=transforms.Compose([normalize]))
-    valDataLoader = DataLoader(valDataset, batch_size=batchSize, shuffle=True, num_workers=4, pin_memory=True)
+    valDataLoader = DataLoader(valDataset, batch_size=batchSize, shuffle=True, num_workers=workers, persistent_workers=True, pin_memory=True)
 
     results = []
 
@@ -143,7 +144,7 @@ def main():
 
     resultsDF = pd.DataFrame(results)
     os.makedirs('results', exist_ok=True)
-    resultsDF.to_csv('results/metrics(23-06-2025).csv', index=False)
+    resultsDF.to_csv('results/metrics(23-06-2025)-4worker-persistantWorkers.csv', index=False)
 
 
 
@@ -161,11 +162,12 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
 
     for i, (imgs, caps, caplens) in enumerate(trainDataLoader):
         dataTime.update(time.time() - start)
+        timeTaken = time.time() - start
 
-        if (i == 2):
+        if (i == 10):
             break
 
-        print(f"Epoch {epoch}, Batch {i + 1}/{len(trainDataLoader)}")
+        print(f"Epoch {epoch}, Batch {i + 1}/{len(trainDataLoader)}, Time Taken: {timeTaken:.2f} seconds")
 
         imgs = imgs.to(device)
         caps = caps.to(device)
@@ -242,7 +244,7 @@ def validate(valDataLoader, encoder, decoder, criterion):
 
     with torch.no_grad():
         for i, (imgs, caps, caplens, allcaps) in enumerate(valDataLoader):
-            if (i == 2):
+            if (i == 10):
                 break
 
             print(f"Validation Batch {i + 1}/{len(valDataLoader)}")
