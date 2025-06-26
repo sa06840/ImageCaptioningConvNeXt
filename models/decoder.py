@@ -4,7 +4,7 @@ import torchvision
 from torchvision.models import ConvNeXt_Base_Weights
 import torch.nn.functional as F
 
-device = torch.device("mps")
+device = torch.device("cuda")
 
 class Attention(nn.Module):
     """
@@ -42,7 +42,7 @@ class DecoderWithAttention(nn.Module):
     """
     Decoder.
     """
-    def __init__(self, attention_dim, embed_dim, decoder_dim, vocab_size, encoder_dim=768, dropout=0.5):
+    def __init__(self, attention_dim, embed_dim, decoder_dim, vocab_size, encoder_dim=1024, dropout=0.5):
         """
         :param attention_dim: size of attention network
         :param embed_dim: embedding size

@@ -5,13 +5,14 @@ from torchvision.models import ConvNeXt_Base_Weights, ConvNeXt_Tiny_Weights, Con
 import torch.nn.functional as F
 
 
-device = torch.device("mps")
+device = torch.device("cuda")
 
 class Encoder(nn.Module):
     def __init__(self, encoded_image_size=7):
         super(Encoder, self).__init__()
         self.enc_image_size = encoded_image_size  #Be aware about encode dim
-        convnext = torchvision.models.convnext_small(weights=ConvNeXt_Small_Weights.IMAGENET1K_V1)
+        # convnext = torchvision.models.convnext_small(weights=ConvNeXt_Small_Weights.IMAGENET1K_V1)
+        convnext = torchvision.models.convnext_base(weights=ConvNeXt_Base_Weights.IMAGENET1K_V1)
         # Remove linear and pool layers (since we're not doing classification)
         self.convnext = convnext.features
         # Resize image to fixed size to allow input images of variable size

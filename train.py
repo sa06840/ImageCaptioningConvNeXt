@@ -7,8 +7,8 @@ from dataLoader import CaptionDataset
 import torchvision.transforms as transforms
 import json
 import time
-import tensorflow as tf
-import numpy as np
+# import tensorflow as tf
+# import numpy as np
 import os
 from torch import nn
 import torch.optim as optim
@@ -18,7 +18,7 @@ import pandas as pd
 from utils.utils import *
 
 # Set device to GPU (if available) or CPU
-device = torch.device("mps")
+device = torch.device("cuda")
 
 # Data parameters
 dataFolder = 'flickr8kDataset/inputFiles'
@@ -33,7 +33,7 @@ cudnn.benchmark = True
 
 # Training parameters
 startEpoch = 0
-epochs = 5  # number of epochs to train for (if early stopping is not triggered)
+epochs = 120  # number of epochs to train for (if early stopping is not triggered)
 epochsSinceImprovement = 0  # keeps track of number of epochs since there's been an improvement in validation BLEU
 batchSize = 32
 workers = 4
@@ -144,7 +144,7 @@ def main():
 
     resultsDF = pd.DataFrame(results)
     os.makedirs('results', exist_ok=True)
-    resultsDF.to_csv('results/metrics(23-06-2025)-4worker-persistantWorkers.csv', index=False)
+    resultsDF.to_csv('results/metrics(26-06-2025)-4workers.csv', index=False)
 
 
 
@@ -162,12 +162,9 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
 
     for i, (imgs, caps, caplens) in enumerate(trainDataLoader):
         dataTime.update(time.time() - start)
-        timeTaken = time.time() - start
 
-        if (i == 10):
-            break
-
-        print(f"Epoch {epoch}, Batch {i + 1}/{len(trainDataLoader)}, Time Taken: {timeTaken:.2f} seconds")
+        if (i % 100 == 0):
+            print(f"Epoch {epoch}, Batch {i + 1}/{len(trainDataLoader)}")
 
         imgs = imgs.to(device)
         caps = caps.to(device)
@@ -244,10 +241,9 @@ def validate(valDataLoader, encoder, decoder, criterion):
 
     with torch.no_grad():
         for i, (imgs, caps, caplens, allcaps) in enumerate(valDataLoader):
-            if (i == 10):
-                break
 
-            print(f"Validation Batch {i + 1}/{len(valDataLoader)}")
+            if (i % 100 == 0):
+                print(f"Validation Batch {i + 1}/{len(valDataLoader)}")
 
             imgs = imgs.to(device)
             caps = caps.to(device)
@@ -287,8 +283,8 @@ def validate(valDataLoader, encoder, decoder, criterion):
             # references = [[ref1a, ref1b, ref1c], [ref2a, ref2b], ...], hypotheses = [hyp1, hyp2, ...]
 
             # References
-            sortInd = sortInd.to(torch.device('mps'))
-            allcaps = allcaps.to(torch.device('mps'))
+            sortInd = sortInd.to(torch.device('cuda'))
+            allcaps = allcaps.to(torch.device('cuda'))
             allcaps = allcaps[sortInd]  # because images were sorted in the decoder
             for j in range(allcaps.shape[0]):
                 imgCaps = allcaps[j].tolist()

@@ -32,7 +32,7 @@ def main():
     with open(wordMapFile, 'r') as j:
         wordMap = json.load(j)
 
-    modelPath = 'BEST_checkpoint_flickr8k_5_cap_per_img_5_min_word_freq.pth.tar'
+    modelPath = 'bestCheckpoints/24-06-2025(0workers)/BEST_checkpoint_flickr8k_5_cap_per_img_5_min_word_freq.pth.tar'
 
     checkpoint = torch.load(modelPath, map_location=str(device), weights_only=False)
     decoder = checkpoint['decoder']

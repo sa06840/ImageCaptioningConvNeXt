@@ -196,7 +196,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     args.img = 'flickr8kDataset/Flicker8k_Dataset/3490736665_38710f4b91.jpg'
-    args.model = 'BEST_checkpoint_flickr8k_5_cap_per_img_5_min_word_freq.pth.tar'
+    args.model = 'bestCheckpoints/24-06-2025(0workers)/BEST_checkpoint_flickr8k_5_cap_per_img_5_min_word_freq.pth.tar'
     args.word_map = 'flickr8kDataset/inputFiles/WORDMAP_flickr8k_5_cap_per_img_5_min_word_freq.json'
     args.beam_size = 5
     args.smooth = False
