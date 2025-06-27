@@ -5,7 +5,7 @@ from torchvision.models import ConvNeXt_Base_Weights, ConvNeXt_Tiny_Weights, Con
 import torch.nn.functional as F
 
 
-device = torch.device("cuda")
+device = torch.device("mps")
 
 class Encoder(nn.Module):
     def __init__(self, encoded_image_size=7):

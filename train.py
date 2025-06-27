@@ -3,6 +3,7 @@ from torch.utils.data import DataLoader
 import torch.backends.cudnn as cudnn
 from models.encoder import Encoder 
 from models.decoder import DecoderWithAttention
+from models.transformerDecoder import TransformerDecoder
 from dataLoader import CaptionDataset
 import torchvision.transforms as transforms
 import json
@@ -18,7 +19,7 @@ import pandas as pd
 from utils.utils import *
 
 # Set device to GPU (if available) or CPU
-device = torch.device("cuda")
+device = torch.device("mps")
 
 # Data parameters
 dataFolder = 'flickr8kDataset/inputFiles'
@@ -30,6 +31,7 @@ attentionDim = 512  # dimension of attention linear layers
 decoderDim = 512  # dimension of decoder RNN
 dropout = 0.5
 cudnn.benchmark = True
+maxLen = 52 # maximum length of captions (in words), used for padding
 
 # Training parameters
 startEpoch = 0
@@ -58,7 +60,8 @@ def main():
 
     if checkpoint is None:
 
-        decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout)
+        # decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout)
+        decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout)
         decoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, decoder.parameters()), lr=decoderLr)
 
         encoder = Encoder()
@@ -110,41 +113,41 @@ def main():
             decoderOptimizer=decoderOptimizer,
             epoch=epoch)
         
-        valLoss, valTop5Acc, bleu1, bleu2, bleu3, recentBleu4 = validate(valDataLoader=valDataLoader,
-                            encoder=encoder,
-                            decoder=decoder,
-                            criterion=criterion)
+        # valLoss, valTop5Acc, bleu1, bleu2, bleu3, recentBleu4 = validate(valDataLoader=valDataLoader,
+        #                     encoder=encoder,
+        #                     decoder=decoder,
+        #                     criterion=criterion)
         
-        results.append({
-            'epoch': epoch,
-            'trainLoss': trainLoss,
-            'trainTop5Acc': trainTop5Acc,
-            'trainBatchTime': trainBatchTime,
-            'trainDataTime': trainDataTime,
-            'valLoss': valLoss,
-            'valTop5Acc': valTop5Acc,
-            'bleu1': bleu1,
-            'bleu2': bleu2,
-            'bleu3': bleu3,
-            'bleu4': recentBleu4
-        })
+        # results.append({
+        #     'epoch': epoch,
+        #     'trainLoss': trainLoss,
+        #     'trainTop5Acc': trainTop5Acc,
+        #     'trainBatchTime': trainBatchTime,
+        #     'trainDataTime': trainDataTime,
+        #     'valLoss': valLoss,
+        #     'valTop5Acc': valTop5Acc,
+        #     'bleu1': bleu1,
+        #     'bleu2': bleu2,
+        #     'bleu3': bleu3,
+        #     'bleu4': recentBleu4
+        # })
 
         # Check if there was an improvement
-        isBest = recentBleu4 > bestBleu4
-        bestBleu4 = max(recentBleu4, bestBleu4)
-        if not isBest:
-            epochsSinceImprovement += 1
-            print("\nEpochs since last improvement: %d\n" % (epochsSinceImprovement,))
-        else:
-            epochsSinceImprovement = 0
+        # isBest = recentBleu4 > bestBleu4
+        # bestBleu4 = max(recentBleu4, bestBleu4)
+        # if not isBest:
+        #     epochsSinceImprovement += 1
+        #     print("\nEpochs since last improvement: %d\n" % (epochsSinceImprovement,))
+        # else:
+        #     epochsSinceImprovement = 0
 
          # Save checkpoint
-        save_checkpoint(dataName, epoch, epochsSinceImprovement, encoder, decoder, encoderOptimizer,
-                        decoderOptimizer, recentBleu4, isBest)
+        # save_checkpoint(dataName, epoch, epochsSinceImprovement, encoder, decoder, encoderOptimizer,
+        #                 decoderOptimizer, recentBleu4, isBest)
 
-    resultsDF = pd.DataFrame(results)
-    os.makedirs('results', exist_ok=True)
-    resultsDF.to_csv('results/metrics(26-06-2025)-4workers.csv', index=False)
+    # resultsDF = pd.DataFrame(results)
+    # os.makedirs('results', exist_ok=True)
+    # resultsDF.to_csv('results/metrics(27-06-2025)-transformerDecoder.csv', index=False)
 
 
 
@@ -163,27 +166,31 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
     for i, (imgs, caps, caplens) in enumerate(trainDataLoader):
         dataTime.update(time.time() - start)
 
-        if (i % 100 == 0):
-            print(f"Epoch {epoch}, Batch {i + 1}/{len(trainDataLoader)}")
+        # if (i % 100 == 0):
+        print(f"Epoch {epoch}, Batch {i + 1}/{len(trainDataLoader)}")
 
         imgs = imgs.to(device)
         caps = caps.to(device)
         caplens = caplens.to(device)
 
         imgs = encoder(imgs)
-        scores, capsSorted, decodeLengths, alphas, sortInd = decoder(imgs, caps, caplens)
+        # scores, capsSorted, decodeLengths, alphas, sortInd = decoder(imgs, caps, caplens)
+        scores, capsSorted, decodeLengths = decoder(imgs, caps, caplens)
 
         # Since we decoded starting with <start>, the targets are all words after <start>, up to <end>
         targets = capsSorted[:, 1:]  # still in the form of indices
 
         # Remove timesteps that we didn't decode at, or are pads
         # pack_padded_sequence is an easy trick to do this
-        scores = pack_padded_sequence(scores, decodeLengths, batch_first=True).data  # scores are logits
-        targets = pack_padded_sequence(targets, decodeLengths, batch_first=True).data
+        # scores = pack_padded_sequence(scores, decodeLengths, batch_first=True).data  # scores are logits
+        # targets = pack_padded_sequence(targets, decodeLengths, batch_first=True).data
+        scores = pack_padded_sequence(scores, decodeLengths, batch_first=True, enforce_sorted=False).data  # scores are logits
+        targets = pack_padded_sequence(targets, decodeLengths, batch_first=True, enforce_sorted=False).data
 
         loss = criterion(scores, targets)
         # Add doubly stochastic attention regularization
-        loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
+        # loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
+
 
         if encoderOptimizer is not None:
             encoderOptimizer.zero_grad()
