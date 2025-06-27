@@ -35,7 +35,7 @@ maxLen = 52 # maximum length of captions (in words), used for padding
 
 # Training parameters
 startEpoch = 0
-epochs = 20  # number of epochs to train for (if early stopping is not triggered)
+epochs = 120  # number of epochs to train for (if early stopping is not triggered)
 epochsSinceImprovement = 0  # keeps track of number of epochs since there's been an improvement in validation BLEU
 batchSize = 32
 workers = 4
@@ -175,7 +175,8 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
 
         imgs = encoder(imgs)
         # scores, capsSorted, decodeLengths, alphas, sortInd = decoder(imgs, caps, caplens)
-        scores, capsSorted, decodeLengths = decoder(imgs, caps, caplens)
+        tgt_key_padding_mask = (caps == wordMap['<pad>'])
+        scores, capsSorted, decodeLengths = decoder(imgs, caps, caplens, tgt_key_padding_mask)
 
         # Since we decoded starting with <start>, the targets are all words after <start>, up to <end>
         targets = capsSorted[:, 1:]  # still in the form of indices
@@ -259,7 +260,8 @@ def validate(valDataLoader, encoder, decoder, criterion):
             if encoder is not None:
                 imgs = encoder(imgs)
             # scores, capsSorted, decodeLengths, alphas, sortInd = decoder(imgs, caps, caplens)
-            scores, capsSorted, decodeLengths = decoder(imgs, caps, caplens)
+            tgt_key_padding_mask = (caps == wordMap['<pad>'])
+            scores, capsSorted, decodeLengths = decoder(imgs, caps, caplens, tgt_key_padding_mask)
 
             targets = capsSorted[:, 1:]
 
