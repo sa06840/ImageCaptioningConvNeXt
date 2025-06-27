@@ -2,7 +2,7 @@ import torch.nn as nn
 import math
 import torch
 
-device = torch.device("mps")
+device = torch.device("cuda")
 
 class PositionalEncoding(nn.Module):
     def __init__(self, embed_dim, maxLen):

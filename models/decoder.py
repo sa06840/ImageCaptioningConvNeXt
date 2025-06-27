@@ -4,7 +4,7 @@ import torchvision
 from torchvision.models import ConvNeXt_Base_Weights
 import torch.nn.functional as F
 
-device = torch.device("mps")
+device = torch.device("cuda")
 
 class Attention(nn.Module):
     """

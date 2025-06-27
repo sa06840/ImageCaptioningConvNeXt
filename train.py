@@ -19,7 +19,7 @@ import pandas as pd
 from utils.utils import *
 
 # Set device to GPU (if available) or CPU
-device = torch.device("mps")
+device = torch.device("cuda")
 
 # Data parameters
 dataFolder = 'flickr8kDataset/inputFiles'
@@ -35,7 +35,7 @@ maxLen = 52 # maximum length of captions (in words), used for padding
 
 # Training parameters
 startEpoch = 0
-epochs = 120  # number of epochs to train for (if early stopping is not triggered)
+epochs = 20  # number of epochs to train for (if early stopping is not triggered)
 epochsSinceImprovement = 0  # keeps track of number of epochs since there's been an improvement in validation BLEU
 batchSize = 32
 workers = 4
@@ -113,41 +113,41 @@ def main():
             decoderOptimizer=decoderOptimizer,
             epoch=epoch)
         
-        # valLoss, valTop5Acc, bleu1, bleu2, bleu3, recentBleu4 = validate(valDataLoader=valDataLoader,
-        #                     encoder=encoder,
-        #                     decoder=decoder,
-        #                     criterion=criterion)
+        valLoss, valTop5Acc, bleu1, bleu2, bleu3, recentBleu4 = validate(valDataLoader=valDataLoader,
+                            encoder=encoder,
+                            decoder=decoder,
+                            criterion=criterion)
         
-        # results.append({
-        #     'epoch': epoch,
-        #     'trainLoss': trainLoss,
-        #     'trainTop5Acc': trainTop5Acc,
-        #     'trainBatchTime': trainBatchTime,
-        #     'trainDataTime': trainDataTime,
-        #     'valLoss': valLoss,
-        #     'valTop5Acc': valTop5Acc,
-        #     'bleu1': bleu1,
-        #     'bleu2': bleu2,
-        #     'bleu3': bleu3,
-        #     'bleu4': recentBleu4
-        # })
+        results.append({
+            'epoch': epoch,
+            'trainLoss': trainLoss,
+            'trainTop5Acc': trainTop5Acc,
+            'trainBatchTime': trainBatchTime,
+            'trainDataTime': trainDataTime,
+            'valLoss': valLoss,
+            'valTop5Acc': valTop5Acc,
+            'bleu1': bleu1,
+            'bleu2': bleu2,
+            'bleu3': bleu3,
+            'bleu4': recentBleu4
+        })
 
         # Check if there was an improvement
-        # isBest = recentBleu4 > bestBleu4
-        # bestBleu4 = max(recentBleu4, bestBleu4)
-        # if not isBest:
-        #     epochsSinceImprovement += 1
-        #     print("\nEpochs since last improvement: %d\n" % (epochsSinceImprovement,))
-        # else:
-        #     epochsSinceImprovement = 0
+        isBest = recentBleu4 > bestBleu4
+        bestBleu4 = max(recentBleu4, bestBleu4)
+        if not isBest:
+            epochsSinceImprovement += 1
+            print("\nEpochs since last improvement: %d\n" % (epochsSinceImprovement,))
+        else:
+            epochsSinceImprovement = 0
 
-         # Save checkpoint
-        # save_checkpoint(dataName, epoch, epochsSinceImprovement, encoder, decoder, encoderOptimizer,
-        #                 decoderOptimizer, recentBleu4, isBest)
+        #  Save checkpoint
+        save_checkpoint(dataName, epoch, epochsSinceImprovement, encoder, decoder, encoderOptimizer,
+                        decoderOptimizer, recentBleu4, isBest)
 
-    # resultsDF = pd.DataFrame(results)
-    # os.makedirs('results', exist_ok=True)
-    # resultsDF.to_csv('results/metrics(27-06-2025)-transformerDecoder.csv', index=False)
+    resultsDF = pd.DataFrame(results)
+    os.makedirs('results', exist_ok=True)
+    resultsDF.to_csv('results/metrics(27-06-2025)-transformerDecoder.csv', index=False)
 
 
 
@@ -166,8 +166,8 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
     for i, (imgs, caps, caplens) in enumerate(trainDataLoader):
         dataTime.update(time.time() - start)
 
-        # if (i % 100 == 0):
-        print(f"Epoch {epoch}, Batch {i + 1}/{len(trainDataLoader)}")
+        if (i % 100 == 0):
+            print(f"Epoch {epoch}, Batch {i + 1}/{len(trainDataLoader)}")
 
         imgs = imgs.to(device)
         caps = caps.to(device)
@@ -258,17 +258,20 @@ def validate(valDataLoader, encoder, decoder, criterion):
 
             if encoder is not None:
                 imgs = encoder(imgs)
-            scores, capsSorted, decodeLengths, alphas, sortInd = decoder(imgs, caps, caplens)
+            # scores, capsSorted, decodeLengths, alphas, sortInd = decoder(imgs, caps, caplens)
+            scores, capsSorted, decodeLengths = decoder(imgs, caps, caplens)
 
             targets = capsSorted[:, 1:]
 
             scoresCopy = scores.clone()
-            scores = pack_padded_sequence(scores, decodeLengths, batch_first=True).data
-            targets = pack_padded_sequence(targets, decodeLengths, batch_first=True).data
+            # scores = pack_padded_sequence(scores, decodeLengths, batch_first=True).data
+            # targets = pack_padded_sequence(targets, decodeLengths, batch_first=True).data
+            scores = pack_padded_sequence(scores, decodeLengths, batch_first=True, enforce_sorted=False).data
+            targets = pack_padded_sequence(targets, decodeLengths, batch_first=True, enforce_sorted=False).data
 
             loss = criterion(scores, targets)
             # Add doubly stochastic attention regularization
-            loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
+            # loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
 
             top5 = accuracy(scores, targets, 5)
 
@@ -290,9 +293,9 @@ def validate(valDataLoader, encoder, decoder, criterion):
             # references = [[ref1a, ref1b, ref1c], [ref2a, ref2b], ...], hypotheses = [hyp1, hyp2, ...]
 
             # References
-            sortInd = sortInd.to(torch.device('cuda'))
+            # sortInd = sortInd.to(torch.device('cuda'))
             allcaps = allcaps.to(torch.device('cuda'))
-            allcaps = allcaps[sortInd]  # because images were sorted in the decoder
+            # allcaps = allcaps[sortInd]  # because images were sorted in the decoder
             for j in range(allcaps.shape[0]):
                 imgCaps = allcaps[j].tolist()
                 imgCaptions = list(
