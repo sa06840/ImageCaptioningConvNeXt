@@ -55,8 +55,8 @@ class TransformerDecoder(nn.Module):
         # Flatten image
         encoder_out = encoder_out.view(batch_size, -1, encoder_dim)  # (batch_size, num_pixels, encoder_dim)
 
-        # Project encoder output to decoder_dim and reshape to [num_pixels, batch_size, decoder_dim]
-        encoder_out = self.encoder_proj(encoder_out).permute(1, 0, 2)  # [num_pixels, batch_size, decoder_dim]
+        # Project encoder output to embed_dim and reshape to [num_pixels, batch_size, embed_dim]
+        encoder_out = self.encoder_proj(encoder_out).permute(1, 0, 2)  # [num_pixels, batch_size, embed_dim]
 
         # Embed captions and apply positional encoding
         embeddings = self.embedding(encoded_captions)  # [batch_size, max_caption_length, embed_dim]
@@ -68,8 +68,8 @@ class TransformerDecoder(nn.Module):
         tgt_mask = nn.Transformer.generate_square_subsequent_mask(tgt_seq_len).to(device).bool()  # [max_caption_length, max_caption_length]
 
         # Transformer decoding
-        decoder_out = self.transformer_decoder(tgt, encoder_out, tgt_mask=tgt_mask, tgt_key_padding_mask=tgt_key_padding_mask)  # [max_len, batch_size, decoder_dim]
-        decoder_out = decoder_out.permute(1, 0, 2)  # [batch_size, max_caption_length, decoder_dim]
+        decoder_out = self.transformer_decoder(tgt, encoder_out, tgt_mask=tgt_mask, tgt_key_padding_mask=tgt_key_padding_mask)  # [max_len, batch_size, embed_dim]
+        decoder_out = decoder_out.permute(1, 0, 2)  # [batch_size, max_caption_length, embed_dim]
         # Final prediction scores
         predictions = self.fc_out(decoder_out)  # [batch_size, max_caption_length, vocab_size]
 
