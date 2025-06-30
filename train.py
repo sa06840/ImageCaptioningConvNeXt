@@ -1,12 +1,30 @@
 import os
 os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
 import torch
+import random
+import numpy as np
+
+def set_seed(seed=42):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.use_deterministic_algorithms(True)
+    os.environ["PYTHONHASHSEED"] = str(seed)
+
+set_seed(42)
+
+def seed_worker(worker_id):
+    worker_seed = torch.initial_seed() % 2**32
+    np.random.seed(worker_seed)
+    random.seed(worker_seed)
+
+g = torch.Generator()
+g.manual_seed(42)
+
 from torch.utils.data import DataLoader
 import torch.backends.cudnn as cudnn
-from models.encoder import Encoder 
-from models.decoder import DecoderWithAttention
-from models.transformerDecoder import TransformerDecoder
-from dataLoader import CaptionDataset
 import torchvision.transforms as transforms
 import json
 import time
@@ -15,9 +33,11 @@ import torch.optim as optim
 from torch.nn.utils.rnn import pack_padded_sequence
 from nltk.translate.bleu_score import corpus_bleu
 import pandas as pd
+from models.encoder import Encoder 
+from models.decoder import DecoderWithAttention
+from models.transformerDecoder import TransformerDecoder
+from dataLoader import CaptionDataset
 from utils.utils import *
-import random
-import numpy as np
 
 # Set device to GPU (if available) or CPU
 device = torch.device("cuda")
@@ -42,7 +62,7 @@ startEpoch = 0
 epochs = 2  # number of epochs to train for (if early stopping is not triggered)
 epochsSinceImprovement = 0  # keeps track of number of epochs since there's been an improvement in validation BLEU
 batchSize = 32
-workers = 4
+workers = 0
 encoderLr = 1e-4  # learning rate for encoder if fine-tuning
 decoderLr = 1e-4  # learning rate for decoder
 gradClip = 5  # clip gradients at an absolute value of
@@ -53,28 +73,11 @@ fineTuneEncoder = False  # fine-tune encoder
 checkpoint = None  # path to checkpoint, None if none
 lstmDecoder = True  # use LSTM decoder instead of Transformer decoder
 
-def set_seed(seed=42):
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
-    torch.use_deterministic_algorithms(True)
-    os.environ["PYTHONHASHSEED"] = str(seed)
-
-def seed_worker(worker_id):
-    worker_seed = torch.initial_seed() % 2**32
-    np.random.seed(worker_seed)
-    random.seed(worker_seed)
-
-g = torch.Generator()
-g.manual_seed(42)
 
 
 def main():
 
     global bestBleu4, epochsSinceImprovement, checkpoint, startEpoch, fineTuneEncoder, dataName, wordMap
-    set_seed(42)
 
     # Load word map
     wordMapFile = os.path.join(dataFolder, 'WORDMAP_' + dataName + '.json')
@@ -114,9 +117,11 @@ def main():
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 
     trainDataset = CaptionDataset(dataFolder, dataName, 'TRAIN', transform=transforms.Compose([normalize]))
-    trainDataLoader = DataLoader(trainDataset, batch_size=batchSize, shuffle=True, num_workers=workers, persistent_workers=True, pin_memory=True, worker_init_fn=seed_worker, generator=g)
+    # trainDataLoader = DataLoader(trainDataset, batch_size=batchSize, shuffle=True, num_workers=workers, persistent_workers=True, pin_memory=True, worker_init_fn=seed_worker, generator=g)
+    trainDataLoader = DataLoader(trainDataset, batch_size=batchSize, shuffle=True, num_workers=workers, pin_memory=True)
     valDataset = CaptionDataset(dataFolder, dataName, 'VAL', transform=transforms.Compose([normalize]))
-    valDataLoader = DataLoader(valDataset, batch_size=batchSize, shuffle=True, num_workers=workers, persistent_workers=True, pin_memory=True, worker_init_fn=seed_worker, generator=g)
+    # valDataLoader = DataLoader(valDataset, batch_size=batchSize, shuffle=True, num_workers=workers, persistent_workers=True, pin_memory=True, worker_init_fn=seed_worker, generator=g)
+    valDataLoader = DataLoader(valDataset, batch_size=batchSize, shuffle=True, num_workers=workers, pin_memory=True)
 
     for epoch in range(startEpoch, epochs):
 
@@ -170,7 +175,7 @@ def main():
 
     resultsDF = pd.DataFrame(results)
     os.makedirs('results', exist_ok=True)
-    resultsDF.to_csv('results/metrics-lstmDecoder(4workers-32gbRAM).csv', index=False)
+    resultsDF.to_csv('results/metrics-lstmDecoder(0workers-32gbRAM).csv', index=False)
 
 
 
