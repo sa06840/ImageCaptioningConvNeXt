@@ -8,8 +8,6 @@ from dataLoader import CaptionDataset
 import torchvision.transforms as transforms
 import json
 import time
-# import tensorflow as tf
-# import numpy as np
 import os
 from torch import nn
 import torch.optim as optim
@@ -21,7 +19,7 @@ import random
 import numpy as np
 
 # Set device to GPU (if available) or CPU
-device = torch.device("cuda")
+device = torch.device("mps")
 
 # Data parameters
 # dataFolder = 'flickr8kDataset/inputFiles'
@@ -40,7 +38,7 @@ maxLen = 52 # maximum length of captions (in words), used for padding
 
 # Training parameters
 startEpoch = 0
-epochs = 120  # number of epochs to train for (if early stopping is not triggered)
+epochs = 3  # number of epochs to train for (if early stopping is not triggered)
 epochsSinceImprovement = 0  # keeps track of number of epochs since there's been an improvement in validation BLEU
 batchSize = 32
 workers = 4
@@ -52,6 +50,7 @@ bestBleu4 = 0  # BLEU-4 score right now
 printFreq = 100  # print training/validation stats every __ batches
 fineTuneEncoder = False  # fine-tune encoder
 checkpoint = None  # path to checkpoint, None if none
+lstmDecoder = False  # use LSTM decoder instead of Transformer decoder
 
 def set_seed(seed=42):
     random.seed(seed)
@@ -59,6 +58,7 @@ def set_seed(seed=42):
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
+    torch.use_deterministic_algorithms(True)
     os.environ["PYTHONHASHSEED"] = str(seed)
 
 def seed_worker(worker_id):
@@ -81,13 +81,14 @@ def main():
         wordMap = json.load(j)
 
     if checkpoint is None:
-
-        decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout)
-        # decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout)
+        if lstmDecoder is True:
+            decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout)
+        else:
+            decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout)
         decoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, decoder.parameters()), lr=decoderLr)
         encoder = Encoder()
         encoder.fine_tune(fineTuneEncoder)
-        if fineTuneEncoder:
+        if fineTuneEncoder is True:
             encoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, encoder.parameters()), lr=encoderLr)
         else:
             encoderOptimizer = None
@@ -168,7 +169,7 @@ def main():
 
     resultsDF = pd.DataFrame(results)
     os.makedirs('results', exist_ok=True)
-    resultsDF.to_csv('results/metrics-lstmDecoder.csv', index=False)
+    resultsDF.to_csv('results/metrics-transformerDecoder(checkingReproducibility3(bothDeterministicRemoved)).csv', index=False)
 
 
 
@@ -181,38 +182,41 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
     dataTime = AverageMeter()  # data loading time
     losses = AverageMeter()  # loss (per word decoded)
     top5accs = AverageMeter()  # top5 accuracy
-
     start = time.time()
 
     for i, (imgs, caps, caplens) in enumerate(trainDataLoader):
         dataTime.update(time.time() - start)
 
-        if (i % 100 == 0):
-            print(f"Epoch {epoch}, Batch {i + 1}/{len(trainDataLoader)}")
+        if (i==5):
+            break
+
+        # if (i % 100 == 0):
+        print(f"Epoch {epoch}, Batch {i + 1}/{len(trainDataLoader)}")
 
         imgs = imgs.to(device)
         caps = caps.to(device)
         caplens = caplens.to(device)
 
         imgs = encoder(imgs)
-        scores, capsSorted, decodeLengths, alphas, sortInd = decoder(imgs, caps, caplens)
-        # tgt_key_padding_mask = (caps == wordMap['<pad>'])
-        # scores, capsSorted, decodeLengths = decoder(imgs, caps, caplens, tgt_key_padding_mask)
-
-        # Since we decoded starting with <start>, the targets are all words after <start>, up to <end>
-        targets = capsSorted[:, 1:]  # still in the form of indices
-
-        # Remove timesteps that we didn't decode at, or are pads
-        # pack_padded_sequence is an easy trick to do this
-        scores = pack_padded_sequence(scores, decodeLengths, batch_first=True).data  # scores are logits
-        targets = pack_padded_sequence(targets, decodeLengths, batch_first=True).data
-        # scores = pack_padded_sequence(scores, decodeLengths, batch_first=True, enforce_sorted=False).data  # scores are logits
-        # targets = pack_padded_sequence(targets, decodeLengths, batch_first=True, enforce_sorted=False).data
-
-        loss = criterion(scores, targets)
-        # Add doubly stochastic attention regularization
-        loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
-
+        if lstmDecoder is True:
+            scores, capsSorted, decodeLengths, alphas, sortInd = decoder(imgs, caps, caplens)
+            # Since we decoded starting with <start>, the targets are all words after <start>, up to <end>
+            targets = capsSorted[:, 1:]  # still in the form of indices
+            # Remove timesteps that we didn't decode at, or are pads
+            # pack_padded_sequence is an easy trick to do this
+            scores = pack_padded_sequence(scores, decodeLengths, batch_first=True).data  # scores are logits
+            targets = pack_padded_sequence(targets, decodeLengths, batch_first=True).data
+            loss = criterion(scores, targets)
+            # Add doubly stochastic attention regularization
+            loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
+        else: 
+            tgt_key_padding_mask = (caps == wordMap['<pad>'])
+            scores, capsSorted, decodeLengths = decoder(imgs, caps, caplens, tgt_key_padding_mask)
+            # Since we decoded starting with <start>, the targets are all words after <start>, up to <end>
+            targets = capsSorted[:, 1:]  # still in the form of indices
+            scores = pack_padded_sequence(scores, decodeLengths, batch_first=True, enforce_sorted=False).data  # scores are logits
+            targets = pack_padded_sequence(targets, decodeLengths, batch_first=True, enforce_sorted=False).data
+            loss = criterion(scores, targets)
 
         if encoderOptimizer is not None:
             encoderOptimizer.zero_grad()
@@ -271,8 +275,11 @@ def validate(valDataLoader, encoder, decoder, criterion):
     with torch.no_grad():
         for i, (imgs, caps, caplens, allcaps) in enumerate(valDataLoader):
 
-            if (i % 100 == 0):
-                print(f"Validation Batch {i + 1}/{len(valDataLoader)}")
+            if (i==5):
+                break
+
+            # if (i % 100 == 0):
+            print(f"Validation Batch {i + 1}/{len(valDataLoader)}")
 
             imgs = imgs.to(device)
             caps = caps.to(device)
@@ -280,21 +287,24 @@ def validate(valDataLoader, encoder, decoder, criterion):
 
             if encoder is not None:
                 imgs = encoder(imgs)
-            scores, capsSorted, decodeLengths, alphas, sortInd = decoder(imgs, caps, caplens)
-            # tgt_key_padding_mask = (caps == wordMap['<pad>'])
-            # scores, capsSorted, decodeLengths = decoder(imgs, caps, caplens, tgt_key_padding_mask)
 
-            targets = capsSorted[:, 1:]
-
-            scoresCopy = scores.clone()
-            scores = pack_padded_sequence(scores, decodeLengths, batch_first=True).data
-            targets = pack_padded_sequence(targets, decodeLengths, batch_first=True).data
-            # scores = pack_padded_sequence(scores, decodeLengths, batch_first=True, enforce_sorted=False).data
-            # targets = pack_padded_sequence(targets, decodeLengths, batch_first=True, enforce_sorted=False).data
-
-            loss = criterion(scores, targets)
-            # Add doubly stochastic attention regularization
-            loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
+            if lstmDecoder is True:
+                scores, capsSorted, decodeLengths, alphas, sortInd = decoder(imgs, caps, caplens)
+                targets = capsSorted[:, 1:]
+                scoresCopy = scores.clone()
+                scores = pack_padded_sequence(scores, decodeLengths, batch_first=True).data
+                targets = pack_padded_sequence(targets, decodeLengths, batch_first=True).data
+                loss = criterion(scores, targets)
+                # Add doubly stochastic attention regularization
+                loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
+            else:     
+                tgt_key_padding_mask = (caps == wordMap['<pad>'])
+                scores, capsSorted, decodeLengths = decoder(imgs, caps, caplens, tgt_key_padding_mask)
+                targets = capsSorted[:, 1:]
+                scoresCopy = scores.clone()
+                scores = pack_padded_sequence(scores, decodeLengths, batch_first=True, enforce_sorted=False).data
+                targets = pack_padded_sequence(targets, decodeLengths, batch_first=True, enforce_sorted=False).data
+                loss = criterion(scores, targets)
 
             top5 = accuracy(scores, targets, 5)
 
@@ -316,9 +326,13 @@ def validate(valDataLoader, encoder, decoder, criterion):
             # references = [[ref1a, ref1b, ref1c], [ref2a, ref2b], ...], hypotheses = [hyp1, hyp2, ...]
 
             # References
-            sortInd = sortInd.to(torch.device('cuda'))
-            allcaps = allcaps.to(torch.device('cuda'))
-            allcaps = allcaps[sortInd]  # because images were sorted in the decoder
+            if lstmDecoder is True:
+                sortInd = sortInd.to(torch.device('mps'))
+                allcaps = allcaps.to(torch.device('mps'))
+                allcaps = allcaps[sortInd]  # because images were sorted in the decoder
+            else:
+                allcaps = allcaps.to(torch.device('mps'))
+
             for j in range(allcaps.shape[0]):
                 imgCaps = allcaps[j].tolist()
                 imgCaptions = list(

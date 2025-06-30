@@ -19,8 +19,9 @@ def set_seed(seed=42):
     np.random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)  # if using CUDA
-    cudnn.deterministic = True
     cudnn.benchmark = False
+    cudnn.deterministic = True
+    torch.use_deterministic_algorithms(True)
 
 set_seed(42)
 
