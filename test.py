@@ -11,6 +11,18 @@ from torch.nn.utils.rnn import pack_padded_sequence
 from nltk.translate.bleu_score import corpus_bleu
 import pandas as pd
 from utils.utils import *
+import random
+import numpy as np
+
+def set_seed(seed=42):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)  # if using CUDA
+    cudnn.deterministic = True
+    cudnn.benchmark = False
+
+set_seed(42)
 
 device = torch.device("mps")
 
@@ -32,7 +44,7 @@ def main():
     with open(wordMapFile, 'r') as j:
         wordMap = json.load(j)
 
-    modelPath = 'bestCheckpoints/24-06-2025(0workers)/BEST_checkpoint_flickr8k_5_cap_per_img_5_min_word_freq.pth.tar'
+    modelPath = 'bestCheckpoints/flickr8k/29-06-2025(lstmDecoder)/BEST_checkpoint_LSTM_flickr8k_5_cap_per_img_5_min_word_freq.pth.tar'
 
     checkpoint = torch.load(modelPath, map_location=str(device), weights_only=False)
     decoder = checkpoint['decoder']
@@ -44,7 +56,7 @@ def main():
 
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     testDataset = CaptionDataset(dataFolder, dataName, 'TEST', transform=transforms.Compose([normalize]))
-    testDataLoader = DataLoader(testDataset, batch_size=batchSize, shuffle=True, num_workers=workers, persistent_workers=True, pin_memory=True)
+    testDataLoader = DataLoader(testDataset, batch_size=batchSize, shuffle=False, num_workers=workers, persistent_workers=True, pin_memory=True)
 
     results = []
 
@@ -64,7 +76,7 @@ def main():
 
     resultsDF = pd.DataFrame(results)
     os.makedirs('results', exist_ok=True)
-    resultsDF.to_csv('results/test.csv', index=False)
+    resultsDF.to_csv('results/flickr8k/29-6-2025(main)/test(lstmDecoder).csv', index=False)
     
 
 
@@ -94,8 +106,6 @@ def test(testDataLoader, encoder, decoder, criterion):
 
     with torch.no_grad():
         for i, (imgs, caps, caplens, allcaps) in enumerate(testDataLoader):
-            if (i == 10):
-                break
 
             print(f"Test Batch {i + 1}/{len(testDataLoader)}")
 
@@ -106,12 +116,16 @@ def test(testDataLoader, encoder, decoder, criterion):
             if encoder is not None:
                 imgs = encoder(imgs)
             scores, capsSorted, decodeLengths, alphas, sortInd = decoder(imgs, caps, caplens)
+            # tgt_key_padding_mask = (caps == wordMap['<pad>'])
+            # scores, capsSorted, decodeLengths = decoder(imgs, caps, caplens, tgt_key_padding_mask)
 
             targets = capsSorted[:, 1:]
 
             scoresCopy = scores.clone()
             scores = pack_padded_sequence(scores, decodeLengths, batch_first=True).data
             targets = pack_padded_sequence(targets, decodeLengths, batch_first=True).data
+            # scores = pack_padded_sequence(scores, decodeLengths, batch_first=True, enforce_sorted=False).data  # scores are logits
+            # targets = pack_padded_sequence(targets, decodeLengths, batch_first=True, enforce_sorted=False).data
 
             loss = criterion(scores, targets)
             # Add doubly stochastic attention regularization

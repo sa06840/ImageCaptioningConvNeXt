@@ -185,7 +185,7 @@ def clip_gradient(optimizer, gradClip):
 
 
 def save_checkpoint(dataName, epoch, epochsSinceImprovement, encoder, decoder, encoderOptimizer, decoderOptimizer,
-                    bleu4, isBest):
+                    bleu4, isBest, results):
     """
     Saves model checkpoint.
     :param data_name: base name of processed dataset
@@ -204,8 +204,9 @@ def save_checkpoint(dataName, epoch, epochsSinceImprovement, encoder, decoder, e
              'encoder': encoder,
              'decoder': decoder,
              'encoderOptimizer': encoderOptimizer,
-             'decoderOptimizer': decoderOptimizer}
-    filename = 'checkpoint_' + dataName + '.pth.tar'
+             'decoderOptimizer': decoderOptimizer,
+             'results': results}
+    filename = 'checkpoint_LSTM_' + dataName + '.pth.tar'
     torch.save(state, filename)
     # If this checkpoint is the best so far, store a copy so it doesn't get overwritten by a worse checkpoint
     if isBest:
