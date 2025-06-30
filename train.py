@@ -19,7 +19,7 @@ import random
 import numpy as np
 
 # Set device to GPU (if available) or CPU
-device = torch.device("mps")
+device = torch.device("cuda")
 
 # Data parameters
 # dataFolder = 'flickr8kDataset/inputFiles'
@@ -38,7 +38,7 @@ maxLen = 52 # maximum length of captions (in words), used for padding
 
 # Training parameters
 startEpoch = 0
-epochs = 3  # number of epochs to train for (if early stopping is not triggered)
+epochs = 2  # number of epochs to train for (if early stopping is not triggered)
 epochsSinceImprovement = 0  # keeps track of number of epochs since there's been an improvement in validation BLEU
 batchSize = 32
 workers = 4
@@ -50,7 +50,7 @@ bestBleu4 = 0  # BLEU-4 score right now
 printFreq = 100  # print training/validation stats every __ batches
 fineTuneEncoder = False  # fine-tune encoder
 checkpoint = None  # path to checkpoint, None if none
-lstmDecoder = False  # use LSTM decoder instead of Transformer decoder
+lstmDecoder = True  # use LSTM decoder instead of Transformer decoder
 
 def set_seed(seed=42):
     random.seed(seed)
@@ -169,7 +169,7 @@ def main():
 
     resultsDF = pd.DataFrame(results)
     os.makedirs('results', exist_ok=True)
-    resultsDF.to_csv('results/metrics-transformerDecoder(checkingReproducibility3(bothDeterministicRemoved)).csv', index=False)
+    resultsDF.to_csv('results/metrics-lstmDecoder(checkingTimes).csv', index=False)
 
 
 
@@ -187,11 +187,8 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
     for i, (imgs, caps, caplens) in enumerate(trainDataLoader):
         dataTime.update(time.time() - start)
 
-        if (i==5):
-            break
-
-        # if (i % 100 == 0):
-        print(f"Epoch {epoch}, Batch {i + 1}/{len(trainDataLoader)}")
+        if (i % 100 == 0):
+            print(f"Epoch {epoch}, Batch {i + 1}/{len(trainDataLoader)}")
 
         imgs = imgs.to(device)
         caps = caps.to(device)
@@ -275,11 +272,8 @@ def validate(valDataLoader, encoder, decoder, criterion):
     with torch.no_grad():
         for i, (imgs, caps, caplens, allcaps) in enumerate(valDataLoader):
 
-            if (i==5):
-                break
-
-            # if (i % 100 == 0):
-            print(f"Validation Batch {i + 1}/{len(valDataLoader)}")
+            if (i % 100 == 0):
+                print(f"Validation Batch {i + 1}/{len(valDataLoader)}")
 
             imgs = imgs.to(device)
             caps = caps.to(device)
@@ -327,11 +321,11 @@ def validate(valDataLoader, encoder, decoder, criterion):
 
             # References
             if lstmDecoder is True:
-                sortInd = sortInd.to(torch.device('mps'))
-                allcaps = allcaps.to(torch.device('mps'))
+                sortInd = sortInd.to(torch.device('cuda'))
+                allcaps = allcaps.to(torch.device('cuda'))
                 allcaps = allcaps[sortInd]  # because images were sorted in the decoder
             else:
-                allcaps = allcaps.to(torch.device('mps'))
+                allcaps = allcaps.to(torch.device('cuda'))
 
             for j in range(allcaps.shape[0]):
                 imgCaps = allcaps[j].tolist()

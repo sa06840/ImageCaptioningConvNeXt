@@ -3,22 +3,9 @@ from torch import nn
 import torchvision
 from torchvision.models import ConvNeXt_Base_Weights, ConvNeXt_Tiny_Weights, ConvNeXt_Small_Weights, ConvNeXt_Large_Weights
 import torch.nn.functional as F
-import random
-import numpy as np
-
-def set_seed(seed=42):
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
-    torch.backends.cudnn.benchmark = False
-    torch.backends.cudnn.deterministic = True
-    torch.use_deterministic_algorithms(True)
-
-set_seed(42)
 
 
-device = torch.device("mps")
+device = torch.device("cuda")
 
 class Encoder(nn.Module):
     def __init__(self, encoded_image_size=7):
@@ -39,11 +26,11 @@ class Encoder(nn.Module):
         :return: encoded images
         """
         out = self.convnext(images)  # (batch_size, 768, image_size/32, image_size/32)
-        _, _, h, w = out.shape
-        pad_h = (self.enc_image_size - h % self.enc_image_size) % self.enc_image_size
-        pad_w = (self.enc_image_size - w % self.enc_image_size) % self.enc_image_size
-        # Apply padding
-        out = F.pad(out, (0, pad_w, 0, pad_h))  # Pad the height and width
+        # _, _, h, w = out.shape
+        # pad_h = (self.enc_image_size - h % self.enc_image_size) % self.enc_image_size
+        # pad_w = (self.enc_image_size - w % self.enc_image_size) % self.enc_image_size
+        # # Apply padding
+        # out = F.pad(out, (0, pad_w, 0, pad_h))  # Pad the height and width
         out = self.adaptive_pool(out)  # (batch_size, 768, encoded_image_size, encoded_image_size)
         out = out.permute(0, 2, 3, 1)  # (batch_size, encoded_image_size, encoded_image_size, 768)
         return out

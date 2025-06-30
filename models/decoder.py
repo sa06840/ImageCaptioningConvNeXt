@@ -3,22 +3,9 @@ from torch import nn
 import torchvision
 from torchvision.models import ConvNeXt_Base_Weights
 import torch.nn.functional as F
-import random
-import numpy as np
-
-def set_seed(seed=42):
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
-    torch.backends.cudnn.benchmark = False
-    torch.backends.cudnn.deterministic = True
-    torch.use_deterministic_algorithms(True)
-
-set_seed(42)
 
 
-device = torch.device("mps")
+device = torch.device("cuda")
 
 class Attention(nn.Module):
     """
