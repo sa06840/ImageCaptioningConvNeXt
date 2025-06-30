@@ -1,3 +1,5 @@
+import os
+os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
 import torch
 from torch.utils.data import DataLoader
 import torch.backends.cudnn as cudnn
@@ -8,7 +10,6 @@ from dataLoader import CaptionDataset
 import torchvision.transforms as transforms
 import json
 import time
-import os
 from torch import nn
 import torch.optim as optim
 from torch.nn.utils.rnn import pack_padded_sequence
@@ -169,7 +170,7 @@ def main():
 
     resultsDF = pd.DataFrame(results)
     os.makedirs('results', exist_ok=True)
-    resultsDF.to_csv('results/metrics-lstmDecoder(checkingTimes).csv', index=False)
+    resultsDF.to_csv('results/metrics-lstmDecoder(4workers-32gbRAM).csv', index=False)
 
 
 
