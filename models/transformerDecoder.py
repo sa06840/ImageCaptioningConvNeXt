@@ -3,7 +3,7 @@ import math
 import torch
 
 
-device = torch.device("cuda")
+# device = torch.device("cuda")
 
 class PositionalEncoding(nn.Module):
     def __init__(self, embed_dim, maxLen):
@@ -23,7 +23,7 @@ class PositionalEncoding(nn.Module):
 
 
 class TransformerDecoder(nn.Module):
-    def __init__(self, embed_dim, decoder_dim, vocab_size, maxLen, dropout=0.5, encoder_dim=1024, num_heads=8, num_layers=6):
+    def __init__(self, embed_dim, decoder_dim, vocab_size, maxLen, device, dropout=0.5, encoder_dim=1024, num_heads=8, num_layers=6):
         super(TransformerDecoder, self).__init__()
         
         self.encoder_dim = encoder_dim
@@ -45,6 +45,7 @@ class TransformerDecoder(nn.Module):
         self.fc_out = nn.Linear(embed_dim, vocab_size)
         # 5. Optional projection for encoder output
         self.encoder_proj = nn.Linear(encoder_dim, embed_dim) if encoder_dim != embed_dim else nn.Identity()
+        self.device = device
 
     def forward(self, encoder_out, encoded_captions, caption_lengths, tgt_key_padding_mask):
         # encoder_out: (batch_size, enc_image_size, enc_image_size, encoder_dim)
@@ -66,7 +67,7 @@ class TransformerDecoder(nn.Module):
 
         # Generate target mask for masked self-attention
         tgt_seq_len = tgt.size(0)
-        tgt_mask = nn.Transformer.generate_square_subsequent_mask(tgt_seq_len).to(device).bool()  # [max_caption_length, max_caption_length]
+        tgt_mask = nn.Transformer.generate_square_subsequent_mask(tgt_seq_len).to(self.device).bool()  # [max_caption_length, max_caption_length]
 
         # Transformer decoding
         decoder_out = self.transformer_decoder(tgt, encoder_out, tgt_mask=tgt_mask, tgt_key_padding_mask=tgt_key_padding_mask)  # [max_len, batch_size, embed_dim]

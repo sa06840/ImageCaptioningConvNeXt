@@ -5,7 +5,7 @@ from torchvision.models import ConvNeXt_Base_Weights
 import torch.nn.functional as F
 
 
-device = torch.device("cuda")
+# device = torch.device("cuda")
 
 class Attention(nn.Module):
     """
@@ -43,7 +43,7 @@ class DecoderWithAttention(nn.Module):
     """
     Decoder.
     """
-    def __init__(self, attention_dim, embed_dim, decoder_dim, vocab_size, encoder_dim=1024, dropout=0.5):
+    def __init__(self, attention_dim, embed_dim, decoder_dim, vocab_size, device, encoder_dim=1024, dropout=0.5):
         """
         :param attention_dim: size of attention network
         :param embed_dim: embedding size
@@ -72,6 +72,7 @@ class DecoderWithAttention(nn.Module):
         self.sigmoid = nn.Sigmoid()
         self.fc = nn.Linear(decoder_dim, vocab_size)  # linear layer to find scores over vocabulary
         self.init_weights()  # initialize some layers with the uniform distribution
+        self.device = device
 
     def init_weights(self):
         """
@@ -139,8 +140,8 @@ class DecoderWithAttention(nn.Module):
         decode_lengths = (caption_lengths - 1).tolist()
 
         # Create tensors to hold word predicion scores and alphas
-        predictions = torch.zeros(batch_size, max(decode_lengths), vocab_size).to(device)
-        alphas = torch.zeros(batch_size, max(decode_lengths), num_pixels).to(device)
+        predictions = torch.zeros(batch_size, max(decode_lengths), vocab_size).to(self.device)
+        alphas = torch.zeros(batch_size, max(decode_lengths), num_pixels).to(self.device)
 
         # At each time-step, decode by
         # attention-weighing the encoder's output based on the decoder's previous hidden state output
