@@ -1,4 +1,20 @@
 import torch
+# os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
+import random
+import numpy as np
+
+# def set_seed(seed=42):
+#     random.seed(seed)
+#     np.random.seed(seed)
+#     torch.manual_seed(seed)
+#     torch.cuda.manual_seed(seed)
+#     torch.cuda.manual_seed_all(seed)
+#     torch.use_deterministic_algorithms(True)
+#     os.environ["PYTHONHASHSEED"] = str(seed)
+
+# set_seed(42)
+
+
 from torch.utils.data import DataLoader
 import torch.backends.cudnn as cudnn
 from dataLoader import CaptionDataset
@@ -11,30 +27,19 @@ from torch.nn.utils.rnn import pack_padded_sequence
 from nltk.translate.bleu_score import corpus_bleu
 import pandas as pd
 from utils.utils import *
-import random
-import numpy as np
 
-def set_seed(seed=42):
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)  # if using CUDA
-    cudnn.benchmark = False
-    cudnn.deterministic = True
-    torch.use_deterministic_algorithms(True)
 
-set_seed(42)
-
-device = torch.device("mps")
+device = torch.device("cuda")
 
 # Data parameters
-dataFolder = 'flickr8kDataset/inputFiles'
-dataName = 'flickr8k_5_cap_per_img_5_min_word_freq'
+dataFolder = 'cocoDataset/inputFiles'
+dataName = 'coco_5_cap_per_img_5_min_word_freq'
 
 batchSize = 32
-workers = 4
+workers = 0
 alphaC = 1  # regularization parameter for 'doubly stochastic attention', as in the paper
-cudnn.benchmark = True
+cudnn.benchmark = False # set to true only if inputs to model are fixed size; otherwise lot of computational overhead
+cudnn.deterministic = True # for reproducibility
 
 
 def main():
@@ -45,7 +50,7 @@ def main():
     with open(wordMapFile, 'r') as j:
         wordMap = json.load(j)
 
-    modelPath = 'bestCheckpoints/flickr8k/29-06-2025(lstmDecoder)/BEST_checkpoint_LSTM_flickr8k_5_cap_per_img_5_min_word_freq.pth.tar'
+    modelPath = 'bestCheckpoints/mscoco/lstmDecoder(timedOut)/BEST_checkpoint_LSTM_coco_5_cap_per_img_5_min_word_freq.pth.tar'
 
     checkpoint = torch.load(modelPath, map_location=str(device), weights_only=False)
     decoder = checkpoint['decoder']
@@ -57,7 +62,8 @@ def main():
 
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     testDataset = CaptionDataset(dataFolder, dataName, 'TEST', transform=transforms.Compose([normalize]))
-    testDataLoader = DataLoader(testDataset, batch_size=batchSize, shuffle=False, num_workers=workers, persistent_workers=True, pin_memory=True)
+    testDataLoader = DataLoader(testDataset, batch_size=batchSize, shuffle=False, num_workers=workers)
+    # testDataLoader = DataLoader(testDataset, batch_size=batchSize, shuffle=False, num_workers=workers, persistent_workers=True, pin_memory=True)
 
     results = []
 
@@ -77,7 +83,7 @@ def main():
 
     resultsDF = pd.DataFrame(results)
     os.makedirs('results', exist_ok=True)
-    resultsDF.to_csv('results/flickr8k/29-6-2025(main)/test(lstmDecoder).csv', index=False)
+    resultsDF.to_csv('results/mscoco/test(lstmDecoder-mscoco-timedOut).csv', index=False)
     
 
 
