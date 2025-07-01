@@ -1,27 +1,27 @@
 import os
-os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
+# os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
 import torch
 import random
 import numpy as np
 
-def set_seed(seed=42):
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
-    torch.use_deterministic_algorithms(True)
-    os.environ["PYTHONHASHSEED"] = str(seed)
+# def set_seed(seed=42):
+#     random.seed(seed)
+#     np.random.seed(seed)
+#     torch.manual_seed(seed)
+#     torch.cuda.manual_seed(seed)
+#     torch.cuda.manual_seed_all(seed)
+#     torch.use_deterministic_algorithms(True)
+#     os.environ["PYTHONHASHSEED"] = str(seed)
 
-set_seed(42)
+# set_seed(42)
 
-def seed_worker(worker_id):
-    worker_seed = torch.initial_seed() % 2**32
-    np.random.seed(worker_seed)
-    random.seed(worker_seed)
+# def seed_worker(worker_id):
+#     worker_seed = torch.initial_seed() % 2**32
+#     np.random.seed(worker_seed)
+#     random.seed(worker_seed)
 
-g = torch.Generator()
-g.manual_seed(42)
+# g = torch.Generator()
+# g.manual_seed(42)
 
 from torch.utils.data import DataLoader
 import torch.backends.cudnn as cudnn
@@ -35,6 +35,7 @@ from nltk.translate.bleu_score import corpus_bleu
 import pandas as pd
 from models.encoder import Encoder 
 from models.decoder import DecoderWithAttention
+# from modelsFile import Encoder, DecoderWithAttention
 from models.transformerDecoder import TransformerDecoder
 from dataLoader import CaptionDataset
 from utils.utils import *
@@ -53,8 +54,8 @@ embDim = 512  # dimension of word embeddings
 attentionDim = 512  # dimension of attention linear layers
 decoderDim = 512  # dimension of decoder RNN
 dropout = 0.5
-cudnn.benchmark = False  # set to true only if inputs to model are fixed size; otherwise lot of computational overhead
-cudnn.deterministic = True # for reproducibility
+cudnn.benchmark = True  # set to true only if inputs to model are fixed size; otherwise lot of computational overhead
+# cudnn.deterministic = True # for reproducibility
 maxLen = 52 # maximum length of captions (in words), used for padding
 
 # Training parameters
@@ -65,9 +66,9 @@ batchSize = 32
 workers = 0
 encoderLr = 1e-4  # learning rate for encoder if fine-tuning
 decoderLr = 1e-4  # learning rate for decoder
-gradClip = 5  # clip gradients at an absolute value of
-alphaC = 1  # regularization parameter for 'doubly stochastic attention', as in the paper
-bestBleu4 = 0  # BLEU-4 score right now
+gradClip = 5.  # clip gradients at an absolute value of
+alphaC = 1.  # regularization parameter for 'doubly stochastic attention', as in the paper
+bestBleu4 = 0.  # BLEU-4 score right now
 printFreq = 100  # print training/validation stats every __ batches
 fineTuneEncoder = False  # fine-tune encoder
 checkpoint = None  # path to checkpoint, None if none
@@ -175,7 +176,7 @@ def main():
 
     resultsDF = pd.DataFrame(results)
     os.makedirs('results', exist_ok=True)
-    resultsDF.to_csv('results/metrics-lstmDecoder(0workers-32gbRAM).csv', index=False)
+    resultsDF.to_csv('results/metrics-lstmDecoder(0workers-32gbRAM-noReproducibility).csv', index=False)
 
 
 
