@@ -83,7 +83,7 @@ def reduce_loss(loss, world_size):
         return loss
     with torch.no_grad():
         dist.all_reduce(loss, op=dist.ReduceOp.SUM)
-        loss = loss/world_size
+        loss /= world_size
     return loss
 
 def gather_all_data(data, world_size, device):
