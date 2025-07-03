@@ -27,9 +27,12 @@ from torch.nn.utils.rnn import pack_padded_sequence
 from nltk.translate.bleu_score import corpus_bleu
 import pandas as pd
 from utils.utils import *
+import torch.distributed as dist
+from torch.nn.parallel import DistributedDataParallel as DDP
+from torch.serialization import add_safe_globals
 
 
-device = torch.device("cuda")
+device = torch.device("cpu")
 
 # Data parameters
 dataFolder = 'cocoDataset/inputFiles'
@@ -50,11 +53,17 @@ def main():
     with open(wordMapFile, 'r') as j:
         wordMap = json.load(j)
 
-    modelPath = 'bestCheckpoints/mscoco/lstmDecoder(timedOut)/BEST_checkpoint_LSTM_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    
+    os.environ['MASTER_ADDR'] = '127.0.0.1'
+    os.environ['MASTER_PORT'] = '29500'
 
+    dist.init_process_group(backend='gloo', rank=0, world_size=1)
+
+    modelPath = 'bestCheckpoints/BEST_checkpoint_LSTM_coco_5_cap_per_img_5_min_word_freq.pth.tar'
     checkpoint = torch.load(modelPath, map_location=str(device), weights_only=False)
     decoder = checkpoint['decoder']
     encoder = checkpoint['encoder']
+    print(checkpoint['epoch'])
 
     decoder = decoder.to(device)
     encoder = encoder.to(device)

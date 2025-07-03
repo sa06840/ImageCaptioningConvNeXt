@@ -1,19 +1,6 @@
 import os
 import socket
-
 # os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
-
-def find_free_port():
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind(('', 0))  # Bind to a free port assigned by the OS
-        return s.getsockname()[1]
-
-free_port = find_free_port()
-os.environ['OMP_NUM_THREADS'] = '4'
-os.environ['MKL_NUM_THREADS'] = '4'
-os.environ['MASTER_ADDR'] = socket.gethostname()
-os.environ['MASTER_PORT'] = str(free_port)
-os.environ['WORLD_SIZE'] = '2'
 import torch
 import random
 import numpy as np
@@ -40,7 +27,6 @@ import numpy as np
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 import torch.multiprocessing as mp
-
 from torch.utils.data import DataLoader
 import torch.backends.cudnn as cudnn
 import torchvision.transforms as transforms
@@ -59,8 +45,6 @@ from dataLoader import CaptionDataset
 from utils.utils import *
 import pickle
 
-# Set device to GPU (if available) or CPU
-# device = torch.device("cuda")
 
 # Data parameters
 # dataFolder = 'flickr8kDataset/inputFiles'
@@ -82,7 +66,7 @@ startEpoch = 0
 epochs = 2  # number of epochs to train for (if early stopping is not triggered)
 epochsSinceImprovement = 0  # keeps track of number of epochs since there's been an improvement in validation BLEU
 batchSize = 32
-workers = 0
+workers = 6
 encoderLr = 1e-4  # learning rate for encoder if fine-tuning
 decoderLr = 1e-4  # learning rate for decoder
 gradClip = 5.  # clip gradients at an absolute value of
@@ -99,30 +83,25 @@ def reduce_loss(loss, world_size):
         return loss
     with torch.no_grad():
         dist.all_reduce(loss, op=dist.ReduceOp.SUM)
-        loss /= world_size
+        loss = loss/world_size
     return loss
 
 def gather_all_data(data, world_size, device):
     # Serialize local data (list of lists)
     data_bytes = pickle.dumps(data)
     data_tensor = torch.ByteTensor(list(data_bytes)).to(device)
-
     # Gather sizes from all processes
     local_size = torch.tensor([data_tensor.numel()], device=device)
     sizes = [torch.tensor([0], device=device) for _ in range(world_size)]
     dist.all_gather(sizes, local_size)
-
     max_size = max([s.item() for s in sizes])
-
     # Pad data tensors to max size
     if local_size < max_size:
         padding = torch.zeros(max_size - local_size, dtype=torch.uint8, device=device)
         data_tensor = torch.cat([data_tensor, padding], dim=0)
-
     # Gather all tensors
     gathered = [torch.zeros(max_size, dtype=torch.uint8, device=device) for _ in range(world_size)]
     dist.all_gather(gathered, data_tensor)
-
     # Deserialize and combine on rank 0
     all_data = []
     if dist.get_rank() == 0:
@@ -133,13 +112,26 @@ def gather_all_data(data, world_size, device):
             all_data.extend(data_i)
     return all_data
 
+def setup_distributed():
+    rank = int(os.environ['SLURM_PROCID'])
+    world_size = int(os.environ['SLURM_NTASKS'])
+    local_rank = int(os.environ['SLURM_LOCALID'])
+    os.environ['MASTER_ADDR'] = os.environ.get('MASTER_ADDR', '127.0.0.1')
+    os.environ['MASTER_PORT'] = os.environ.get('MASTER_PORT', '29500')  # Use a fixed or random free port
+    dist.init_process_group(
+        backend='nccl',
+        init_method='env://',
+        world_size=world_size,
+        rank=rank
+    )
+    torch.cuda.set_device(local_rank)
+    device = torch.device(f"cuda:{local_rank}")
+    print(f"[Rank {rank}] is using GPU {local_rank}")
+    return rank, local_rank, world_size, device
 
-def main(rank, world_size):
+def main():
 
-    dist.init_process_group(backend='nccl', init_method='env://', world_size=world_size, rank=rank)
-    torch.cuda.set_device(rank)
-    device = torch.device(f"cuda:{rank}")
-
+    rank, local_rank, world_size, device = setup_distributed()
     global bestBleu4, epochsSinceImprovement, checkpoint, startEpoch, fineTuneEncoder, dataName, wordMap
 
     # Load word map
@@ -175,21 +167,22 @@ def main(rank, world_size):
         results = checkpoint['results']
         
     decoder = decoder.to(device)
-    decoder = DDP(decoder, device_ids=[rank])
     encoder = encoder.to(device)
-    # encoder = DDP(encoder, device_ids=[rank])
+    decoder = DDP(decoder, device_ids=[local_rank], output_device=local_rank)
+    if fineTuneEncoder is True:
+        encoder = DDP(encoder, device_ids=[local_rank], output_device=local_rank)
     criterion = nn.CrossEntropyLoss().to(device)
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 
     trainDataset = CaptionDataset(dataFolder, dataName, 'TRAIN', transform=transforms.Compose([normalize]))
     trainSampler = torch.utils.data.distributed.DistributedSampler(trainDataset, num_replicas=world_size, rank=rank, shuffle=True)
     # trainDataLoader = DataLoader(trainDataset, batch_size=batchSize, shuffle=True, num_workers=workers, persistent_workers=True, pin_memory=True, worker_init_fn=seed_worker, generator=g)
-    trainDataLoader = DataLoader(trainDataset, batch_size=batchSize, shuffle=False, num_workers=workers, pin_memory=True, sampler=trainSampler)
+    trainDataLoader = DataLoader(trainDataset, batch_size=batchSize, shuffle=False, num_workers=workers, persistent_workers=True, pin_memory=True, sampler=trainSampler)
 
     valDataset = CaptionDataset(dataFolder, dataName, 'VAL', transform=transforms.Compose([normalize]))
     valSampler = torch.utils.data.distributed.DistributedSampler(valDataset, num_replicas=world_size, rank=rank, shuffle=True)
     # valDataLoader = DataLoader(valDataset, batch_size=batchSize, shuffle=True, num_workers=workers, persistent_workers=True, pin_memory=True, worker_init_fn=seed_worker, generator=g)
-    valDataLoader = DataLoader(valDataset, batch_size=batchSize, shuffle=False, num_workers=workers, pin_memory=True, sampler=valSampler)
+    valDataLoader = DataLoader(valDataset, batch_size=batchSize, shuffle=False, num_workers=workers, persistent_workers=True, pin_memory=True, sampler=valSampler)
 
     for epoch in range(startEpoch, epochs):
         trainSampler.set_epoch(epoch) 
@@ -219,37 +212,37 @@ def main(rank, world_size):
                             device=device,
                             world_size=world_size)
         
-        results.append({
-            'epoch': epoch,
-            'trainLoss': trainLoss,
-            'trainTop5Acc': trainTop5Acc,
-            'trainBatchTime': trainBatchTime,
-            'trainDataTime': trainDataTime,
-            'valLoss': valLoss,
-            'valTop5Acc': valTop5Acc,
-            'bleu1': bleu1,
-            'bleu2': bleu2,
-            'bleu3': bleu3,
-            'bleu4': recentBleu4
-        })
+        if dist.get_rank() == 0:
+            results.append({
+                'epoch': epoch,
+                'trainLoss': trainLoss,
+                'trainTop5Acc': trainTop5Acc,
+                'trainBatchTime': trainBatchTime,
+                'trainDataTime': trainDataTime,
+                'valLoss': valLoss,
+                'valTop5Acc': valTop5Acc,
+                'bleu1': bleu1,
+                'bleu2': bleu2,
+                'bleu3': bleu3,
+                'bleu4': recentBleu4
+            })
 
-        # Check if there was an improvement
-        isBest = recentBleu4 > bestBleu4
-        bestBleu4 = max(recentBleu4, bestBleu4)
-        if not isBest:
-            epochsSinceImprovement += 1
-            print("\nEpochs since last improvement: %d\n" % (epochsSinceImprovement,))
-        else:
-            epochsSinceImprovement = 0
+            isBest = recentBleu4 > bestBleu4
+            bestBleu4 = max(recentBleu4, bestBleu4)
+            if not isBest:
+                epochsSinceImprovement += 1
+                print("\nEpochs since last improvement: %d\n" % (epochsSinceImprovement,))
+            else:
+                epochsSinceImprovement = 0
 
-        if rank == 0:
             #  Save checkpoint
             save_checkpoint(dataName, epoch, epochsSinceImprovement, encoder, decoder, encoderOptimizer,
                             decoderOptimizer, recentBleu4, isBest, results)
-
-    resultsDF = pd.DataFrame(results)
-    os.makedirs('results', exist_ok=True)
-    resultsDF.to_csv('results/metrics-lstmDecoder(0workers-32gbRAM-noReproducibility-2GPUs).csv', index=False)
+            
+    if dist.get_rank() == 0:
+        resultsDF = pd.DataFrame(results)
+        os.makedirs('results', exist_ok=True)
+        resultsDF.to_csv('results/metrics-lstmDecoder(6workers-45gbRAM-noReproducibility-2GPUs).csv', index=False)
 
 
 
@@ -269,6 +262,9 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
 
         if (i % 100 == 0):
             print(f"Epoch {epoch}, Batch {i + 1}/{len(trainDataLoader)}")
+
+        if (i == 50):
+            break
 
         imgs = imgs.to(device)
         caps = caps.to(device)
@@ -312,13 +308,16 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
             encoderOptimizer.step()
         decoderOptimizer.step()
 
-        top5 = accuracy(scores, targets, 5)
-        top5 = torch.tensor(top5).to(device)
-        top5 = reduce_loss(top5, world_size)
+        correct5, total = accuracy(scores, targets, 5)
+        correct5 = torch.tensor(correct5, dtype=torch.float32, device=device)
+        total = torch.tensor(total, dtype=torch.float32, device=device)
+        dist.all_reduce(correct5, op=dist.ReduceOp.SUM)
+        dist.all_reduce(total, op=dist.ReduceOp.SUM)
+        top5 = (correct5 / total).item() * 100
 
         # Keep track of metrics
         losses.update(loss.item(), sum(decodeLengths))
-        top5accs.update(top5, sum(decodeLengths))
+        top5accs.update(top5, total.item())
         batchTime.update(time.time() - start)
 
         start = time.time()
@@ -356,6 +355,9 @@ def validate(valDataLoader, encoder, decoder, criterion, device, world_size):
             if (i % 100 == 0):
                 print(f"Validation Batch {i + 1}/{len(valDataLoader)}")
 
+            if (i == 50):
+                break
+
             imgs = imgs.to(device)
             caps = caps.to(device)
             caplens = caplens.to(device)
@@ -383,12 +385,15 @@ def validate(valDataLoader, encoder, decoder, criterion, device, world_size):
                 loss = criterion(scores, targets)
                 loss = reduce_loss(loss, world_size)
 
-            top5 = accuracy(scores, targets, 5)
-            top5 = torch.tensor(top5).to(device)
-            top5 = reduce_loss(top5, world_size)
+            correct5, total = accuracy(scores, targets, 5)
+            correct5 = torch.tensor(correct5, dtype=torch.float32, device=device)
+            total = torch.tensor(total, dtype=torch.float32, device=device)
+            dist.all_reduce(correct5, op=dist.ReduceOp.SUM)
+            dist.all_reduce(total, op=dist.ReduceOp.SUM)
+            top5 = (correct5 / total).item() * 100
 
             losses.update(loss.item(), sum(decodeLengths))
-            top5accs.update(top5, sum(decodeLengths))
+            top5accs.update(top5, total.item())
             batchTime.update(time.time() - start)
 
             start = time.time()
@@ -425,11 +430,6 @@ def validate(valDataLoader, encoder, decoder, criterion, device, world_size):
 
         all_references = gather_all_data(references, world_size, device)
         all_hypotheses = gather_all_data(hypotheses, world_size, device)
-        
-        # bleu1 = corpus_bleu(references, hypotheses, weights=(1.0, 0.0, 0.0, 0.0))
-        # bleu2 = corpus_bleu(references, hypotheses, weights=(0.5, 0.5, 0.0, 0.0))
-        # bleu3 = corpus_bleu(references, hypotheses, weights=(0.33, 0.33, 0.33, 0.0))
-        # bleu4 = corpus_bleu(references, hypotheses, weights=(0.25, 0.25, 0.25, 0.25))
 
         if dist.get_rank() == 0:
             bleu1 = corpus_bleu(all_references, all_hypotheses, weights=(1.0, 0.0, 0.0, 0.0))
@@ -439,18 +439,11 @@ def validate(valDataLoader, encoder, decoder, criterion, device, world_size):
             print(f"Validation Loss = {losses.avg:.4f}, Top-5 Accuracy = {top5accs.avg:.4f}, Bleu-1 = {bleu1:.4f}, Bleu-2 = {bleu2:.4f}, Bleu-3 = {bleu3:.4f}, Bleu-4 = {bleu4:.4f}")
         else:
             bleu1 = bleu2 = bleu3 = bleu4 = None
-
-        # print(f"Validation Loss = {losses.avg:.4f}, Top-5 Accuracy = {top5accs.avg:.4f}, Bleu-1 = {bleu1:.4f}, Bleu-2 = {bleu2:.4f}, Bleu-3 = {bleu3:.4f}, Bleu-4 = {bleu4:.4f}")
     
     return losses.avg, top5accs.avg, bleu1, bleu2, bleu3, bleu4
 
 
 
-def run_ddp():
-    world_size = torch.cuda.device_count()
-    mp.spawn(main, args=(world_size,), nprocs=world_size, join=True)
-
 if __name__ == '__main__':
-    # main()
-    run_ddp()
+    main()
            

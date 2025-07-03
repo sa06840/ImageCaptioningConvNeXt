@@ -62,8 +62,8 @@ maxLen = 52 # maximum length of captions (in words), used for padding
 startEpoch = 0
 epochs = 2  # number of epochs to train for (if early stopping is not triggered)
 epochsSinceImprovement = 0  # keeps track of number of epochs since there's been an improvement in validation BLEU
-batchSize = 32
-workers = 0
+batchSize = 128   #32
+workers = 6
 encoderLr = 1e-4  # learning rate for encoder if fine-tuning
 decoderLr = 1e-4  # learning rate for decoder
 gradClip = 5.  # clip gradients at an absolute value of
@@ -119,10 +119,11 @@ def main():
 
     trainDataset = CaptionDataset(dataFolder, dataName, 'TRAIN', transform=transforms.Compose([normalize]))
     # trainDataLoader = DataLoader(trainDataset, batch_size=batchSize, shuffle=True, num_workers=workers, persistent_workers=True, pin_memory=True, worker_init_fn=seed_worker, generator=g)
-    trainDataLoader = DataLoader(trainDataset, batch_size=batchSize, shuffle=True, num_workers=workers, pin_memory=True)
+    trainDataLoader = DataLoader(trainDataset, batch_size=batchSize, shuffle=True, num_workers=workers, persistent_workers=True, pin_memory=True)
+    # trainDataLoader = DataLoader(trainDataset, batch_size=batchSize, shuffle=True, num_workers=workers, pin_memory=True)
     valDataset = CaptionDataset(dataFolder, dataName, 'VAL', transform=transforms.Compose([normalize]))
-    # valDataLoader = DataLoader(valDataset, batch_size=batchSize, shuffle=True, num_workers=workers, persistent_workers=True, pin_memory=True, worker_init_fn=seed_worker, generator=g)
-    valDataLoader = DataLoader(valDataset, batch_size=batchSize, shuffle=True, num_workers=workers, pin_memory=True)
+    valDataLoader = DataLoader(valDataset, batch_size=batchSize, shuffle=True, num_workers=workers, persistent_workers=True, pin_memory=True)
+    # valDataLoader = DataLoader(valDataset, batch_size=batchSize, shuffle=True, num_workers=workers, pin_memory=True)
 
     for epoch in range(startEpoch, epochs):
 
@@ -176,7 +177,7 @@ def main():
 
     resultsDF = pd.DataFrame(results)
     os.makedirs('results', exist_ok=True)
-    resultsDF.to_csv('results/metrics-lstmDecoder(0workers-32gbRAM-noReproducibility).csv', index=False)
+    resultsDF.to_csv('results/metrics-lstmDecoder(6workers-45gbRAM-noReproducibility-128bs).csv', index=False)
 
 
 

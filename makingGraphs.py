@@ -32,6 +32,7 @@ def plotDecoderLosses(transformerCsvPath, lstmCsvPath):
     plt.legend()
     plt.tight_layout() # Adjust layout to prevent labels from overlapping
     plt.show()
+    plt.savefig('graphs/lossComparisonTransformerVsLstm.png')
 
 
 def plotBleu4Scores(transformerCsvPath, lstmCsvPath):
@@ -60,9 +61,10 @@ def plotBleu4Scores(transformerCsvPath, lstmCsvPath):
     plt.legend()
     plt.tight_layout() # Adjust layout to prevent labels from overlapping
     plt.show()
+    plt.savefig('graphs/bleuScoreComparison.png')
 
 
 lstmMetrics = 'results/flickr8k/29-6-2025(main)/metrics-lstmDecoder.csv'
 transformerMetrics = 'results/flickr8k/29-6-2025(main)/metrics-transformerDecoder.csv'
-# plotDecoderLosses(transformerMetrics, lstmMetrics)
-plotBleu4Scores(transformerMetrics, lstmMetrics)
+plotDecoderLosses(transformerMetrics, lstmMetrics)
+# plotBleu4Scores(transformerMetrics, lstmMetrics)
