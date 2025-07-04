@@ -35,7 +35,6 @@ from nltk.translate.bleu_score import corpus_bleu
 import pandas as pd
 from models.encoder import Encoder 
 from models.decoder import DecoderWithAttention
-# from modelsFile import Encoder, DecoderWithAttention
 from models.transformerDecoder import TransformerDecoder
 from dataLoader import CaptionDataset
 from utils.utils import *

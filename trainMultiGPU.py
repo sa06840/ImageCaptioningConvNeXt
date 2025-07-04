@@ -1,28 +1,24 @@
 import os
-import socket
-# os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
+os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
 import torch
 import random
 import numpy as np
 
-# def set_seed(seed=42):
-#     random.seed(seed)
-#     np.random.seed(seed)
-#     torch.manual_seed(seed)
-#     torch.cuda.manual_seed(seed)
-#     torch.cuda.manual_seed_all(seed)
-#     torch.use_deterministic_algorithms(True)
-#     os.environ["PYTHONHASHSEED"] = str(seed)
+def set_seed(seed):
+    rank = dist.get_rank() if dist.is_initialized() else 0
+    seed = seed + rank
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    os.environ["PYTHONHASHSEED"] = str(seed)
+    torch.use_deterministic_algorithms(True)
 
-# set_seed(42)
-
-# def seed_worker(worker_id):
-#     worker_seed = torch.initial_seed() % 2**32
-#     np.random.seed(worker_seed)
-#     random.seed(worker_seed)
-
-# g = torch.Generator()
-# g.manual_seed(42)
+def seed_worker(worker_id):
+    worker_seed = torch.initial_seed() % 2**32
+    np.random.seed(worker_seed)
+    random.seed(worker_seed)
 
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
@@ -39,7 +35,6 @@ from nltk.translate.bleu_score import corpus_bleu
 import pandas as pd
 from models.encoder import Encoder 
 from models.decoder import DecoderWithAttention
-# from modelsFile import Encoder, DecoderWithAttention
 from models.transformerDecoder import TransformerDecoder
 from dataLoader import CaptionDataset
 from utils.utils import *
@@ -57,8 +52,8 @@ embDim = 512  # dimension of word embeddings
 attentionDim = 512  # dimension of attention linear layers
 decoderDim = 512  # dimension of decoder RNN
 dropout = 0.5
-cudnn.benchmark = True  # set to true only if inputs to model are fixed size; otherwise lot of computational overhead
-# cudnn.deterministic = True # for reproducibility
+cudnn.benchmark = False  # set to true only if inputs to model are fixed size; otherwise lot of computational overhead
+cudnn.deterministic = True # for reproducibility
 maxLen = 52 # maximum length of captions (in words), used for padding
 
 # Training parameters
@@ -124,14 +119,18 @@ def setup_distributed():
         world_size=world_size,
         rank=rank
     )
+    set_seed(42)
     torch.cuda.set_device(local_rank)
     device = torch.device(f"cuda:{local_rank}")
     print(f"[Rank {rank}] is using GPU {local_rank}")
     return rank, local_rank, world_size, device
 
+
 def main():
 
     rank, local_rank, world_size, device = setup_distributed()
+    g = torch.Generator()
+    g.manual_seed(42 + rank)
     global bestBleu4, epochsSinceImprovement, checkpoint, startEpoch, fineTuneEncoder, dataName, wordMap
 
     # Load word map
@@ -175,14 +174,12 @@ def main():
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 
     trainDataset = CaptionDataset(dataFolder, dataName, 'TRAIN', transform=transforms.Compose([normalize]))
-    trainSampler = torch.utils.data.distributed.DistributedSampler(trainDataset, num_replicas=world_size, rank=rank, shuffle=True)
-    # trainDataLoader = DataLoader(trainDataset, batch_size=batchSize, shuffle=True, num_workers=workers, persistent_workers=True, pin_memory=True, worker_init_fn=seed_worker, generator=g)
-    trainDataLoader = DataLoader(trainDataset, batch_size=batchSize, shuffle=False, num_workers=workers, persistent_workers=True, pin_memory=True, sampler=trainSampler)
+    trainSampler = torch.utils.data.distributed.DistributedSampler(trainDataset, num_replicas=world_size, rank=rank, shuffle=True, seed=42)
+    trainDataLoader = DataLoader(trainDataset, batch_size=batchSize, shuffle=False, num_workers=workers, persistent_workers=True, pin_memory=True, sampler=trainSampler, worker_init_fn=seed_worker, generator=g)
 
     valDataset = CaptionDataset(dataFolder, dataName, 'VAL', transform=transforms.Compose([normalize]))
-    valSampler = torch.utils.data.distributed.DistributedSampler(valDataset, num_replicas=world_size, rank=rank, shuffle=True)
-    # valDataLoader = DataLoader(valDataset, batch_size=batchSize, shuffle=True, num_workers=workers, persistent_workers=True, pin_memory=True, worker_init_fn=seed_worker, generator=g)
-    valDataLoader = DataLoader(valDataset, batch_size=batchSize, shuffle=False, num_workers=workers, persistent_workers=True, pin_memory=True, sampler=valSampler)
+    valSampler = torch.utils.data.distributed.DistributedSampler(valDataset, num_replicas=world_size, rank=rank, shuffle=True, seed=42)
+    valDataLoader = DataLoader(valDataset, batch_size=batchSize, shuffle=False, num_workers=workers, persistent_workers=True, pin_memory=True, sampler=valSampler, worker_init_fn=seed_worker, generator=g)
 
     for epoch in range(startEpoch, epochs):
         trainSampler.set_epoch(epoch) 
@@ -238,11 +235,15 @@ def main():
             #  Save checkpoint
             save_checkpoint(dataName, epoch, epochsSinceImprovement, encoder, decoder, encoderOptimizer,
                             decoderOptimizer, recentBleu4, isBest, results)
+        
+        epochsSinceImprovementTensor = torch.tensor(epochsSinceImprovement, device=device)
+        dist.broadcast(epochsSinceImprovementTensor, src=0)
+        epochsSinceImprovement = epochsSinceImprovementTensor.item()
             
     if dist.get_rank() == 0:
         resultsDF = pd.DataFrame(results)
         os.makedirs('results', exist_ok=True)
-        resultsDF.to_csv('results/metrics-lstmDecoder(6workers-45gbRAM-noReproducibility-2GPUs).csv', index=False)
+        resultsDF.to_csv('results/metrics-lstmDecoder(6workers-45gbRAM-reproducibility-2GPUs).csv', index=False)
 
 
 
@@ -262,9 +263,6 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
 
         if (i % 100 == 0):
             print(f"Epoch {epoch}, Batch {i + 1}/{len(trainDataLoader)}")
-
-        if (i == 50):
-            break
 
         imgs = imgs.to(device)
         caps = caps.to(device)
@@ -354,9 +352,6 @@ def validate(valDataLoader, encoder, decoder, criterion, device, world_size):
 
             if (i % 100 == 0):
                 print(f"Validation Batch {i + 1}/{len(valDataLoader)}")
-
-            if (i == 50):
-                break
 
             imgs = imgs.to(device)
             caps = caps.to(device)
