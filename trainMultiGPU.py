@@ -13,7 +13,7 @@ def set_seed(seed):
     torch.cuda.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
     os.environ["PYTHONHASHSEED"] = str(seed)
-    torch.use_deterministic_algorithms(True)
+    # torch.use_deterministic_algorithms(True)
 
 def seed_worker(worker_id):
     worker_seed = torch.initial_seed() % 2**32
@@ -52,13 +52,13 @@ embDim = 512  # dimension of word embeddings
 attentionDim = 512  # dimension of attention linear layers
 decoderDim = 512  # dimension of decoder RNN
 dropout = 0.5
-cudnn.benchmark = False  # set to true only if inputs to model are fixed size; otherwise lot of computational overhead
-cudnn.deterministic = True # for reproducibility
+cudnn.benchmark = True  # set to true only if inputs to model are fixed size; otherwise lot of computational overhead
+# cudnn.deterministic = True # for reproducibility
 maxLen = 52 # maximum length of captions (in words), used for padding
 
 # Training parameters
 startEpoch = 0
-epochs = 2  # number of epochs to train for (if early stopping is not triggered)
+epochs = 120  # number of epochs to train for (if early stopping is not triggered)
 epochsSinceImprovement = 0  # keeps track of number of epochs since there's been an improvement in validation BLEU
 batchSize = 32
 workers = 6
@@ -70,16 +70,22 @@ bestBleu4 = 0.  # BLEU-4 score right now
 printFreq = 100  # print training/validation stats every __ batches
 fineTuneEncoder = False  # fine-tune encoder
 checkpoint = None  # path to checkpoint, None if none
-lstmDecoder = True  # use LSTM decoder instead of Transformer decoder
+lstmDecoder = True # use LSTM decoder instead of Transformer decoder
 
 
-def reduce_loss(loss, world_size):
-    if world_size < 2:
-        return loss
-    with torch.no_grad():
-        dist.all_reduce(loss, op=dist.ReduceOp.SUM)
-        loss /= world_size
-    return loss
+def reduceLossAndTokens(loss, decodeLengths, device):
+    localTokenCount = sum(decodeLengths)
+    localTokenLossSum = loss.item() * localTokenCount
+
+    totalTokenLossSum = torch.tensor(localTokenLossSum, device=device)
+    totalTokenCount = torch.tensor(localTokenCount, device=device)
+
+    dist.all_reduce(totalTokenLossSum, op=dist.ReduceOp.SUM)
+    dist.all_reduce(totalTokenCount, op=dist.ReduceOp.SUM)
+
+    globalLoss = (totalTokenLossSum / totalTokenCount).item()
+    totalTokens = totalTokenCount.item()
+    return globalLoss, totalTokens
 
 def gather_all_data(data, world_size, device):
     # Serialize local data (list of lists)
@@ -243,7 +249,7 @@ def main():
     if dist.get_rank() == 0:
         resultsDF = pd.DataFrame(results)
         os.makedirs('results', exist_ok=True)
-        resultsDF.to_csv('results/metrics-lstmDecoder(6workers-45gbRAM-reproducibility-2GPUs).csv', index=False)
+        resultsDF.to_csv('results/metrics-lstmDecoder(6workers-45gbRAM-reproducibility-multiGPUs).csv', index=False)
 
 
 
@@ -280,7 +286,6 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
             loss = criterion(scores, targets)
             # Add doubly stochastic attention regularization
             loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
-            loss = reduce_loss(loss, world_size)
         else: 
             tgt_key_padding_mask = (caps == wordMap['<pad>'])
             scores, capsSorted, decodeLengths = decoder(imgs, caps, caplens, tgt_key_padding_mask)
@@ -289,7 +294,6 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
             scores = pack_padded_sequence(scores, decodeLengths, batch_first=True, enforce_sorted=False).data  # scores are logits
             targets = pack_padded_sequence(targets, decodeLengths, batch_first=True, enforce_sorted=False).data
             loss = criterion(scores, targets)
-            loss = reduce_loss(loss, world_size)
 
         if encoderOptimizer is not None:
             encoderOptimizer.zero_grad()
@@ -306,6 +310,9 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
             encoderOptimizer.step()
         decoderOptimizer.step()
 
+
+        globalLoss, totalTokens = reduceLossAndTokens(loss, decodeLengths, device)
+
         correct5, total = accuracy(scores, targets, 5)
         correct5 = torch.tensor(correct5, dtype=torch.float32, device=device)
         total = torch.tensor(total, dtype=torch.float32, device=device)
@@ -314,7 +321,7 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
         top5 = (correct5 / total).item() * 100
 
         # Keep track of metrics
-        losses.update(loss.item(), sum(decodeLengths))
+        losses.update(globalLoss, totalTokens)
         top5accs.update(top5, total.item())
         batchTime.update(time.time() - start)
 
@@ -369,7 +376,6 @@ def validate(valDataLoader, encoder, decoder, criterion, device, world_size):
                 loss = criterion(scores, targets)
                 # Add doubly stochastic attention regularization
                 loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
-                loss = reduce_loss(loss, world_size)
             else:     
                 tgt_key_padding_mask = (caps == wordMap['<pad>'])
                 scores, capsSorted, decodeLengths = decoder(imgs, caps, caplens, tgt_key_padding_mask)
@@ -378,7 +384,9 @@ def validate(valDataLoader, encoder, decoder, criterion, device, world_size):
                 scores = pack_padded_sequence(scores, decodeLengths, batch_first=True, enforce_sorted=False).data
                 targets = pack_padded_sequence(targets, decodeLengths, batch_first=True, enforce_sorted=False).data
                 loss = criterion(scores, targets)
-                loss = reduce_loss(loss, world_size)
+
+
+            globalLoss, totalTokens = reduceLossAndTokens(loss, decodeLengths, device)
 
             correct5, total = accuracy(scores, targets, 5)
             correct5 = torch.tensor(correct5, dtype=torch.float32, device=device)
@@ -387,7 +395,10 @@ def validate(valDataLoader, encoder, decoder, criterion, device, world_size):
             dist.all_reduce(total, op=dist.ReduceOp.SUM)
             top5 = (correct5 / total).item() * 100
 
-            losses.update(loss.item(), sum(decodeLengths))
+            decodeLengthsSum = torch.tensor(sum(decodeLengths), dtype=torch.float32, device=device)
+            dist.all_reduce(decodeLengthsSum, op=dist.ReduceOp.SUM)
+
+            losses.update(globalLoss, totalTokens)
             top5accs.update(top5, total.item())
             batchTime.update(time.time() - start)
 
