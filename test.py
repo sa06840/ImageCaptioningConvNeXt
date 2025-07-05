@@ -1,18 +1,24 @@
 import torch
-# os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
+import os
+os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
 import random
 import numpy as np
 
-# def set_seed(seed=42):
-#     random.seed(seed)
-#     np.random.seed(seed)
-#     torch.manual_seed(seed)
-#     torch.cuda.manual_seed(seed)
-#     torch.cuda.manual_seed_all(seed)
-#     torch.use_deterministic_algorithms(True)
-#     os.environ["PYTHONHASHSEED"] = str(seed)
+def set_seed(seed):
+    rank = dist.get_rank() if dist.is_initialized() else 0
+    seed = seed + rank
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    os.environ["PYTHONHASHSEED"] = str(seed)
+    torch.use_deterministic_algorithms(True)
 
-# set_seed(42)
+def seed_worker(worker_id):
+    worker_seed = torch.initial_seed() % 2**32
+    np.random.seed(worker_seed)
+    random.seed(worker_seed)
 
 
 from torch.utils.data import DataLoader
@@ -32,20 +38,46 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.serialization import add_safe_globals
 
 
-device = torch.device("cpu")
+# device = torch.device("mps")
 
 # Data parameters
-dataFolder = 'cocoDataset/inputFiles'
-dataName = 'coco_5_cap_per_img_5_min_word_freq'
+dataFolder = 'flickr8kDataset/inputFiles'
+dataName = 'flickr8k_5_cap_per_img_5_min_word_freq'
+# dataFolder = 'cocoDataset/inputFiles'
+# dataName = 'coco_5_cap_per_img_5_min_word_freq'
 
 batchSize = 32
-workers = 0
+workers = 6
 alphaC = 1  # regularization parameter for 'doubly stochastic attention', as in the paper
 cudnn.benchmark = False # set to true only if inputs to model are fixed size; otherwise lot of computational overhead
 cudnn.deterministic = True # for reproducibility
+lstmDecoder = False  # if True, use LSTM decoder; if False, use Transformer decoder
+
+
+def setup_distributed():
+    rank = int(os.environ['SLURM_PROCID'])
+    world_size = int(os.environ['SLURM_NTASKS'])
+    local_rank = int(os.environ['SLURM_LOCALID'])
+    os.environ['MASTER_ADDR'] = os.environ.get('MASTER_ADDR', '127.0.0.1')
+    os.environ['MASTER_PORT'] = os.environ.get('MASTER_PORT', '29500')  # Use a fixed or random free port
+    dist.init_process_group(
+        backend='nccl',
+        init_method='env://',
+        world_size=world_size,
+        rank=rank
+    )
+    set_seed(42)
+    torch.cuda.set_device(local_rank)
+    device = torch.device(f"cuda:{local_rank}")
+    print(f"[Rank {rank}] is using GPU {local_rank}")
+    return rank, local_rank, world_size, device
 
 
 def main():
+
+    rank, local_rank, world_size, device = setup_distributed()
+    g = torch.Generator()
+    g.manual_seed(42)
 
     global wordMap
 
@@ -53,17 +85,16 @@ def main():
     with open(wordMapFile, 'r') as j:
         wordMap = json.load(j)
 
-    
-    os.environ['MASTER_ADDR'] = '127.0.0.1'
-    os.environ['MASTER_PORT'] = '29500'
-
-    dist.init_process_group(backend='gloo', rank=0, world_size=1)
-
-    modelPath = 'bestCheckpoints/BEST_checkpoint_LSTM_coco_5_cap_per_img_5_min_word_freq.pth.tar'
-    checkpoint = torch.load(modelPath, map_location=str(device), weights_only=False)
+    modelPath = 'BEST_checkpoint_Transformer_flickr8k_5_cap_per_img_5_min_word_freq.pth.tar'
+    # checkpoint = torch.load(modelPath, map_location=str(device), weights_only=False)
+    checkpoint = torch.load(modelPath, weights_only=False)
     decoder = checkpoint['decoder']
     encoder = checkpoint['encoder']
-    print(checkpoint['epoch'])
+
+    if hasattr(decoder, 'module'):
+        decoder = decoder.module
+    if hasattr(encoder, 'module'):
+        encoder = encoder.module
 
     decoder = decoder.to(device)
     encoder = encoder.to(device)
@@ -71,15 +102,15 @@ def main():
 
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     testDataset = CaptionDataset(dataFolder, dataName, 'TEST', transform=transforms.Compose([normalize]))
-    testDataLoader = DataLoader(testDataset, batch_size=batchSize, shuffle=False, num_workers=workers)
-    # testDataLoader = DataLoader(testDataset, batch_size=batchSize, shuffle=False, num_workers=workers, persistent_workers=True, pin_memory=True)
+    testDataLoader = DataLoader(testDataset, batch_size=batchSize, shuffle=False, num_workers=workers, persistent_workers=True, pin_memory=True, worker_init_fn=seed_worker, generator=g)
 
     results = []
 
     testLoss, testTop5Acc, bleu1, bleu2, bleu3, bleu4 = test(testDataLoader=testDataLoader,
                             encoder=encoder,
                             decoder=decoder,
-                            criterion=criterion)
+                            criterion=criterion,
+                            device=device)
     
     results.append({
         'testLoss': testLoss,
@@ -92,12 +123,12 @@ def main():
 
     resultsDF = pd.DataFrame(results)
     os.makedirs('results', exist_ok=True)
-    resultsDF.to_csv('results/mscoco/test(lstmDecoder-mscoco-timedOut).csv', index=False)
+    resultsDF.to_csv('results/test-transformerDecoder(6workers-45gbRAM-reproducibility-2GPUs).csv', index=False)
     
 
 
 
-def test(testDataLoader, encoder, decoder, criterion):
+def test(testDataLoader, encoder, decoder, criterion, device):
     """
     Test the model on the test dataset.
     :param testDataLoader: DataLoader for the test dataset
@@ -131,39 +162,45 @@ def test(testDataLoader, encoder, decoder, criterion):
 
             if encoder is not None:
                 imgs = encoder(imgs)
-            scores, capsSorted, decodeLengths, alphas, sortInd = decoder(imgs, caps, caplens)
-            # tgt_key_padding_mask = (caps == wordMap['<pad>'])
-            # scores, capsSorted, decodeLengths = decoder(imgs, caps, caplens, tgt_key_padding_mask)
 
-            targets = capsSorted[:, 1:]
+            if lstmDecoder is True:
+                scores, capsSorted, decodeLengths, alphas, sortInd = decoder(imgs, caps, caplens)
+                targets = capsSorted[:, 1:]
+                scoresCopy = scores.clone()
+                scores = pack_padded_sequence(scores, decodeLengths, batch_first=True).data
+                targets = pack_padded_sequence(targets, decodeLengths, batch_first=True).data
+                loss = criterion(scores, targets)
+                # Add doubly stochastic attention regularization
+                loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
+            else:
+                tgt_key_padding_mask = (caps == wordMap['<pad>'])
+                scores, capsSorted, decodeLengths = decoder(imgs, caps, caplens, tgt_key_padding_mask)
+                targets = capsSorted[:, 1:]
+                scoresCopy = scores.clone()
+                scores = pack_padded_sequence(scores, decodeLengths, batch_first=True, enforce_sorted=False).data  # scores are logits
+                targets = pack_padded_sequence(targets, decodeLengths, batch_first=True, enforce_sorted=False).data
+                loss = criterion(scores, targets)
 
-            scoresCopy = scores.clone()
-            scores = pack_padded_sequence(scores, decodeLengths, batch_first=True).data
-            targets = pack_padded_sequence(targets, decodeLengths, batch_first=True).data
-            # scores = pack_padded_sequence(scores, decodeLengths, batch_first=True, enforce_sorted=False).data  # scores are logits
-            # targets = pack_padded_sequence(targets, decodeLengths, batch_first=True, enforce_sorted=False).data
 
-            loss = criterion(scores, targets)
-            # Add doubly stochastic attention regularization
-            loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
-
-            top5 = accuracy(scores, targets, 5)
-
+            top5 = accuracySingleGPU(scores, targets, 5)
             losses.update(loss.item(), sum(decodeLengths))
             top5accs.update(top5, sum(decodeLengths))
             batchTime.update(time.time() - start)
 
             start = time.time()
 
-
             # Store references (true captions), and hypothesis (prediction) for each image
             # If for n images, we have n hypotheses, and references a, b, c... for each image, we need -
             # references = [[ref1a, ref1b, ref1c], [ref2a, ref2b], ...], hypotheses = [hyp1, hyp2, ...]
 
             # References
-            sortInd = sortInd.to(torch.device('mps'))
-            allcaps = allcaps.to(torch.device('mps'))
-            allcaps = allcaps[sortInd]  # because images were sorted in the decoder
+            if lstmDecoder is True:
+                sortInd = sortInd.to(device)
+                allcaps = allcaps.to(device)
+                allcaps = allcaps[sortInd]  # because images were sorted in the decoder
+            else:
+                allcaps = allcaps.to(device)
+
             for j in range(allcaps.shape[0]):
                 imgCaps = allcaps[j].tolist()
                 imgCaptions = list(

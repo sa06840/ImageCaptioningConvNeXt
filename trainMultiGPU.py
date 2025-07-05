@@ -58,7 +58,7 @@ maxLen = 52 # maximum length of captions (in words), used for padding
 
 # Training parameters
 startEpoch = 0
-epochs = 120  # number of epochs to train for (if early stopping is not triggered)
+epochs = 2  # number of epochs to train for (if early stopping is not triggered)
 epochsSinceImprovement = 0  # keeps track of number of epochs since there's been an improvement in validation BLEU
 batchSize = 32
 workers = 6
@@ -239,6 +239,8 @@ def main():
                 epochsSinceImprovement = 0
 
             #  Save checkpoint
+            encoder = encoder.module if fineTuneEncoder else encoder
+            decoder = decoder.module
             save_checkpoint(dataName, epoch, epochsSinceImprovement, encoder, decoder, encoderOptimizer,
                             decoderOptimizer, recentBleu4, isBest, results)
         

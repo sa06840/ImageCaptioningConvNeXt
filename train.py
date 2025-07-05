@@ -237,7 +237,7 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
             encoderOptimizer.step()
         decoderOptimizer.step()
 
-        top5 = accuracy(scores, targets, 5)
+        top5 = accuracySingleGPU(scores, targets, 5)
 
         # Keep track of metrics
         losses.update(loss.item(), sum(decodeLengths))
@@ -307,7 +307,7 @@ def validate(valDataLoader, encoder, decoder, criterion):
                 targets = pack_padded_sequence(targets, decodeLengths, batch_first=True, enforce_sorted=False).data
                 loss = criterion(scores, targets)
 
-            top5 = accuracy(scores, targets, 5)
+            top5 = accuracySingleGPU(scores, targets, 5)
 
             losses.update(loss.item(), sum(decodeLengths))
             top5accs.update(top5, sum(decodeLengths))
