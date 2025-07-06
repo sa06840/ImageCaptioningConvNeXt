@@ -38,44 +38,44 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.serialization import add_safe_globals
 
 
-# device = torch.device("mps")
+device = torch.device("mps")
 
 # Data parameters
-dataFolder = 'flickr8kDataset/inputFiles'
-dataName = 'flickr8k_5_cap_per_img_5_min_word_freq'
-# dataFolder = 'cocoDataset/inputFiles'
-# dataName = 'coco_5_cap_per_img_5_min_word_freq'
+# dataFolder = 'flickr8kDataset/inputFiles'
+# dataName = 'flickr8k_5_cap_per_img_5_min_word_freq'
+dataFolder = 'cocoDataset/inputFiles'
+dataName = 'coco_5_cap_per_img_5_min_word_freq'
 
 batchSize = 32
 workers = 6
 alphaC = 1  # regularization parameter for 'doubly stochastic attention', as in the paper
 cudnn.benchmark = False # set to true only if inputs to model are fixed size; otherwise lot of computational overhead
 cudnn.deterministic = True # for reproducibility
-lstmDecoder = False  # if True, use LSTM decoder; if False, use Transformer decoder
+lstmDecoder = True  # if True, use LSTM decoder; if False, use Transformer decoder
 
 
-def setup_distributed():
-    rank = int(os.environ['SLURM_PROCID'])
-    world_size = int(os.environ['SLURM_NTASKS'])
-    local_rank = int(os.environ['SLURM_LOCALID'])
-    os.environ['MASTER_ADDR'] = os.environ.get('MASTER_ADDR', '127.0.0.1')
-    os.environ['MASTER_PORT'] = os.environ.get('MASTER_PORT', '29500')  # Use a fixed or random free port
-    dist.init_process_group(
-        backend='nccl',
-        init_method='env://',
-        world_size=world_size,
-        rank=rank
-    )
-    set_seed(42)
-    torch.cuda.set_device(local_rank)
-    device = torch.device(f"cuda:{local_rank}")
-    print(f"[Rank {rank}] is using GPU {local_rank}")
-    return rank, local_rank, world_size, device
+# def setup_distributed():
+#     rank = int(os.environ['SLURM_PROCID'])
+#     world_size = int(os.environ['SLURM_NTASKS'])
+#     local_rank = int(os.environ['SLURM_LOCALID'])
+#     os.environ['MASTER_ADDR'] = os.environ.get('MASTER_ADDR', '127.0.0.1')
+#     os.environ['MASTER_PORT'] = os.environ.get('MASTER_PORT', '29500')  # Use a fixed or random free port
+#     dist.init_process_group(
+#         backend='nccl',
+#         init_method='env://',
+#         world_size=world_size,
+#         rank=rank
+#     )
+#     set_seed(42)
+#     torch.cuda.set_device(local_rank)
+#     device = torch.device(f"cuda:{local_rank}")
+#     print(f"[Rank {rank}] is using GPU {local_rank}")
+#     return rank, local_rank, world_size, device
 
 
 def main():
 
-    rank, local_rank, world_size, device = setup_distributed()
+    # rank, local_rank, world_size, device = setup_distributed()
     g = torch.Generator()
     g.manual_seed(42)
 
@@ -85,11 +85,12 @@ def main():
     with open(wordMapFile, 'r') as j:
         wordMap = json.load(j)
 
-    modelPath = 'BEST_checkpoint_Transformer_flickr8k_5_cap_per_img_5_min_word_freq.pth.tar'
-    # checkpoint = torch.load(modelPath, map_location=str(device), weights_only=False)
-    checkpoint = torch.load(modelPath, weights_only=False)
+    modelPath = 'bestCheckpoints/checkpoint_LSTM_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    checkpoint = torch.load(modelPath, map_location=device, weights_only=False)
     decoder = checkpoint['decoder']
     encoder = checkpoint['encoder']
+    epoch = checkpoint['epoch']
+    print(epoch)
 
     if hasattr(decoder, 'module'):
         decoder = decoder.module
@@ -109,8 +110,7 @@ def main():
     testLoss, testTop5Acc, bleu1, bleu2, bleu3, bleu4 = test(testDataLoader=testDataLoader,
                             encoder=encoder,
                             decoder=decoder,
-                            criterion=criterion,
-                            device=device)
+                            criterion=criterion)
     
     results.append({
         'testLoss': testLoss,
@@ -123,12 +123,12 @@ def main():
 
     resultsDF = pd.DataFrame(results)
     os.makedirs('results', exist_ok=True)
-    resultsDF.to_csv('results/test-transformerDecoder(6workers-45gbRAM-reproducibility-2GPUs).csv', index=False)
+    resultsDF.to_csv('results/test-lstmDecoder(6workers-45gbRAM-noReproducibility-2GPUs).csv', index=False)
     
 
 
 
-def test(testDataLoader, encoder, decoder, criterion, device):
+def test(testDataLoader, encoder, decoder, criterion):
     """
     Test the model on the test dataset.
     :param testDataLoader: DataLoader for the test dataset

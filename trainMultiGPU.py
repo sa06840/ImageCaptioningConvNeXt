@@ -13,7 +13,7 @@ def set_seed(seed):
     torch.cuda.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
     os.environ["PYTHONHASHSEED"] = str(seed)
-    # torch.use_deterministic_algorithms(True)
+    torch.use_deterministic_algorithms(True)
 
 def seed_worker(worker_id):
     worker_seed = torch.initial_seed() % 2**32
@@ -42,23 +42,23 @@ import pickle
 
 
 # Data parameters
-# dataFolder = 'flickr8kDataset/inputFiles'
-# dataName = 'flickr8k_5_cap_per_img_5_min_word_freq'
-dataFolder = 'cocoDataset/inputFiles'
-dataName = 'coco_5_cap_per_img_5_min_word_freq'
+dataFolder = 'flickr8kDataset/inputFiles'
+dataName = 'flickr8k_5_cap_per_img_5_min_word_freq'
+# dataFolder = 'cocoDataset/inputFiles'
+# dataName = 'coco_5_cap_per_img_5_min_word_freq'
 
 # Model parameters
 embDim = 512  # dimension of word embeddings
 attentionDim = 512  # dimension of attention linear layers
 decoderDim = 512  # dimension of decoder RNN
 dropout = 0.5
-cudnn.benchmark = True  # set to true only if inputs to model are fixed size; otherwise lot of computational overhead
-# cudnn.deterministic = True # for reproducibility
+cudnn.benchmark = False  # set to true only if inputs to model are fixed size; otherwise lot of computational overhead
+cudnn.deterministic = True # for reproducibility
 maxLen = 52 # maximum length of captions (in words), used for padding
 
 # Training parameters
 startEpoch = 0
-epochs = 2  # number of epochs to train for (if early stopping is not triggered)
+epochs = 120  # number of epochs to train for (if early stopping is not triggered)
 epochsSinceImprovement = 0  # keeps track of number of epochs since there's been an improvement in validation BLEU
 batchSize = 32
 workers = 6
@@ -97,20 +97,19 @@ def gather_all_data(data, world_size, device):
     dist.all_gather(sizes, local_size)
     max_size = max([s.item() for s in sizes])
     # Pad data tensors to max size
-    if local_size < max_size:
-        padding = torch.zeros(max_size - local_size, dtype=torch.uint8, device=device)
+    if local_size.item() < max_size:
+        padding = torch.zeros(max_size - local_size.item(), dtype=torch.uint8, device=device)
         data_tensor = torch.cat([data_tensor, padding], dim=0)
     # Gather all tensors
     gathered = [torch.zeros(max_size, dtype=torch.uint8, device=device) for _ in range(world_size)]
     dist.all_gather(gathered, data_tensor)
     # Deserialize and combine on rank 0
     all_data = []
-    if dist.get_rank() == 0:
-        for i, tensor in enumerate(gathered):
-            size = sizes[i].item()
-            bytes_i = tensor[:size].cpu().numpy().tobytes()
-            data_i = pickle.loads(bytes_i)
-            all_data.extend(data_i)
+    for i, tensor in enumerate(gathered):
+        size = sizes[i].item()
+        bytes_i = tensor[:size].cpu().numpy().tobytes()
+        data_i = pickle.loads(bytes_i)
+        all_data.extend(data_i)
     return all_data
 
 def setup_distributed():
@@ -238,10 +237,10 @@ def main():
             else:
                 epochsSinceImprovement = 0
 
-            #  Save checkpoint
-            encoder = encoder.module if fineTuneEncoder else encoder
-            decoder = decoder.module
-            save_checkpoint(dataName, epoch, epochsSinceImprovement, encoder, decoder, encoderOptimizer,
+            # Save checkpoint
+            encoderSaved = encoder.module if hasattr(encoder, 'module') else encoder
+            decoderSaved = decoder.module if hasattr(decoder, 'module') else decoder 
+            save_checkpoint(dataName, epoch, epochsSinceImprovement, encoderSaved, decoderSaved, encoderOptimizer,
                             decoderOptimizer, recentBleu4, isBest, results)
         
         epochsSinceImprovementTensor = torch.tensor(epochsSinceImprovement, device=device)
@@ -268,9 +267,10 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
 
     for i, (imgs, caps, caplens) in enumerate(trainDataLoader):
         dataTime.update(time.time() - start)
+        rank = dist.get_rank()
 
         if (i % 100 == 0):
-            print(f"Epoch {epoch}, Batch {i + 1}/{len(trainDataLoader)}")
+            print(f"Rank = {rank}, Epoch {epoch}, Batch {i + 1}/{len(trainDataLoader)}", flush=True)
 
         imgs = imgs.to(device)
         caps = caps.to(device)
@@ -336,7 +336,7 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
     batchTimeAvg = batchTimeTensor.item() / world_size
     dataTimeAvg = dataTimeTensor.item() / world_size
 
-    print(f"Epoch {epoch}: Training Loss = {losses.avg:.4f}, Top-5 Accuracy = {top5accs.avg:.4f}")
+    print(f"Rank = {rank}, Epoch {epoch}: Training Loss = {losses.avg:.4f}, Top-5 Accuracy = {top5accs.avg:.4f}", flush=True)
     # return losses.avg, top5accs.avg, batchTime.avg, dataTime.avg
     return losses.avg, top5accs.avg, batchTimeAvg, dataTimeAvg
 
@@ -358,9 +358,10 @@ def validate(valDataLoader, encoder, decoder, criterion, device, world_size):
 
     with torch.no_grad():
         for i, (imgs, caps, caplens, allcaps) in enumerate(valDataLoader):
+            rank = dist.get_rank()
 
             if (i % 100 == 0):
-                print(f"Validation Batch {i + 1}/{len(valDataLoader)}")
+                print(f"Rank = {rank}, Validation Batch {i + 1}/{len(valDataLoader)}", flush=True)
 
             imgs = imgs.to(device)
             caps = caps.to(device)
@@ -387,7 +388,7 @@ def validate(valDataLoader, encoder, decoder, criterion, device, world_size):
                 targets = pack_padded_sequence(targets, decodeLengths, batch_first=True, enforce_sorted=False).data
                 loss = criterion(scores, targets)
 
-
+            
             globalLoss, totalTokens = reduceLossAndTokens(loss, decodeLengths, device)
 
             correct5, total = accuracy(scores, targets, 5)
@@ -396,9 +397,6 @@ def validate(valDataLoader, encoder, decoder, criterion, device, world_size):
             dist.all_reduce(correct5, op=dist.ReduceOp.SUM)
             dist.all_reduce(total, op=dist.ReduceOp.SUM)
             top5 = (correct5 / total).item() * 100
-
-            decodeLengthsSum = torch.tensor(sum(decodeLengths), dtype=torch.float32, device=device)
-            dist.all_reduce(decodeLengthsSum, op=dist.ReduceOp.SUM)
 
             losses.update(globalLoss, totalTokens)
             top5accs.update(top5, total.item())
@@ -444,12 +442,11 @@ def validate(valDataLoader, encoder, decoder, criterion, device, world_size):
             bleu2 = corpus_bleu(all_references, all_hypotheses, weights=(0.5, 0.5, 0.0, 0.0))
             bleu3 = corpus_bleu(all_references, all_hypotheses, weights=(0.33, 0.33, 0.33, 0.0))
             bleu4 = corpus_bleu(all_references, all_hypotheses, weights=(0.25, 0.25, 0.25, 0.25))
-            print(f"Validation Loss = {losses.avg:.4f}, Top-5 Accuracy = {top5accs.avg:.4f}, Bleu-1 = {bleu1:.4f}, Bleu-2 = {bleu2:.4f}, Bleu-3 = {bleu3:.4f}, Bleu-4 = {bleu4:.4f}")
+            print(f"Rank = {rank}, Validation Loss = {losses.avg:.4f}, Top-5 Accuracy = {top5accs.avg:.4f}, Bleu-1 = {bleu1:.4f}, Bleu-2 = {bleu2:.4f}, Bleu-3 = {bleu3:.4f}, Bleu-4 = {bleu4:.4f}", flush=True)
         else:
             bleu1 = bleu2 = bleu3 = bleu4 = None
     
     return losses.avg, top5accs.avg, bleu1, bleu2, bleu3, bleu4
-
 
 
 if __name__ == '__main__':
