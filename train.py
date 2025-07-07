@@ -61,7 +61,7 @@ maxLen = 52 # maximum length of captions (in words), used for padding
 startEpoch = 0
 epochs = 2  # number of epochs to train for (if early stopping is not triggered)
 epochsSinceImprovement = 0  # keeps track of number of epochs since there's been an improvement in validation BLEU
-batchSize = 128   #32
+batchSize = 32  #32
 workers = 6
 encoderLr = 1e-4  # learning rate for encoder if fine-tuning
 decoderLr = 1e-4  # learning rate for decoder
@@ -203,7 +203,7 @@ def main():
 
 
 
-def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decoderOptimizer, epoch):
+def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decoderOptimizer, epoch, device):
 
     encoder.train()
     decoder.train()
@@ -272,7 +272,7 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
     return losses.avg, top5accs.avg, batchTime.avg, dataTime.avg
 
 
-def validate(valDataLoader, encoder, decoder, criterion):
+def validate(valDataLoader, encoder, decoder, criterion, device):
 
     decoder.eval()  
     if encoder is not None:
