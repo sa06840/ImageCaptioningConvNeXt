@@ -99,7 +99,7 @@ def main():
     with open(wordMapFile, 'r') as j:
         wordMap = json.load(j)
 
-    modelPath = 'bestCheckpoints/checkpointTest/BEST_checkpoint_LSTM_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    modelPath = 'bestCheckpoints/checkpoint_LSTM_coco_5_cap_per_img_5_min_word_freq.pth.tar'
     checkpoint = torch.load(modelPath, map_location=device, weights_only=False)
     
     if lstmDecoder is True:

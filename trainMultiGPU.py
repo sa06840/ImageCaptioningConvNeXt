@@ -39,6 +39,7 @@ from models.transformerDecoder import TransformerDecoder
 from dataLoader import CaptionDataset
 from utils.utils import *
 import pickle
+import argparse
 
 
 # Data parameters
@@ -70,7 +71,10 @@ bestBleu4 = 0.  # BLEU-4 score right now
 printFreq = 100  # print training/validation stats every __ batches
 fineTuneEncoder = False  # fine-tune encoder
 checkpoint = None # path to checkpoint, None if none
-lstmDecoder = True # use LSTM decoder instead of Transformer decoder
+parser = argparse.ArgumentParser()
+parser.add_argument('--lstmDecoder', action='store_true', help='Use LSTM decoder instead of Transformer')
+args = parser.parse_args()
+lstmDecoder = args.lstmDecoder
 
 
 def optimizer_to_device(optimizer, device):
@@ -258,7 +262,7 @@ def main():
             encoderSaved = encoder.module.state_dict() if hasattr(encoder, 'module') else encoder.state_dict()
             decoderSaved = decoder.module.state_dict() if hasattr(decoder, 'module') else decoder.state_dict()
             save_checkpoint(dataName, epoch, epochsSinceImprovement, encoderSaved, decoderSaved, encoderOptimizer,
-                            decoderOptimizer, recentBleu4, isBest, results)
+                            decoderOptimizer, recentBleu4, isBest, results, lstmDecoder)
         
         epochsSinceImprovementTensor = torch.tensor(epochsSinceImprovement, device=device)
         dist.broadcast(epochsSinceImprovementTensor, src=0)
@@ -267,7 +271,10 @@ def main():
     if dist.get_rank() == 0:
         resultsDF = pd.DataFrame(results)
         os.makedirs('results', exist_ok=True)
-        resultsDF.to_csv('results/metrics-lstmDecoder(6workers-45gbRAM-noReproducibility-multiGPUs).csv', index=False)
+        if lstmDecoder is True:
+            resultsDF.to_csv('results/metrics-lstmDecoder(6workers-45gbRAM-noReproducibility-singleGPU).csv', index=False)
+        else: 
+            resultsDF.to_csv('results/metrics-transformerDecoder(6workers-45gbRAM-noReproducibility-singleGPU).csv', index=False)
 
 
 
@@ -286,8 +293,8 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
         dataTime.update(time.time() - start)
         rank = dist.get_rank()
 
-        if (i % 100 == 0):
-            print(f"Rank = {rank}, Epoch {epoch}, Batch {i + 1}/{len(trainDataLoader)}", flush=True)
+        if (i % 100 == 0 and rank == 0):
+            print(f"Epoch {epoch}, Batch {i + 1}/{len(trainDataLoader)}", flush=True)
 
         imgs = imgs.to(device)
         caps = caps.to(device)
@@ -353,7 +360,7 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
     batchTimeAvg = batchTimeTensor.item() / world_size
     dataTimeAvg = dataTimeTensor.item() / world_size
 
-    print(f"Rank = {rank}, Epoch {epoch}: Training Loss = {losses.avg:.4f}, Top-5 Accuracy = {top5accs.avg:.4f}", flush=True)
+    print(f"Rank: {rank}, Epoch {epoch}: Training Loss = {losses.avg:.4f}, Top-5 Accuracy = {top5accs.avg:.4f}", flush=True)
     # return losses.avg, top5accs.avg, batchTime.avg, dataTime.avg
     return losses.avg, top5accs.avg, batchTimeAvg, dataTimeAvg
 
@@ -377,8 +384,8 @@ def validate(valDataLoader, encoder, decoder, criterion, device, world_size):
         for i, (imgs, caps, caplens, allcaps) in enumerate(valDataLoader):
             rank = dist.get_rank()
 
-            if (i % 100 == 0):
-                print(f"Rank = {rank}, Validation Batch {i + 1}/{len(valDataLoader)}", flush=True)
+            if (i % 100 == 0 and rank == 0):
+                print(f"Validation Batch {i + 1}/{len(valDataLoader)}", flush=True)
 
             imgs = imgs.to(device)
             caps = caps.to(device)

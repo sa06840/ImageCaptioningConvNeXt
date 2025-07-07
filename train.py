@@ -1,27 +1,26 @@
 import os
-# os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
+os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
 import torch
 import random
 import numpy as np
 
-# def set_seed(seed=42):
-#     random.seed(seed)
-#     np.random.seed(seed)
-#     torch.manual_seed(seed)
-#     torch.cuda.manual_seed(seed)
-#     torch.cuda.manual_seed_all(seed)
-#     torch.use_deterministic_algorithms(True)
-#     os.environ["PYTHONHASHSEED"] = str(seed)
+def set_seed(seed=42):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    os.environ["PYTHONHASHSEED"] = str(seed)
+    torch.use_deterministic_algorithms(True)
 
-# set_seed(42)
+def seed_worker(worker_id):
+    worker_seed = torch.initial_seed() % 2**32
+    np.random.seed(worker_seed)
+    random.seed(worker_seed)
 
-# def seed_worker(worker_id):
-#     worker_seed = torch.initial_seed() % 2**32
-#     np.random.seed(worker_seed)
-#     random.seed(worker_seed)
-
-# g = torch.Generator()
-# g.manual_seed(42)
+set_seed(42)
+g = torch.Generator()
+g.manual_seed(42)
 
 from torch.utils.data import DataLoader
 import torch.backends.cudnn as cudnn
@@ -38,6 +37,7 @@ from models.decoder import DecoderWithAttention
 from models.transformerDecoder import TransformerDecoder
 from dataLoader import CaptionDataset
 from utils.utils import *
+import argparse
 
 # Set device to GPU (if available) or CPU
 device = torch.device("cuda")
@@ -71,8 +71,16 @@ bestBleu4 = 0.  # BLEU-4 score right now
 printFreq = 100  # print training/validation stats every __ batches
 fineTuneEncoder = False  # fine-tune encoder
 checkpoint = None  # path to checkpoint, None if none
-lstmDecoder = True  # use LSTM decoder instead of Transformer decoder
+parser = argparse.ArgumentParser()
+parser.add_argument('--lstmDecoder', action='store_true', help='Use LSTM decoder instead of Transformer')
+args = parser.parse_args()
+lstmDecoder = args.lstmDecoder
 
+def optimizer_to_device(optimizer, device):
+    for state in optimizer.state.values():
+        for k, v in state.items():
+            if isinstance(v, torch.Tensor):
+                state[k] = v.to(device)
 
 
 def main():
@@ -86,9 +94,9 @@ def main():
 
     if checkpoint is None:
         if lstmDecoder is True:
-            decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout)
+            decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
         else:
-            decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout)
+            decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device)
         decoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, decoder.parameters()), lr=decoderLr)
         encoder = Encoder()
         encoder.fine_tune(fineTuneEncoder)
@@ -98,17 +106,28 @@ def main():
             encoderOptimizer = None
         results = []
     else:
-        checkpoint = torch.load(checkpoint)
+        if lstmDecoder is True:
+            decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
+        else:
+            decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device)
+        decoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, decoder.parameters()), lr=decoderLr)
+        encoder = Encoder()
+        encoder.fine_tune(fineTuneEncoder)
+        checkpoint = torch.load(checkpoint, map_location=device, weights_only=False)
+        encoder.load_state_dict(checkpoint['encoder'])
+        decoder.load_state_dict(checkpoint['decoder'])
+        decoderOptimizer.load_state_dict(checkpoint['decoderOptimizer'])
+        optimizer_to_device(decoderOptimizer, device)
+        if fineTuneEncoder is True:
+            encoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, encoder.parameters()), lr=encoderLr)
+            if checkpoint['encoderOptimizer'] is not None:
+                encoderOptimizer.load_state_dict(checkpoint['encoderOptimizer'])
+                optimizer_to_device(encoderOptimizer, device)
+        else:
+            encoderOptimizer = None
         startEpoch = checkpoint['epoch'] + 1
         epochsSinceImprovement = checkpoint['epochsSinceImprovement']
         bestBleu4 = checkpoint['bleu-4']
-        decoder = checkpoint['decoder']
-        decoderOptimizer = checkpoint['decoderOptimizer']
-        encoder = checkpoint['encoder']
-        encoderOptimizer = checkpoint['encoderOptimizer']
-        if fineTuneEncoder is True and encoderOptimizer is None:
-            encoder.fine_tune(fineTuneEncoder)
-            encoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, encoder.parameters()), lr=encoderLr)
         results = checkpoint['results']
         
     decoder = decoder.to(device)
@@ -117,12 +136,9 @@ def main():
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 
     trainDataset = CaptionDataset(dataFolder, dataName, 'TRAIN', transform=transforms.Compose([normalize]))
-    # trainDataLoader = DataLoader(trainDataset, batch_size=batchSize, shuffle=True, num_workers=workers, persistent_workers=True, pin_memory=True, worker_init_fn=seed_worker, generator=g)
-    trainDataLoader = DataLoader(trainDataset, batch_size=batchSize, shuffle=True, num_workers=workers, persistent_workers=True, pin_memory=True)
-    # trainDataLoader = DataLoader(trainDataset, batch_size=batchSize, shuffle=True, num_workers=workers, pin_memory=True)
+    trainDataLoader = DataLoader(trainDataset, batch_size=batchSize, shuffle=True, num_workers=workers, persistent_workers=True, pin_memory=True, worker_init_fn=seed_worker, generator=g)
     valDataset = CaptionDataset(dataFolder, dataName, 'VAL', transform=transforms.Compose([normalize]))
-    valDataLoader = DataLoader(valDataset, batch_size=batchSize, shuffle=True, num_workers=workers, persistent_workers=True, pin_memory=True)
-    # valDataLoader = DataLoader(valDataset, batch_size=batchSize, shuffle=True, num_workers=workers, pin_memory=True)
+    valDataLoader = DataLoader(valDataset, batch_size=batchSize, shuffle=True, num_workers=workers, persistent_workers=True, pin_memory=True, worker_init_fn=seed_worker, generator=g)
 
     for epoch in range(startEpoch, epochs):
 
@@ -140,12 +156,14 @@ def main():
             criterion=criterion,
             encoderOptimizer=encoderOptimizer,
             decoderOptimizer=decoderOptimizer,
-            epoch=epoch)
+            epoch=epoch,
+            device=device)
         
         valLoss, valTop5Acc, bleu1, bleu2, bleu3, recentBleu4 = validate(valDataLoader=valDataLoader,
                             encoder=encoder,
                             decoder=decoder,
-                            criterion=criterion)
+                            criterion=criterion,
+                            device=device)
         
         results.append({
             'epoch': epoch,
@@ -171,12 +189,17 @@ def main():
             epochsSinceImprovement = 0
 
         #  Save checkpoint
-        save_checkpoint(dataName, epoch, epochsSinceImprovement, encoder, decoder, encoderOptimizer,
-                        decoderOptimizer, recentBleu4, isBest, results)
+        encoderSaved =  encoder.state_dict()
+        decoderSaved = decoder.state_dict()
+        save_checkpoint(dataName, epoch, epochsSinceImprovement, encoderSaved, decoderSaved, encoderOptimizer,
+                        decoderOptimizer, recentBleu4, isBest, results, lstmDecoder)
 
     resultsDF = pd.DataFrame(results)
     os.makedirs('results', exist_ok=True)
-    resultsDF.to_csv('results/metrics-lstmDecoder(6workers-45gbRAM-noReproducibility-128bs).csv', index=False)
+    if lstmDecoder is True:
+        resultsDF.to_csv('results/metrics-lstmDecoder(6workers-45gbRAM-noReproducibility-singleGPU).csv', index=False)
+    else: 
+        resultsDF.to_csv('results/metrics-transformerDecoder(6workers-45gbRAM-noReproducibility-singleGPU).csv', index=False)
 
 
 
@@ -238,24 +261,12 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
         decoderOptimizer.step()
 
         top5 = accuracySingleGPU(scores, targets, 5)
-
         # Keep track of metrics
         losses.update(loss.item(), sum(decodeLengths))
         top5accs.update(top5, sum(decodeLengths))
         batchTime.update(time.time() - start)
 
         start = time.time()
-
-        # Print status
-        # if i % printFreq == 0:
-        #     print('Epoch: [{0}][{1}/{2}]\t'
-        #           'Batch Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-        #           'Data Load Time {data_time.val:.3f} ({data_time.avg:.3f})\t'
-        #           'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-        #           'Top-5 Accuracy {top5.val:.3f} ({top5.avg:.3f})'.format(epoch, i, len(trainDataLoader),
-        #                                                                   batch_time=batchTime,
-        #                                                                   data_time=dataTime, loss=losses,
-        #                                                                   top5=top5accs))
 
     print(f"Epoch {epoch}: Training Loss = {losses.avg:.4f}, Top-5 Accuracy = {top5accs.avg:.4f}")
     return losses.avg, top5accs.avg, batchTime.avg, dataTime.avg
@@ -315,24 +326,13 @@ def validate(valDataLoader, encoder, decoder, criterion):
 
             start = time.time()
 
-            # if i % printFreq == 0:
-            #     print('Validation: [{0}/{1}]\t'
-            #           'Batch Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-            #           'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-            #           'Top-5 Accuracy {top5.val:.3f} ({top5.avg:.3f})\t'.format(i, len(valDataLoader), batch_time=batchTime,
-            #                                                                     loss=losses, top5=top5accs))
-
-            # Store references (true captions), and hypothesis (prediction) for each image
-            # If for n images, we have n hypotheses, and references a, b, c... for each image, we need -
-            # references = [[ref1a, ref1b, ref1c], [ref2a, ref2b], ...], hypotheses = [hyp1, hyp2, ...]
-
             # References
             if lstmDecoder is True:
-                sortInd = sortInd.to(torch.device('cuda'))
-                allcaps = allcaps.to(torch.device('cuda'))
+                sortInd = sortInd.to(device)
+                allcaps = allcaps.to(device)
                 allcaps = allcaps[sortInd]  # because images were sorted in the decoder
             else:
-                allcaps = allcaps.to(torch.device('cuda'))
+                allcaps = allcaps.to(device)
 
             for j in range(allcaps.shape[0]):
                 imgCaps = allcaps[j].tolist()
