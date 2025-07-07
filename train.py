@@ -1,5 +1,5 @@
 import os
-os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
+# os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
 import torch
 import random
 import numpy as np
@@ -8,19 +8,19 @@ def set_seed(seed=42):
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
-    torch.cuda.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
-    os.environ["PYTHONHASHSEED"] = str(seed)
-    torch.use_deterministic_algorithms(True)
+    # torch.cuda.manual_seed(seed)
+    # torch.cuda.manual_seed_all(seed)
+    # os.environ["PYTHONHASHSEED"] = str(seed)
+    # torch.use_deterministic_algorithms(True)
 
-def seed_worker(worker_id):
-    worker_seed = torch.initial_seed() % 2**32
-    np.random.seed(worker_seed)
-    random.seed(worker_seed)
+# def seed_worker(worker_id):
+#     worker_seed = torch.initial_seed() % 2**32
+#     np.random.seed(worker_seed)
+#     random.seed(worker_seed)
 
-set_seed(42)
-g = torch.Generator()
-g.manual_seed(42)
+# set_seed(42)
+# g = torch.Generator()
+# g.manual_seed(42)
 
 from torch.utils.data import DataLoader
 import torch.backends.cudnn as cudnn
@@ -70,11 +70,13 @@ alphaC = 1.  # regularization parameter for 'doubly stochastic attention', as in
 bestBleu4 = 0.  # BLEU-4 score right now
 printFreq = 100  # print training/validation stats every __ batches
 fineTuneEncoder = False  # fine-tune encoder
-checkpoint = None  # path to checkpoint, None if none
 parser = argparse.ArgumentParser()
+parser.add_argument('--checkpoint', type=str, default=None, help='Path to checkpoint file')
 parser.add_argument('--lstmDecoder', action='store_true', help='Use LSTM decoder instead of Transformer')
 args = parser.parse_args()
+checkpoint = args.checkpoint
 lstmDecoder = args.lstmDecoder
+
 
 def optimizer_to_device(optimizer, device):
     for state in optimizer.state.values():
@@ -136,9 +138,11 @@ def main():
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 
     trainDataset = CaptionDataset(dataFolder, dataName, 'TRAIN', transform=transforms.Compose([normalize]))
-    trainDataLoader = DataLoader(trainDataset, batch_size=batchSize, shuffle=True, num_workers=workers, persistent_workers=True, pin_memory=True, worker_init_fn=seed_worker, generator=g)
+    # trainDataLoader = DataLoader(trainDataset, batch_size=batchSize, shuffle=True, num_workers=workers, persistent_workers=True, pin_memory=True, worker_init_fn=seed_worker, generator=g)
+    trainDataLoader = DataLoader(trainDataset, batch_size=batchSize, shuffle=True, num_workers=workers, persistent_workers=True, pin_memory=True)
     valDataset = CaptionDataset(dataFolder, dataName, 'VAL', transform=transforms.Compose([normalize]))
-    valDataLoader = DataLoader(valDataset, batch_size=batchSize, shuffle=True, num_workers=workers, persistent_workers=True, pin_memory=True, worker_init_fn=seed_worker, generator=g)
+    # valDataLoader = DataLoader(valDataset, batch_size=batchSize, shuffle=True, num_workers=workers, persistent_workers=True, pin_memory=True, worker_init_fn=seed_worker, generator=g)
+    valDataLoader = DataLoader(valDataset, batch_size=batchSize, shuffle=True, num_workers=workers, persistent_workers=True, pin_memory=True)
 
     for epoch in range(startEpoch, epochs):
 
@@ -218,7 +222,7 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
         dataTime.update(time.time() - start)
 
         if (i % 100 == 0):
-            print(f"Epoch {epoch}, Batch {i + 1}/{len(trainDataLoader)}")
+            print(f"Epoch {epoch}, Batch {i + 1}/{len(trainDataLoader)}", flush=True)
 
         imgs = imgs.to(device)
         caps = caps.to(device)
@@ -268,7 +272,7 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
 
         start = time.time()
 
-    print(f"Epoch {epoch}: Training Loss = {losses.avg:.4f}, Top-5 Accuracy = {top5accs.avg:.4f}")
+    print(f"Epoch {epoch}: Training Loss = {losses.avg:.4f}, Top-5 Accuracy = {top5accs.avg:.4f}", flush=True)
     return losses.avg, top5accs.avg, batchTime.avg, dataTime.avg
 
 
@@ -291,7 +295,7 @@ def validate(valDataLoader, encoder, decoder, criterion, device):
         for i, (imgs, caps, caplens, allcaps) in enumerate(valDataLoader):
 
             if (i % 100 == 0):
-                print(f"Validation Batch {i + 1}/{len(valDataLoader)}")
+                print(f"Validation Batch {i + 1}/{len(valDataLoader)}", flush=True)
 
             imgs = imgs.to(device)
             caps = caps.to(device)
@@ -358,7 +362,7 @@ def validate(valDataLoader, encoder, decoder, criterion, device):
         bleu3 = corpus_bleu(references, hypotheses, weights=(0.33, 0.33, 0.33, 0.0))
         bleu4 = corpus_bleu(references, hypotheses, weights=(0.25, 0.25, 0.25, 0.25))
 
-        print(f"Validation Loss = {losses.avg:.4f}, Top-5 Accuracy = {top5accs.avg:.4f}, Bleu-1 = {bleu1:.4f}, Bleu-2 = {bleu2:.4f}, Bleu-3 = {bleu3:.4f}, Bleu-4 = {bleu4:.4f}")
+        print(f"Validation Loss = {losses.avg:.4f}, Top-5 Accuracy = {top5accs.avg:.4f}, Bleu-1 = {bleu1:.4f}, Bleu-2 = {bleu2:.4f}, Bleu-3 = {bleu3:.4f}, Bleu-4 = {bleu4:.4f}", flush=True)
     
     return losses.avg, top5accs.avg, bleu1, bleu2, bleu3, bleu4
 

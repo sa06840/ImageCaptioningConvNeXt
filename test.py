@@ -8,8 +8,6 @@ from models.decoder import DecoderWithAttention
 from models.transformerDecoder import TransformerDecoder
 
 def set_seed(seed):
-    rank = dist.get_rank() if dist.is_initialized() else 0
-    seed = seed + rank
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
@@ -48,8 +46,6 @@ embDim = 512  # dimension of word embeddings
 attentionDim = 512  # dimension of attention linear layers
 decoderDim = 512  # dimension of decoder RNN
 dropout = 0.5
-cudnn.benchmark = True  # set to true only if inputs to model are fixed size; otherwise lot of computational overhead
-# cudnn.deterministic = True # for reproducibility
 maxLen = 52 # maximum length of captions (in words), used for padding
 encoderLr = 1e-4  # learning rate for encoder if fine-tuning
 decoderLr = 1e-4  # learning rate for decoder
@@ -136,7 +132,7 @@ def main():
 
     resultsDF = pd.DataFrame(results)
     os.makedirs('results', exist_ok=True)
-    resultsDF.to_csv('results/checkpointTest/test-lstmDecoder(6workers-45gbRAM-noReproducibility-2GPUs).csv', index=False)
+    resultsDF.to_csv('results/test-lstmDecoder(6workers-45gbRAM-noReproducibility-2GPUs).csv', index=False)
     
 
 
