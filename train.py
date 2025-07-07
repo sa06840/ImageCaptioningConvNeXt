@@ -201,9 +201,9 @@ def main():
     resultsDF = pd.DataFrame(results)
     os.makedirs('results', exist_ok=True)
     if lstmDecoder is True:
-        resultsDF.to_csv('results/metrics-lstmDecoder(6workers-45gbRAM-noReproducibility-singleGPU).csv', index=False)
+        resultsDF.to_csv('results/metrics-lstmDecoder(6workers-60gbRAM-noReproducibility-singleGPU).csv', index=False)
     else: 
-        resultsDF.to_csv('results/metrics-transformerDecoder(6workers-45gbRAM-noReproducibility-singleGPU).csv', index=False)
+        resultsDF.to_csv('results/metrics-transformerDecoder(6workers-60gbRAM-noReproducibility-singleGPU).csv', index=False)
 
 
 
