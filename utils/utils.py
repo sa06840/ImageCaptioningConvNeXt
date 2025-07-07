@@ -203,8 +203,8 @@ def save_checkpoint(dataName, epoch, epochsSinceImprovement, encoderSaved, decod
              'bleu-4': bleu4,
              'encoder': encoderSaved,
              'decoder': decoderSaved,
-             'encoderOptimizer': encoderOptimizer,
-             'decoderOptimizer': decoderOptimizer,
+             'encoderOptimizer': encoderOptimizer.state_dict() if encoderOptimizer else None,
+             'decoderOptimizer': decoderOptimizer.state_dict(),
              'results': results}
     filename = 'checkpoint_LSTM_' + dataName + '.pth.tar'
     torch.save(state, filename)

@@ -13,7 +13,7 @@ def set_seed(seed):
     torch.cuda.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
     os.environ["PYTHONHASHSEED"] = str(seed)
-    torch.use_deterministic_algorithms(True)
+    # torch.use_deterministic_algorithms(True)
 
 def seed_worker(worker_id):
     worker_seed = torch.initial_seed() % 2**32
@@ -42,18 +42,18 @@ import pickle
 
 
 # Data parameters
-dataFolder = 'flickr8kDataset/inputFiles'
-dataName = 'flickr8k_5_cap_per_img_5_min_word_freq'
-# dataFolder = 'cocoDataset/inputFiles'
-# dataName = 'coco_5_cap_per_img_5_min_word_freq'
+# dataFolder = 'flickr8kDataset/inputFiles'
+# dataName = 'flickr8k_5_cap_per_img_5_min_word_freq'
+dataFolder = 'cocoDataset/inputFiles'
+dataName = 'coco_5_cap_per_img_5_min_word_freq'
 
 # Model parameters
 embDim = 512  # dimension of word embeddings
 attentionDim = 512  # dimension of attention linear layers
 decoderDim = 512  # dimension of decoder RNN
 dropout = 0.5
-cudnn.benchmark = False  # set to true only if inputs to model are fixed size; otherwise lot of computational overhead
-cudnn.deterministic = True # for reproducibility
+cudnn.benchmark = True  # set to true only if inputs to model are fixed size; otherwise lot of computational overhead
+# cudnn.deterministic = True # for reproducibility
 maxLen = 52 # maximum length of captions (in words), used for padding
 
 # Training parameters
@@ -69,9 +69,15 @@ alphaC = 1.  # regularization parameter for 'doubly stochastic attention', as in
 bestBleu4 = 0.  # BLEU-4 score right now
 printFreq = 100  # print training/validation stats every __ batches
 fineTuneEncoder = False  # fine-tune encoder
-checkpoint = None  # path to checkpoint, None if none
+checkpoint = None # path to checkpoint, None if none
 lstmDecoder = True # use LSTM decoder instead of Transformer decoder
 
+
+def optimizer_to_device(optimizer, device):
+    for state in optimizer.state.values():
+        for k, v in state.items():
+            if isinstance(v, torch.Tensor):
+                state[k] = v.to(device)
 
 def reduceLossAndTokens(loss, decodeLengths, device):
     localTokenCount = sum(decodeLengths)
@@ -127,7 +133,7 @@ def setup_distributed():
     set_seed(42)
     torch.cuda.set_device(local_rank)
     device = torch.device(f"cuda:{local_rank}")
-    print(f"[Rank {rank}] is using GPU {local_rank}")
+    print(f"[Rank {rank}] is using GPU {local_rank}", flush=True)
     return rank, local_rank, world_size, device
 
 
@@ -157,17 +163,28 @@ def main():
             encoderOptimizer = None
         results = []
     else:
-        checkpoint = torch.load(checkpoint)
+        if lstmDecoder is True:
+            decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
+        else:
+            decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device)
+        decoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, decoder.parameters()), lr=decoderLr)
+        encoder = Encoder()
+        encoder.fine_tune(fineTuneEncoder)
+        checkpoint = torch.load(checkpoint, map_location=device, weights_only=False)
+        encoder.load_state_dict(checkpoint['encoder'])
+        decoder.load_state_dict(checkpoint['decoder'])
+        decoderOptimizer.load_state_dict(checkpoint['decoderOptimizer'])
+        optimizer_to_device(decoderOptimizer, device)
+        if fineTuneEncoder is True:
+            encoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, encoder.parameters()), lr=encoderLr)
+            if checkpoint['encoderOptimizer'] is not None:
+                encoderOptimizer.load_state_dict(checkpoint['encoderOptimizer'])
+                optimizer_to_device(encoderOptimizer, device)
+        else:
+            encoderOptimizer = None
         startEpoch = checkpoint['epoch'] + 1
         epochsSinceImprovement = checkpoint['epochsSinceImprovement']
         bestBleu4 = checkpoint['bleu-4']
-        decoder = checkpoint['decoder']
-        decoderOptimizer = checkpoint['decoderOptimizer']
-        encoder = checkpoint['encoder']
-        encoderOptimizer = checkpoint['encoderOptimizer']
-        if fineTuneEncoder is True and encoderOptimizer is None:
-            encoder.fine_tune(fineTuneEncoder)
-            encoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, encoder.parameters()), lr=encoderLr)
         results = checkpoint['results']
         
     decoder = decoder.to(device)
@@ -238,8 +255,8 @@ def main():
                 epochsSinceImprovement = 0
 
             # Save checkpoint
-            encoderSaved = encoder.module if hasattr(encoder, 'module') else encoder
-            decoderSaved = decoder.module if hasattr(decoder, 'module') else decoder 
+            encoderSaved = encoder.module.state_dict() if hasattr(encoder, 'module') else encoder.state_dict()
+            decoderSaved = decoder.module.state_dict() if hasattr(decoder, 'module') else decoder.state_dict()
             save_checkpoint(dataName, epoch, epochsSinceImprovement, encoderSaved, decoderSaved, encoderOptimizer,
                             decoderOptimizer, recentBleu4, isBest, results)
         
@@ -250,7 +267,7 @@ def main():
     if dist.get_rank() == 0:
         resultsDF = pd.DataFrame(results)
         os.makedirs('results', exist_ok=True)
-        resultsDF.to_csv('results/metrics-lstmDecoder(6workers-45gbRAM-reproducibility-multiGPUs).csv', index=False)
+        resultsDF.to_csv('results/metrics-lstmDecoder(6workers-45gbRAM-noReproducibility-multiGPUs).csv', index=False)
 
 
 

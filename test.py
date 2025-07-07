@@ -3,6 +3,9 @@ import os
 os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
 import random
 import numpy as np
+from models.encoder import Encoder 
+from models.decoder import DecoderWithAttention
+from models.transformerDecoder import TransformerDecoder
 
 def set_seed(seed):
     rank = dist.get_rank() if dist.is_initialized() else 0
@@ -39,6 +42,17 @@ from torch.serialization import add_safe_globals
 
 
 device = torch.device("mps")
+
+# Model parameters
+embDim = 512  # dimension of word embeddings
+attentionDim = 512  # dimension of attention linear layers
+decoderDim = 512  # dimension of decoder RNN
+dropout = 0.5
+cudnn.benchmark = True  # set to true only if inputs to model are fixed size; otherwise lot of computational overhead
+# cudnn.deterministic = True # for reproducibility
+maxLen = 52 # maximum length of captions (in words), used for padding
+encoderLr = 1e-4  # learning rate for encoder if fine-tuning
+decoderLr = 1e-4  # learning rate for decoder
 
 # Data parameters
 # dataFolder = 'flickr8kDataset/inputFiles'
@@ -85,17 +99,16 @@ def main():
     with open(wordMapFile, 'r') as j:
         wordMap = json.load(j)
 
-    modelPath = 'bestCheckpoints/checkpoint_LSTM_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    modelPath = 'bestCheckpoints/checkpointTest/BEST_checkpoint_LSTM_coco_5_cap_per_img_5_min_word_freq.pth.tar'
     checkpoint = torch.load(modelPath, map_location=device, weights_only=False)
-    decoder = checkpoint['decoder']
-    encoder = checkpoint['encoder']
-    epoch = checkpoint['epoch']
-    print(epoch)
-
-    if hasattr(decoder, 'module'):
-        decoder = decoder.module
-    if hasattr(encoder, 'module'):
-        encoder = encoder.module
+    
+    if lstmDecoder is True:
+        decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
+    else:
+        decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device)
+    encoder = Encoder()
+    encoder.load_state_dict(checkpoint['encoder'])
+    decoder.load_state_dict(checkpoint['decoder'])
 
     decoder = decoder.to(device)
     encoder = encoder.to(device)
@@ -123,7 +136,7 @@ def main():
 
     resultsDF = pd.DataFrame(results)
     os.makedirs('results', exist_ok=True)
-    resultsDF.to_csv('results/test-lstmDecoder(6workers-45gbRAM-noReproducibility-2GPUs).csv', index=False)
+    resultsDF.to_csv('results/checkpointTest/test-lstmDecoder(6workers-45gbRAM-noReproducibility-2GPUs).csv', index=False)
     
 
 
