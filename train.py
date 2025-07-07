@@ -18,7 +18,7 @@ def set_seed(seed=42):
 #     np.random.seed(worker_seed)
 #     random.seed(worker_seed)
 
-# set_seed(42)
+set_seed(42)
 # g = torch.Generator()
 # g.manual_seed(42)
 
@@ -59,7 +59,7 @@ maxLen = 52 # maximum length of captions (in words), used for padding
 
 # Training parameters
 startEpoch = 0
-epochs = 2  # number of epochs to train for (if early stopping is not triggered)
+epochs = 120  # number of epochs to train for (if early stopping is not triggered)
 epochsSinceImprovement = 0  # keeps track of number of epochs since there's been an improvement in validation BLEU
 batchSize = 32  #32
 workers = 6
@@ -114,9 +114,9 @@ def main():
             decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device)
         decoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, decoder.parameters()), lr=decoderLr)
         encoder = Encoder()
-        encoder.fine_tune(fineTuneEncoder)
         checkpoint = torch.load(checkpoint, map_location=device, weights_only=False)
         encoder.load_state_dict(checkpoint['encoder'])
+        encoder.fine_tune(fineTuneEncoder)
         decoder.load_state_dict(checkpoint['decoder'])
         decoderOptimizer.load_state_dict(checkpoint['decoderOptimizer'])
         optimizer_to_device(decoderOptimizer, device)

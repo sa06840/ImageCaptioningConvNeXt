@@ -1,5 +1,5 @@
 import os
-os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
+# os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
 import torch
 import random
 import numpy as np
@@ -174,9 +174,9 @@ def main():
             decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device)
         decoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, decoder.parameters()), lr=decoderLr)
         encoder = Encoder()
-        encoder.fine_tune(fineTuneEncoder)
         checkpoint = torch.load(checkpoint, map_location=device, weights_only=False)
         encoder.load_state_dict(checkpoint['encoder'])
+        encoder.fine_tune(fineTuneEncoder)
         decoder.load_state_dict(checkpoint['decoder'])
         decoderOptimizer.load_state_dict(checkpoint['decoderOptimizer'])
         optimizer_to_device(decoderOptimizer, device)
@@ -275,9 +275,9 @@ def main():
         resultsDF = pd.DataFrame(results)
         os.makedirs('results', exist_ok=True)
         if lstmDecoder is True:
-            resultsDF.to_csv('results/metrics-lstmDecoder(6workers-45gbRAM-noReproducibility-singleGPU).csv', index=False)
+            resultsDF.to_csv('results/metrics-lstmDecoder(6workers-45gbRAM-noReproducibility-multiGPU).csv', index=False)
         else: 
-            resultsDF.to_csv('results/metrics-transformerDecoder(6workers-45gbRAM-noReproducibility-singleGPU).csv', index=False)
+            resultsDF.to_csv('results/metrics-transformerDecoder(6workers-45gbRAM-noReproducibility-multiGPU).csv', index=False)
 
 
 
