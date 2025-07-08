@@ -73,9 +73,11 @@ fineTuneEncoder = False  # fine-tune encoder
 parser = argparse.ArgumentParser()
 parser.add_argument('--checkpoint', type=str, default=None, help='Path to checkpoint file')
 parser.add_argument('--lstmDecoder', action='store_true', help='Use LSTM decoder instead of Transformer')
+parser.add_argument('--port', type=str, default='29500', help='Master port for distributed training')
 args = parser.parse_args()
 checkpoint = args.checkpoint
 lstmDecoder = args.lstmDecoder
+port = args.port
 
 
 def optimizer_to_device(optimizer, device):
@@ -116,11 +118,12 @@ def gather_all_data(data, world_size, device):
     dist.all_gather(gathered, data_tensor)
     # Deserialize and combine on rank 0
     all_data = []
-    for i, tensor in enumerate(gathered):
-        size = sizes[i].item()
-        bytes_i = tensor[:size].cpu().numpy().tobytes()
-        data_i = pickle.loads(bytes_i)
-        all_data.extend(data_i)
+    if dist.get_rank() == 0:
+        for i, tensor in enumerate(gathered):
+            size = sizes[i].item()
+            bytes_i = tensor[:size].cpu().numpy().tobytes()
+            data_i = pickle.loads(bytes_i)
+            all_data.extend(data_i)
     return all_data
 
 def setup_distributed():
@@ -128,7 +131,8 @@ def setup_distributed():
     world_size = int(os.environ['SLURM_NTASKS'])
     local_rank = int(os.environ['SLURM_LOCALID'])
     os.environ['MASTER_ADDR'] = os.environ.get('MASTER_ADDR', '127.0.0.1')
-    os.environ['MASTER_PORT'] = os.environ.get('MASTER_PORT', '29500')  # Use a fixed or random free port
+    # os.environ['MASTER_PORT'] = os.environ.get('MASTER_PORT', '29500')  # Use a fixed or random free port
+    os.environ['MASTER_PORT'] = port
     dist.init_process_group(
         backend='nccl',
         init_method='env://',
@@ -296,8 +300,8 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
         dataTime.update(time.time() - start)
         rank = dist.get_rank()
 
-        if (i % 100 == 0 and rank == 0):
-            print(f"Epoch {epoch}, Batch {i + 1}/{len(trainDataLoader)}", flush=True)
+        if (i % 100 == 0):
+            print(f"Rank: {rank}, Epoch {epoch}, Batch {i + 1}/{len(trainDataLoader)}", flush=True)
 
         imgs = imgs.to(device)
         caps = caps.to(device)
@@ -387,8 +391,8 @@ def validate(valDataLoader, encoder, decoder, criterion, device, world_size):
         for i, (imgs, caps, caplens, allcaps) in enumerate(valDataLoader):
             rank = dist.get_rank()
 
-            if (i % 100 == 0 and rank == 0):
-                print(f"Validation Batch {i + 1}/{len(valDataLoader)}", flush=True)
+            if (i % 100 == 0):
+                print(f"Rank: {rank}, Validation Batch {i + 1}/{len(valDataLoader)}", flush=True)
 
             imgs = imgs.to(device)
             caps = caps.to(device)
@@ -472,6 +476,8 @@ def validate(valDataLoader, encoder, decoder, criterion, device, world_size):
             print(f"Rank = {rank}, Validation Loss = {losses.avg:.4f}, Top-5 Accuracy = {top5accs.avg:.4f}, Bleu-1 = {bleu1:.4f}, Bleu-2 = {bleu2:.4f}, Bleu-3 = {bleu3:.4f}, Bleu-4 = {bleu4:.4f}", flush=True)
         else:
             bleu1 = bleu2 = bleu3 = bleu4 = None
+        
+        dist.barrier()
     
     return losses.avg, top5accs.avg, bleu1, bleu2, bleu3, bleu4
 
