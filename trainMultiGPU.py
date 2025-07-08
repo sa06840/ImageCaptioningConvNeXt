@@ -300,7 +300,7 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
         dataTime.update(time.time() - start)
         rank = dist.get_rank()
 
-        if (i % 100 == 0):
+        if (i % 1000 == 0):
             print(f"Rank: {rank}, Epoch {epoch}, Batch {i + 1}/{len(trainDataLoader)}", flush=True)
 
         imgs = imgs.to(device)
