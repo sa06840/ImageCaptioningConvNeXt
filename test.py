@@ -40,7 +40,7 @@ from torch.serialization import add_safe_globals
 import argparse
 
 
-device = torch.device("cuda")
+device = torch.device("mps")
 
 # Model parameters
 embDim = 512  # dimension of word embeddings
@@ -64,8 +64,10 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--checkpoint', type=str, default=None, help='Path to checkpoint file')
 parser.add_argument('--lstmDecoder', action='store_true', help='Use LSTM decoder instead of Transformer')
 args = parser.parse_args()
-modelPath = args.checkpoint
-lstmDecoder = args.lstmDecoder
+# modelPath = args.checkpoint
+# lstmDecoder = args.lstmDecoder
+modelPath = 'bestCheckpoints/mscoco/10-07-2025(lstmDecoder-teacherForcing-noFinetuning)/BEST_checkpoint_LSTM_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+lstmDecoder = True
 
 
 # def setup_distributed():
@@ -170,6 +172,9 @@ def test(testDataLoader, encoder, decoder, criterion):
     with torch.no_grad():
         for i, (imgs, caps, caplens, allcaps) in enumerate(testDataLoader):
 
+            if (i == 10):
+                break
+
             print(f"Test Batch {i + 1}/{len(testDataLoader)}")
 
             imgs = imgs.to(device)
@@ -180,12 +185,8 @@ def test(testDataLoader, encoder, decoder, criterion):
                 imgs = encoder(imgs)
 
             if lstmDecoder is True:
-                scores, capsSorted, decodeLengths, alphas, sortInd = decoder(imgs, caps, caplens)
-                targets = capsSorted[:, 1:]
-                scoresCopy = scores.clone()
-                scores = pack_padded_sequence(scores, decodeLengths, batch_first=True).data
-                targets = pack_padded_sequence(targets, decodeLengths, batch_first=True).data
-                loss = criterion(scores, targets)
+                scores, alphas, sequences, actualDecodeLengths = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=100)
+                loss, totalTokenEvaluated = sequenceLoss(scores, caps, actualDecodeLengths, criterion, wordMap['<pad>'])
                 # Add doubly stochastic attention regularization
                 loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
             else:
@@ -198,40 +199,29 @@ def test(testDataLoader, encoder, decoder, criterion):
                 loss = criterion(scores, targets)
 
 
-            top5 = accuracySingleGPU(scores, targets, 5)
-            losses.update(loss.item(), sum(decodeLengths))
-            top5accs.update(top5, sum(decodeLengths))
+            top5 = accuracyInference(scores, caps, actualDecodeLengths, 5, wordMap['<pad>'])
+            losses.update(loss.item(), totalTokenEvaluated)
+            top5accs.update(top5, totalTokenEvaluated)
             batchTime.update(time.time() - start)
 
             start = time.time()
 
-            # Store references (true captions), and hypothesis (prediction) for each image
-            # If for n images, we have n hypotheses, and references a, b, c... for each image, we need -
-            # references = [[ref1a, ref1b, ref1c], [ref2a, ref2b], ...], hypotheses = [hyp1, hyp2, ...]
-
             # References
-            if lstmDecoder is True:
-                sortInd = sortInd.to(device)
-                allcaps = allcaps.to(device)
-                allcaps = allcaps[sortInd]  # because images were sorted in the decoder
-            else:
-                allcaps = allcaps.to(device)
-
-            for j in range(allcaps.shape[0]):
-                imgCaps = allcaps[j].tolist()
-                imgCaptions = list(
-                    map(lambda c: [w for w in c if w not in {wordMap['<start>'], wordMap['<pad>']}],
-                        imgCaps))  # remove <start> and pads
+            allcaps = allcaps.to(device)
+            for j in range(allcaps.shape[0]): # Iterate through each image in the batch
+                imgCaps = allcaps[j].tolist() # This would be a list of lists, where each inner list is a reference
+                imgCaptions = []
+                for c_list in imgCaps: # Iterate through each reference caption for the current image
+                    filtered_caption = [w for w in c_list if w not in {wordMap['<start>'], wordMap['<pad>']}]
+                    imgCaptions.append(filtered_caption)
                 references.append(imgCaptions)
             
             # Hypotheses
-            _, preds = torch.max(scoresCopy, dim=2)
-            preds = preds.tolist()
-            tempPreds = list()
-            for j, p in enumerate(preds):
-                tempPreds.append(preds[j][:decodeLengths[j]])  # remove pads
-            preds = tempPreds
-            hypotheses.extend(preds)
+            for j, p_seq_tensor in enumerate(sequences): # Iterate through each predicted sequence tensor
+                truncated_predicted_list = p_seq_tensor[:actualDecodeLengths[j]].tolist()
+                if wordMap['<end>'] in truncated_predicted_list:
+                    truncated_predicted_list = truncated_predicted_list[:truncated_predicted_list.index(wordMap['<end>'])]
+                hypotheses.append(truncated_predicted_list) # Append the processed predicted caption
 
             assert len(references) == len(hypotheses)
         

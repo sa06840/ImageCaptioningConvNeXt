@@ -230,7 +230,7 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
 
         imgs = encoder(imgs)
         if lstmDecoder is True:
-            scores, capsSorted, decodeLengths, alphas, sortInd = decoder(imgs, caps, caplens)
+            scores, capsSorted, decodeLengths, alphas, sortInd = decoder(encoder_out=imgs, encoded_captions=caps, caption_lengths=caplens)
             # Since we decoded starting with <start>, the targets are all words after <start>, up to <end>
             targets = capsSorted[:, 1:]  # still in the form of indices
             # Remove timesteps that we didn't decode at, or are pads
@@ -305,12 +305,8 @@ def validate(valDataLoader, encoder, decoder, criterion, device):
                 imgs = encoder(imgs)
 
             if lstmDecoder is True:
-                scores, capsSorted, decodeLengths, alphas, sortInd = decoder(imgs, caps, caplens)
-                targets = capsSorted[:, 1:]
-                scoresCopy = scores.clone()
-                scores = pack_padded_sequence(scores, decodeLengths, batch_first=True).data
-                targets = pack_padded_sequence(targets, decodeLengths, batch_first=True).data
-                loss = criterion(scores, targets)
+                scores, alphas, sequences, actualDecodeLengths = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=100)
+                loss = sequenceLoss(scores, caps, actualDecodeLengths, criterion)
                 # Add doubly stochastic attention regularization
                 loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
             else:     
@@ -322,7 +318,8 @@ def validate(valDataLoader, encoder, decoder, criterion, device):
                 targets = pack_padded_sequence(targets, decodeLengths, batch_first=True, enforce_sorted=False).data
                 loss = criterion(scores, targets)
 
-            top5 = accuracySingleGPU(scores, targets, 5)
+            top5 = accuracyInference(scores, caps, actualDecodeLengths, 5, wordMap['<pad>'])
+            # top5 = accuracySingleGPU(scores, targets, 5)
 
             losses.update(loss.item(), sum(decodeLengths))
             top5accs.update(top5, sum(decodeLengths))
@@ -331,28 +328,21 @@ def validate(valDataLoader, encoder, decoder, criterion, device):
             start = time.time()
 
             # References
-            if lstmDecoder is True:
-                sortInd = sortInd.to(device)
-                allcaps = allcaps.to(device)
-                allcaps = allcaps[sortInd]  # because images were sorted in the decoder
-            else:
-                allcaps = allcaps.to(device)
-
-            for j in range(allcaps.shape[0]):
-                imgCaps = allcaps[j].tolist()
-                imgCaptions = list(
-                    map(lambda c: [w for w in c if w not in {wordMap['<start>'], wordMap['<pad>']}],
-                        imgCaps))  # remove <start> and pads
+            allcaps = allcaps.to(device)
+            for j in range(allcaps.shape[0]): # Iterate through each image in the batch
+                imgCaps = allcaps[j].tolist() # This would be a list of lists, where each inner list is a reference
+                imgCaptions = []
+                for c_list in imgCaps: # Iterate through each reference caption for the current image
+                    filtered_caption = [w for w in c_list if w not in {wordMap['<start>'], wordMap['<pad>']}]
+                    imgCaptions.append(filtered_caption)
                 references.append(imgCaptions)
             
             # Hypotheses
-            _, preds = torch.max(scoresCopy, dim=2)
-            preds = preds.tolist()
-            tempPreds = list()
-            for j, p in enumerate(preds):
-                tempPreds.append(preds[j][:decodeLengths[j]])  # remove pads
-            preds = tempPreds
-            hypotheses.extend(preds)
+            for j, p_seq_tensor in enumerate(sequences): # Iterate through each predicted sequence tensor
+                truncated_predicted_list = p_seq_tensor[:actualDecodeLengths[j]].tolist()
+                if wordMap['<end>'] in truncated_predicted_list:
+                    truncated_predicted_list = truncated_predicted_list[:truncated_predicted_list.index(wordMap['<end>'])]
+                hypotheses.append(truncated_predicted_list) # Append the processed predicted caption
 
             assert len(references) == len(hypotheses)
         

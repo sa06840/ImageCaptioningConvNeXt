@@ -257,3 +257,60 @@ def accuracySingleGPU(scores, targets, k):
     correct = ind.eq(targets.view(-1, 1).expand_as(ind))
     correct_total = correct.view(-1).float().sum()  # 0D tensor
     return correct_total.item() * (100.0 / batch_size)
+
+
+def sequenceLoss(predictions, encodedCaptions, actualDecodeLengths, criterion, pad_token_idx):
+    batchSize = predictions.size(0)
+    accumulatedLossSum = 0.0  # Accumulates the sum of per-token losses for the batch
+    totalEvaluatedTokenCount = 0 # Accumulates the total count of valid tokens evaluated
+
+    for i in range(batchSize):
+        predictedLogitsFullSequence = predictions[i, :actualDecodeLengths[i], :]
+        groundTruthIdsFullSequence = encodedCaptions[i, 1:1 + actualDecodeLengths[i]]
+
+        # Create a mask to identify and exclude padding tokens
+        nonPaddingMask = (groundTruthIdsFullSequence != pad_token_idx)
+        predictedLogitsCurrentSequence = predictedLogitsFullSequence[nonPaddingMask]
+        groundTruthIdsCurrentSequence = groundTruthIdsFullSequence[nonPaddingMask]
+
+        numValidTokensInSequence = groundTruthIdsCurrentSequence.numel()
+        if numValidTokensInSequence == 0:
+            continue
+            
+        lossForCurrentItem = criterion(predictedLogitsCurrentSequence, groundTruthIdsCurrentSequence)
+        accumulatedLossSum += lossForCurrentItem * numValidTokensInSequence
+        totalEvaluatedTokenCount += numValidTokensInSequence
+        
+    averageBatchLossPerToken = 0.0
+    if totalEvaluatedTokenCount > 0:
+        averageBatchLossPerToken = accumulatedLossSum / totalEvaluatedTokenCount
+        
+    return averageBatchLossPerToken, totalEvaluatedTokenCount
+
+
+def accuracyInference(predictions, encodedCaptions, actualDecodeLengths, k, pad_token_idx):
+    batchSize = predictions.size(0)
+    totalCorrectTokenCount = 0
+    totalEvaluatedTokenCount = 0
+
+    for i in range(batchSize):
+        predictedLogitsFullSequence = predictions[i, :actualDecodeLengths[i], :]
+        groundTruthIdsFullSequence = encodedCaptions[i, 1:1 + actualDecodeLengths[i]]
+
+        nonPaddingMask = (groundTruthIdsFullSequence != pad_token_idx)
+        predictedLogitsFiltered = predictedLogitsFullSequence[nonPaddingMask]
+        groundTruthIdsFiltered = groundTruthIdsFullSequence[nonPaddingMask]
+
+        if groundTruthIdsFiltered.numel() == 0:
+            continue
+
+        _, topKIndices = predictedLogitsFiltered.topk(k, dim=1, largest=True, sorted=True)
+        correctPredictionsForSequence = topKIndices.eq(groundTruthIdsFiltered.view(-1, 1).expand_as(topKIndices))
+        correctCountForSequence = correctPredictionsForSequence.sum().item()   # Sum the number of correct predictions for this sequence
+
+        totalCorrectTokenCount += correctCountForSequence
+        totalEvaluatedTokenCount += groundTruthIdsFiltered.numel() # Number of non-pad tokens for this sequence
+
+    if totalEvaluatedTokenCount == 0:
+        return 0.0   # Avoid division by zero if no tokens were evaluated
+    return (totalCorrectTokenCount / totalEvaluatedTokenCount) * 100.0

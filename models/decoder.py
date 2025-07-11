@@ -109,16 +109,6 @@ class DecoderWithAttention(nn.Module):
         return h, c
     
     def forwardWithTeacherForcing(self, encoder_out, encoded_captions, caption_lengths):
-        pass
-
-    def forward(self, encoder_out, encoded_captions, caption_lengths, teacherForcing):
-        """
-        Forward propagation.
-        :param encoder_out: encoded images, a tensor of dimension (batch_size, enc_image_size, enc_image_size, encoder_dim)
-        :param encoded_captions: encoded captions, a tensor of dimension (batch_size, max_caption_length)
-        :param caption_lengths: caption lengths, a tensor of dimension (batch_size, 1)
-        :return: scores for vocabulary, sorted encoded captions, decode lengths, weights, sort indices
-        """
         batch_size = encoder_out.size(0)
         encoder_dim = encoder_out.size(-1)
         vocab_size = self.vocab_size
@@ -163,3 +153,74 @@ class DecoderWithAttention(nn.Module):
             alphas[:batch_size_t, t, :] = alpha
 
         return predictions, encoded_captions, decode_lengths, alphas, sort_ind
+
+    def forwardWithoutTeacherForcing(self, encoder_out, wordMap, maxDecodeLen):
+        batch_size = encoder_out.size(0)
+        encoder_dim = encoder_out.size(-1)
+        vocab_size = self.vocab_size
+
+        encoder_out = encoder_out.view(batch_size, -1, encoder_dim)  # (batch_size, num_pixels, encoder_dim)
+        num_pixels = encoder_out.size(1)
+    
+        h, c = self.init_hidden_state(encoder_out)  # (batch_size, decoder_dim)
+        start_token_idx = wordMap['<start>']
+        end_token_idx = wordMap['<end>']
+        inputs = torch.LongTensor([start_token_idx] * batch_size).to(self.device)
+        inputs = self.embedding(inputs)  # (batch_size, embed_dim)
+    
+        predictions = torch.zeros(batch_size, maxDecodeLen, vocab_size).to(self.device)
+        alphas = torch.zeros(batch_size, maxDecodeLen, num_pixels).to(self.device)
+        sequences = torch.zeros(batch_size, maxDecodeLen, dtype=torch.long).to(self.device) # To store predicted IDs
+        # Track finished sequences (those that have predicted the <end> token)
+        finished = torch.zeros(batch_size, dtype=torch.bool).to(self.device)  # False for all
+
+        # Decoding loop
+        for t in range(maxDecodeLen):
+            active_indices = (~finished).nonzero(as_tuple=False).squeeze(1)  # (number_of_currently_active_sentences,)
+            if len(active_indices) == 0:
+                break  # All sequences finished early
+        
+            attention_weighted_encoding, alpha = self.attention(encoder_out[active_indices], h[active_indices])
+            gate = self.sigmoid(self.f_beta(h[active_indices]))
+            attention_weighted_encoding = gate * attention_weighted_encoding
+            h_new, c_new = self.decode_step(
+                torch.cat([inputs[active_indices], attention_weighted_encoding], dim=1),
+                (h[active_indices], c[active_indices]))
+        
+            preds = self.fc(self.dropout(h_new))  # (active_batch_size, vocab_size)
+            predictions[active_indices, t, :] = preds
+            alphas[active_indices, t, :] = alpha
+            
+            predicted_ids = preds.argmax(dim=1)  # (active_batch_size) # Greedy prediction: choose the word with the highest probability
+            sequences[active_indices, t] = predicted_ids   # stores the generated captions in the form of indices
+            finished[active_indices] |= predicted_ids == end_token_idx    # Update finished flags: mark sequences that predicted the <end> token
+            inputs[active_indices] = self.embedding(predicted_ids)   #  # Prepare inputs for the next step: embed the newly predicted IDs
+            h[active_indices] = h_new    # Update hidden and cell states for active sequences
+            c[active_indices] = c_new
+            
+        # Calculate actual decoded lengths for each sequence
+        actualDecodeLengths = []
+        for i in range(batch_size):
+            if (sequences[i] == end_token_idx).any():
+                end_idx = (sequences[i] == end_token_idx).nonzero(as_tuple=True)[0][0].item()
+                actualDecodeLengths.append(end_idx + 1)
+            else:
+                actualDecodeLengths.append(maxDecodeLen)
+
+        return predictions, alphas, sequences, actualDecodeLengths
+
+    def forward(self, teacherForcing, encoder_out, encoded_captions=None, caption_lengths=None, wordMap=None, maxDecodeLen=None):
+        """
+        Forward propagation.
+        :param encoder_out: encoded images, a tensor of dimension (batch_size, enc_image_size, enc_image_size, encoder_dim)
+        :param encoded_captions: encoded captions, a tensor of dimension (batch_size, max_caption_length)
+        :param caption_lengths: caption lengths, a tensor of dimension (batch_size, 1)
+        :return: scores for vocabulary, sorted encoded captions, decode lengths, weights, sort indices
+        """
+        if teacherForcing is True:
+            predictions, encoded_captions, decode_lengths, alphas, sort_ind = self.forwardWithTeacherForcing(encoder_out, encoded_captions, caption_lengths)
+            return predictions, encoded_captions, decode_lengths, alphas, sort_ind
+        
+        elif teacherForcing is not True:
+            predictions, alphas, sequences, actualDecodeLenghts = self.forwardWithoutTeacherForcing(encoder_out, wordMap, maxDecodeLen)
+            return predictions, alphas, sequences, actualDecodeLenghts
