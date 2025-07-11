@@ -107,8 +107,11 @@ class DecoderWithAttention(nn.Module):
         h = self.init_h(mean_encoder_out)  # (batch_size, decoder_dim)
         c = self.init_c(mean_encoder_out)
         return h, c
+    
+    def forwardWithTeacherForcing(self, encoder_out, encoded_captions, caption_lengths):
+        pass
 
-    def forward(self, encoder_out, encoded_captions, caption_lengths):
+    def forward(self, encoder_out, encoded_captions, caption_lengths, teacherForcing):
         """
         Forward propagation.
         :param encoder_out: encoded images, a tensor of dimension (batch_size, enc_image_size, enc_image_size, encoder_dim)

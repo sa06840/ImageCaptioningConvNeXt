@@ -37,9 +37,10 @@ from utils.utils import *
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.serialization import add_safe_globals
+import argparse
 
 
-device = torch.device("mps")
+device = torch.device("cuda")
 
 # Model parameters
 embDim = 512  # dimension of word embeddings
@@ -47,8 +48,6 @@ attentionDim = 512  # dimension of attention linear layers
 decoderDim = 512  # dimension of decoder RNN
 dropout = 0.5
 maxLen = 52 # maximum length of captions (in words), used for padding
-encoderLr = 1e-4  # learning rate for encoder if fine-tuning
-decoderLr = 1e-4  # learning rate for decoder
 
 # Data parameters
 # dataFolder = 'flickr8kDataset/inputFiles'
@@ -61,7 +60,12 @@ workers = 6
 alphaC = 1  # regularization parameter for 'doubly stochastic attention', as in the paper
 cudnn.benchmark = False # set to true only if inputs to model are fixed size; otherwise lot of computational overhead
 cudnn.deterministic = True # for reproducibility
-lstmDecoder = True  # if True, use LSTM decoder; if False, use Transformer decoder
+parser = argparse.ArgumentParser()
+parser.add_argument('--checkpoint', type=str, default=None, help='Path to checkpoint file')
+parser.add_argument('--lstmDecoder', action='store_true', help='Use LSTM decoder instead of Transformer')
+args = parser.parse_args()
+modelPath = args.checkpoint
+lstmDecoder = args.lstmDecoder
 
 
 # def setup_distributed():
@@ -95,7 +99,7 @@ def main():
     with open(wordMapFile, 'r') as j:
         wordMap = json.load(j)
 
-    modelPath = 'bestCheckpoints/checkpoint_LSTM_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    # modelPath = 'bestCheckpoints/mscoco/10-07-2025(lstmDecoder-teacherForcing-noFinetuning)/BEST_checkpoint_LSTM_coco_5_cap_per_img_5_min_word_freq.pth.tar'
     checkpoint = torch.load(modelPath, map_location=device, weights_only=False)
     
     if lstmDecoder is True:
@@ -132,7 +136,10 @@ def main():
 
     resultsDF = pd.DataFrame(results)
     os.makedirs('results', exist_ok=True)
-    resultsDF.to_csv('results/test-lstmDecoder(6workers-45gbRAM-noReproducibility-2GPUs).csv', index=False)
+    if lstmDecoder is True:
+        resultsDF.to_csv('results/test-lstmDecoder-teacherForcing-noFinetuning.csv', index=False)
+    else:
+        resultsDF.to_csv('results/test-transformerDecoder-teacherForcing-noFinetuning.csv', index=False)
     
 
 
