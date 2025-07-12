@@ -253,8 +253,8 @@ def sequenceLoss(predictions, encodedCaptions, actualDecodeLengths, criterion, p
     totalEvaluatedTokenCount = 0 # Accumulates the total count of valid tokens evaluated
 
     for i in range(batchSize):
-        predictedLogitsFullSequence = predictions[i, :actualDecodeLengths[i], :]
-        groundTruthIdsFullSequence = encodedCaptions[i, 1:1 + actualDecodeLengths[i]]
+        predictedLogitsFullSequence = predictions[i, :actualDecodeLengths[i], :]  # this does not have start token since it is not predicted
+        groundTruthIdsFullSequence = encodedCaptions[i, 1:1 + actualDecodeLengths[i]]  # +1 to skip start token
 
         # Create a mask to identify and exclude padding tokens
         nonPaddingMask = (groundTruthIdsFullSequence != pad_token_idx)

@@ -74,7 +74,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--checkpoint', type=str, default=None, help='Path to checkpoint file')
 parser.add_argument('--lstmDecoder', action='store_true', help='Use LSTM decoder instead of Transformer')
 parser.add_argument('--port', type=str, default='29500', help='Master port for distributed training')
-parser.add_argument('--teacherForcing', action='store_true', help='Use LSTM decoder instead of Transformer')
+parser.add_argument('--teacherForcing', action='store_true', help='Use teacher forcing training strategy')
 args = parser.parse_args()
 checkpoint = args.checkpoint
 lstmDecoder = args.lstmDecoder

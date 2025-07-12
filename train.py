@@ -75,12 +75,9 @@ parser.add_argument('--checkpoint', type=str, default=None, help='Path to checkp
 parser.add_argument('--lstmDecoder', action='store_true', help='Use LSTM decoder instead of Transformer')
 parser.add_argument('--teacherForcing', action='store_true', help='Use teacher forcing training strategy')
 args = parser.parse_args()
-# checkpoint = args.checkpoint
-# lstmDecoder = args.lstmDecoder
-# teacherForcing = args.teacherForcing
-checkpoint = None
-lstmDecoder = True
-teacherForcing = False
+checkpoint = args.checkpoint
+lstmDecoder = args.lstmDecoder
+teacherForcing = args.teacherForcing
 
 
 def optimizer_to_device(optimizer, device):

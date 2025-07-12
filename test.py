@@ -64,10 +64,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--checkpoint', type=str, default=None, help='Path to checkpoint file')
 parser.add_argument('--lstmDecoder', action='store_true', help='Use LSTM decoder instead of Transformer')
 args = parser.parse_args()
-# modelPath = args.checkpoint
-# lstmDecoder = args.lstmDecoder
-modelPath = 'bestCheckpoints/mscoco/10-07-2025(lstmDecoder-teacherForcing-noFinetuning)/BEST_checkpoint_LSTM_coco_5_cap_per_img_5_min_word_freq.pth.tar'
-lstmDecoder = True
+modelPath = args.checkpoint
+lstmDecoder = args.lstmDecoder
 
 
 # def setup_distributed():
