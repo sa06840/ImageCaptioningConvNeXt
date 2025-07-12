@@ -75,10 +75,12 @@ parser.add_argument('--checkpoint', type=str, default=None, help='Path to checkp
 parser.add_argument('--lstmDecoder', action='store_true', help='Use LSTM decoder instead of Transformer')
 parser.add_argument('--teacherForcing', action='store_true', help='Use teacher forcing training strategy')
 args = parser.parse_args()
-checkpoint = args.checkpoint
-lstmDecoder = args.lstmDecoder
-teacherForcing = args.teacherForcing
-
+# checkpoint = args.checkpoint
+# lstmDecoder = args.lstmDecoder
+# teacherForcing = args.teacherForcing
+checkpoint = None
+lstmDecoder = True
+teacherForcing = False
 
 def optimizer_to_device(optimizer, device):
     for state in optimizer.state.values():
@@ -310,8 +312,9 @@ def trainWithoutTeacherForcing(trainDataLoader, encoder, decoder, criterion, enc
 
             imgs = encoder(imgs)
             if lstmDecoder is True:
-                scores, alphas, sequences, actualDecodeLengths = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=50)
-                loss, totalTokensEvaluated = sequenceLoss(scores, caps, actualDecodeLengths, criterion, wordMap['<pad>'])
+                scores, alphas, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=50)
+                scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, caps, wordMap['<end>'], wordMap['<pad>'], 50)
+                loss = criterion(scoresUpdated, targetsUpdated)
                 loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
             else: 
                 tgt_key_padding_mask = (caps == wordMap['<pad>'])
@@ -335,7 +338,7 @@ def trainWithoutTeacherForcing(trainDataLoader, encoder, decoder, criterion, enc
                 encoderOptimizer.step()
             decoderOptimizer.step()
 
-            top5 = accuracyInference(scores, caps, actualDecodeLengths, 5, wordMap['<pad>'], 'single')
+            top5 = accuracy(scoresUpdated, targetsUpdated, 5, 'single')
             losses.update(loss.item(), totalTokensEvaluated)
             top5accs.update(top5, totalTokensEvaluated)
             batchTime.update(time.time() - start)
@@ -375,8 +378,9 @@ def validate(valDataLoader, encoder, decoder, criterion, device):
                 imgs = encoder(imgs)
 
             if lstmDecoder is True:
-                scores, alphas, sequences, actualDecodeLengths = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=50)
-                loss, totalTokensEvaluated = sequenceLoss(scores, caps, actualDecodeLengths, criterion, wordMap['<pad>'])
+                scores, alphas, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=50)
+                scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, caps, wordMap['<end>'], wordMap['<pad>'], 50)
+                loss = criterion(scoresUpdated, targetsUpdated)
                 # Add doubly stochastic attention regularization
                 loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
             else:     
@@ -388,7 +392,7 @@ def validate(valDataLoader, encoder, decoder, criterion, device):
                 targets = pack_padded_sequence(targets, decodeLengths, batch_first=True, enforce_sorted=False).data
                 loss = criterion(scores, targets)
 
-            top5 = accuracyInference(scores, caps, actualDecodeLengths, 5, wordMap['<pad>'], 'single')
+            top5 = accuracy(scoresUpdated, targetsUpdated, 5, 'single')
             losses.update(loss.item(), totalTokensEvaluated)
             top5accs.update(top5, totalTokensEvaluated)
             batchTime.update(time.time() - start)

@@ -197,17 +197,8 @@ class DecoderWithAttention(nn.Module):
             inputs[active_indices] = self.embedding(predicted_ids)   #  # Prepare inputs for the next step: embed the newly predicted IDs
             h[active_indices] = h_new    # Update hidden and cell states for active sequences
             c[active_indices] = c_new
-            
-        # Calculate actual decoded lengths for each sequence
-        actualDecodeLengths = []
-        for i in range(batch_size):
-            if (sequences[i] == end_token_idx).any():
-                end_idx = (sequences[i] == end_token_idx).nonzero(as_tuple=True)[0][0].item()
-                actualDecodeLengths.append(end_idx + 1)
-            else:
-                actualDecodeLengths.append(maxDecodeLen)
 
-        return predictions, alphas, sequences, actualDecodeLengths
+        return predictions, alphas, sequences
 
     def forward(self, teacherForcing, encoder_out, encoded_captions=None, caption_lengths=None, wordMap=None, maxDecodeLen=None):
         """
@@ -222,5 +213,5 @@ class DecoderWithAttention(nn.Module):
             return predictions, encoded_captions, decode_lengths, alphas, sort_ind
         
         elif teacherForcing is not True:
-            predictions, alphas, sequences, actualDecodeLenghts = self.forwardWithoutTeacherForcing(encoder_out, wordMap, maxDecodeLen)
-            return predictions, alphas, sequences, actualDecodeLenghts
+            predictions, alphas, sequences= self.forwardWithoutTeacherForcing(encoder_out, wordMap, maxDecodeLen)
+            return predictions, alphas, sequences

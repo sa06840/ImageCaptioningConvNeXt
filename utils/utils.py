@@ -247,61 +247,43 @@ def accuracy(scores, targets, k, gpu):
         return correct_total.item() * (100.0 / batch_size)
 
 
-def sequenceLoss(predictions, encodedCaptions, actualDecodeLengths, criterion, pad_token_idx):
+
+def preprocessDecoderOutputForMetrics(predictions, sequences, encodedCaptions, end_token_idx, pad_token_idx, maxDecodeLen):
     batchSize = predictions.size(0)
-    accumulatedLossSum = 0.0  # Accumulates the sum of per-token losses for the batch
-    totalEvaluatedTokenCount = 0 # Accumulates the total count of valid tokens evaluated
+    allFilteredPredictedLogitsList = []
+    allFilteredTargetIdsList = []
+    totalValidTokenCount = 0
 
+    actualDecodeLengths = []
     for i in range(batchSize):
-        predictedLogitsFullSequence = predictions[i, :actualDecodeLengths[i], :]  # this does not have start token since it is not predicted
-        groundTruthIdsFullSequence = encodedCaptions[i, 1:1 + actualDecodeLengths[i]]  # +1 to skip start token
+        currentDecodeLength = 0
+        if (sequences[i] == end_token_idx).any():
+            endIndex = (sequences[i] == end_token_idx).nonzero(as_tuple=True)[0][0].item()
+            currentDecodeLength = endIndex + 1
+        else:
+            currentDecodeLength = maxDecodeLen 
+        actualDecodeLengths.append(currentDecodeLength)
 
-        # Create a mask to identify and exclude padding tokens
-        nonPaddingMask = (groundTruthIdsFullSequence != pad_token_idx)
-        predictedLogitsCurrentSequence = predictedLogitsFullSequence[nonPaddingMask]
-        groundTruthIdsCurrentSequence = groundTruthIdsFullSequence[nonPaddingMask]
+        predictedLogitsSliced = predictions[i, :currentDecodeLength, :]
+        groundTruthIdsSliced = encodedCaptions[i, 1:1 + currentDecodeLength]
 
-        numValidTokensInSequence = groundTruthIdsCurrentSequence.numel()  # gives count
+        nonPaddingMask = (groundTruthIdsSliced != pad_token_idx)
+        predictedLogitsFiltered = predictedLogitsSliced[nonPaddingMask]
+        groundTruthIdsFiltered = groundTruthIdsSliced[nonPaddingMask]
+
+        numValidTokensInSequence = groundTruthIdsFiltered.numel()
         if numValidTokensInSequence == 0:
-            continue
-            
-        lossForCurrentItem = criterion(predictedLogitsCurrentSequence, groundTruthIdsCurrentSequence)
-        accumulatedLossSum += lossForCurrentItem * numValidTokensInSequence
-        totalEvaluatedTokenCount += numValidTokensInSequence
-        
-    averageBatchLossPerToken = 0.0
-    if totalEvaluatedTokenCount > 0:
-        averageBatchLossPerToken = accumulatedLossSum / totalEvaluatedTokenCount
-        
-    return averageBatchLossPerToken, totalEvaluatedTokenCount
+            continue 
 
+        allFilteredPredictedLogitsList.append(predictedLogitsFiltered)
+        allFilteredTargetIdsList.append(groundTruthIdsFiltered)
+        totalValidTokenCount += numValidTokensInSequence
 
-def accuracyInference(predictions, encodedCaptions, actualDecodeLengths, k, pad_token_idx, gpu):
-    batchSize = predictions.size(0)
-    totalCorrectTokenCount = 0
-    totalEvaluatedTokenCount = 0
+    if totalValidTokenCount == 0:    # Handle case where no valid tokens across the whole batch
+        return torch.empty(0, predictions.size(-1), device=predictions.device), torch.empty(0, dtype=torch.long, device=predictions.device), 0
 
-    for i in range(batchSize):
-        predictedLogitsFullSequence = predictions[i, :actualDecodeLengths[i], :]
-        groundTruthIdsFullSequence = encodedCaptions[i, 1:1 + actualDecodeLengths[i]]
+    # Concatenate all filtered tensors to get the final flattened output
+    finalFilteredPredictedLogits = torch.cat(allFilteredPredictedLogitsList, dim=0) # (N_total_valid, vocab_size)
+    finalFilteredTargetIds = torch.cat(allFilteredTargetIdsList, dim=0)   # (N_total_valid,)
 
-        nonPaddingMask = (groundTruthIdsFullSequence != pad_token_idx)
-        predictedLogitsFiltered = predictedLogitsFullSequence[nonPaddingMask]
-        groundTruthIdsFiltered = groundTruthIdsFullSequence[nonPaddingMask]
-
-        if groundTruthIdsFiltered.numel() == 0:
-            continue
-
-        _, topKIndices = predictedLogitsFiltered.topk(k, dim=1, largest=True, sorted=True)
-        correctPredictionsForSequence = topKIndices.eq(groundTruthIdsFiltered.view(-1, 1).expand_as(topKIndices))
-        correctCountForSequence = correctPredictionsForSequence.sum().item()
-
-        totalCorrectTokenCount += correctCountForSequence
-        totalEvaluatedTokenCount += groundTruthIdsFiltered.numel()
-
-    if gpu == 'multi':
-        return totalCorrectTokenCount, totalEvaluatedTokenCount
-
-    elif gpu == 'single':
-        return (totalCorrectTokenCount / totalEvaluatedTokenCount) * 100.0
-    
+    return finalFilteredPredictedLogits, finalFilteredTargetIds, totalValidTokenCount, actualDecodeLengths

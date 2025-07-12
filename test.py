@@ -64,8 +64,10 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--checkpoint', type=str, default=None, help='Path to checkpoint file')
 parser.add_argument('--lstmDecoder', action='store_true', help='Use LSTM decoder instead of Transformer')
 args = parser.parse_args()
-modelPath = args.checkpoint
-lstmDecoder = args.lstmDecoder
+# modelPath = args.checkpoint
+# lstmDecoder = args.lstmDecoder
+modelPath = 'bestCheckpoints/mscoco/10-07-2025(lstmDecoder-trainingTF-inferenceTF-noFinetuning)/BEST_checkpoint_LSTM_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+lstmDecoder = True
 
 
 # def setup_distributed():
@@ -99,7 +101,6 @@ def main():
     with open(wordMapFile, 'r') as j:
         wordMap = json.load(j)
 
-    # modelPath = 'bestCheckpoints/mscoco/10-07-2025(lstmDecoder-teacherForcing-noFinetuning)/BEST_checkpoint_LSTM_coco_5_cap_per_img_5_min_word_freq.pth.tar'
     checkpoint = torch.load(modelPath, map_location=device, weights_only=False)
     
     if lstmDecoder is True:
@@ -170,7 +171,7 @@ def test(testDataLoader, encoder, decoder, criterion):
     with torch.no_grad():
         for i, (imgs, caps, caplens, allcaps) in enumerate(testDataLoader):
 
-            if (i == 10):
+            if (i==20):
                 break
 
             print(f"Test Batch {i + 1}/{len(testDataLoader)}")
@@ -183,8 +184,9 @@ def test(testDataLoader, encoder, decoder, criterion):
                 imgs = encoder(imgs)
 
             if lstmDecoder is True:
-                scores, alphas, sequences, actualDecodeLengths = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=50)
-                loss, totalTokensEvaluated = sequenceLoss(scores, caps, actualDecodeLengths, criterion, wordMap['<pad>'])
+                scores, alphas, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=50)
+                scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, caps, wordMap['<end>'], wordMap['<pad>'], 50)
+                loss = criterion(scoresUpdated, targetsUpdated)
                 # Add doubly stochastic attention regularization
                 loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
             else:
@@ -196,7 +198,7 @@ def test(testDataLoader, encoder, decoder, criterion):
                 targets = pack_padded_sequence(targets, decodeLengths, batch_first=True, enforce_sorted=False).data
                 loss = criterion(scores, targets)
 
-            top5 = accuracyInference(scores, caps, actualDecodeLengths, 5, wordMap['<pad>'], 'single')
+            top5 = accuracy(scoresUpdated, targetsUpdated, 5, 'single')
             losses.update(loss.item(), totalTokensEvaluated)
             top5accs.update(top5, totalTokensEvaluated)
             batchTime.update(time.time() - start)
