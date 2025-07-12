@@ -74,10 +74,12 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--checkpoint', type=str, default=None, help='Path to checkpoint file')
 parser.add_argument('--lstmDecoder', action='store_true', help='Use LSTM decoder instead of Transformer')
 parser.add_argument('--port', type=str, default='29500', help='Master port for distributed training')
+parser.add_argument('--teacherForcing', action='store_true', help='Use LSTM decoder instead of Transformer')
 args = parser.parse_args()
 checkpoint = args.checkpoint
 lstmDecoder = args.lstmDecoder
 port = args.port
+teacherForcing = args.teacherForcing
 
 
 def optimizer_to_device(optimizer, device):
@@ -86,8 +88,8 @@ def optimizer_to_device(optimizer, device):
             if isinstance(v, torch.Tensor):
                 state[k] = v.to(device)
 
-def reduceLossAndTokens(loss, decodeLengths, device):
-    localTokenCount = sum(decodeLengths)
+def reduceLossAndTokens(loss, batchTokenCount, device):
+    localTokenCount = batchTokenCount
     localTokenLossSum = loss.item() * localTokenCount
 
     totalTokenLossSum = torch.tensor(localTokenLossSum, device=device)
@@ -225,15 +227,26 @@ def main():
             if fineTuneEncoder:
                 adjust_learning_rate(encoderOptimizer, 0.8)
 
-        trainLoss, trainTop5Acc, trainBatchTime, trainDataTime = train(trainDataLoader=trainDataLoader,
-            encoder=encoder,
-            decoder=decoder,
-            criterion=criterion,
-            encoderOptimizer=encoderOptimizer,
-            decoderOptimizer=decoderOptimizer,
-            epoch=epoch,
-            device=device,
-            world_size=world_size)
+        if teacherForcing is True:
+            trainLoss, trainTop5Acc, trainBatchTime, trainDataTime = trainWithTeacherForcing(trainDataLoader=trainDataLoader,
+                encoder=encoder,
+                decoder=decoder,
+                criterion=criterion,
+                encoderOptimizer=encoderOptimizer,
+                decoderOptimizer=decoderOptimizer,
+                epoch=epoch,
+                device=device,
+                world_size=world_size)
+        else:
+            trainLoss, trainTop5Acc, trainBatchTime, trainDataTime = trainWithoutTeacherForcing(trainDataLoader=trainDataLoader,
+                encoder=encoder,
+                decoder=decoder,
+                criterion=criterion,
+                encoderOptimizer=encoderOptimizer,
+                decoderOptimizer=decoderOptimizer,
+                epoch=epoch,
+                device=device,
+                world_size=world_size)
         
         valLoss, valTop5Acc, bleu1, bleu2, bleu3, recentBleu4 = validate(valDataLoader=valDataLoader,
                             encoder=encoder,
@@ -279,13 +292,13 @@ def main():
         resultsDF = pd.DataFrame(results)
         os.makedirs('results', exist_ok=True)
         if lstmDecoder is True:
-            resultsDF.to_csv('results/metrics-lstmDecoder(6workers-60gbRAM-noReproducibility-multiGPU).csv', index=False)
+            resultsDF.to_csv('results/metrics-lstmDecoder(trainingNoTF-inferenceNoTF).csv', index=False)
         else: 
-            resultsDF.to_csv('results/metrics-transformerDecoder(6workers-60gbRAM-noReproducibility-multiGPU).csv', index=False)
+            resultsDF.to_csv('results/metrics-transformerDecoder(trainingNoTF-inferenceNoTF).csv', index=False)
 
 
 
-def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decoderOptimizer, epoch, device, world_size):
+def trainWithTeacherForcing(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decoderOptimizer, epoch, device, world_size):
 
     encoder.train()
     decoder.train()
@@ -309,7 +322,7 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
 
         imgs = encoder(imgs)
         if lstmDecoder is True:
-            scores, capsSorted, decodeLengths, alphas, sortInd = decoder(imgs, caps, caplens)
+            scores, capsSorted, decodeLengths, alphas, sortInd = decoder(teacherForcing=True, encoder_out=imgs, encoded_captions=caps, caption_lengths=caplens)
             # Since we decoded starting with <start>, the targets are all words after <start>, up to <end>
             targets = capsSorted[:, 1:]  # still in the form of indices
             # Remove timesteps that we didn't decode at, or are pads
@@ -344,9 +357,9 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
         decoderOptimizer.step()
 
 
-        globalLoss, totalTokens = reduceLossAndTokens(loss, decodeLengths, device)
+        globalLoss, totalTokens = reduceLossAndTokens(loss, sum(decodeLengths), device)
 
-        correct5, total = accuracy(scores, targets, 5)
+        correct5, total = accuracy(scores, targets, 5, 'multi')
         correct5 = torch.tensor(correct5, dtype=torch.float32, device=device)
         total = torch.tensor(total, dtype=torch.float32, device=device)
         dist.all_reduce(correct5, op=dist.ReduceOp.SUM)
@@ -368,6 +381,85 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
     dataTimeAvg = dataTimeTensor.item() / world_size
 
     print(f"Rank: {rank}, Epoch {epoch}: Training Loss = {losses.avg:.4f}, Top-5 Accuracy = {top5accs.avg:.4f}", flush=True)
+    # return losses.avg, top5accs.avg, batchTime.avg, dataTime.avg
+    return losses.avg, top5accs.avg, batchTimeAvg, dataTimeAvg
+
+def trainWithoutTeacherForcing(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decoderOptimizer, epoch, device, world_size):
+
+    encoder.train()
+    decoder.train()
+
+    batchTime = AverageMeter()  # forward prop. + back prop. time
+    dataTime = AverageMeter()  # data loading time
+    losses = AverageMeter()  # loss (per word decoded)
+    top5accs = AverageMeter()  # top5 accuracy
+    start = time.time()
+
+    for i, (imgs, caps, caplens) in enumerate(trainDataLoader):
+        dataTime.update(time.time() - start)
+        rank = dist.get_rank()
+
+        if (i % 1000 == 0):
+            print(f"No TF, Rank: {rank}, Epoch {epoch}, Batch {i + 1}/{len(trainDataLoader)}", flush=True)
+
+        imgs = imgs.to(device)
+        caps = caps.to(device)
+        caplens = caplens.to(device)
+
+        imgs = encoder(imgs)
+        if lstmDecoder is True:
+            scores, alphas, sequences, actualDecodeLengths = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=50)
+            loss, totalTokensEvaluated = sequenceLoss(scores, caps, actualDecodeLengths, criterion, wordMap['<pad>'])
+            loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
+        else: 
+            tgt_key_padding_mask = (caps == wordMap['<pad>'])
+            scores, capsSorted, decodeLengths = decoder(imgs, caps, caplens, tgt_key_padding_mask)
+            # Since we decoded starting with <start>, the targets are all words after <start>, up to <end>
+            targets = capsSorted[:, 1:]  # still in the form of indices
+            scores = pack_padded_sequence(scores, decodeLengths, batch_first=True, enforce_sorted=False).data  # scores are logits
+            targets = pack_padded_sequence(targets, decodeLengths, batch_first=True, enforce_sorted=False).data
+            loss = criterion(scores, targets)
+
+        if encoderOptimizer is not None:
+            encoderOptimizer.zero_grad()
+        decoderOptimizer.zero_grad()
+        loss.backward()
+
+        # Clip gradients
+        if gradClip is not None:
+            clip_gradient(decoderOptimizer, gradClip)
+            if encoderOptimizer is not None:
+                clip_gradient(encoderOptimizer, gradClip)
+
+        if encoderOptimizer is not None:
+            encoderOptimizer.step()
+        decoderOptimizer.step()
+
+
+        globalLoss, totalTokens = reduceLossAndTokens(loss, totalTokensEvaluated, device)
+
+        correct5, total = accuracyInference(scores, caps, actualDecodeLengths, 5, wordMap['<pad>'], 'multi')
+        correct5 = torch.tensor(correct5, dtype=torch.float32, device=device)
+        total = torch.tensor(total, dtype=torch.float32, device=device)
+        dist.all_reduce(correct5, op=dist.ReduceOp.SUM)
+        dist.all_reduce(total, op=dist.ReduceOp.SUM)
+        top5 = (correct5 / total).item() * 100
+
+        # Keep track of metrics
+        losses.update(globalLoss, totalTokens)
+        top5accs.update(top5, total.item())
+        batchTime.update(time.time() - start)
+
+        start = time.time()
+
+    batchTimeTensor = torch.tensor(batchTime.avg).to(device)
+    dataTimeTensor = torch.tensor(dataTime.avg).to(device)
+    dist.all_reduce(batchTimeTensor, op=dist.ReduceOp.SUM)
+    dist.all_reduce(dataTimeTensor, op=dist.ReduceOp.SUM)
+    batchTimeAvg = batchTimeTensor.item() / world_size
+    dataTimeAvg = dataTimeTensor.item() / world_size
+
+    print(f"No TF, Rank: {rank}, Epoch {epoch}: Training Loss = {losses.avg:.4f}, Top-5 Accuracy = {top5accs.avg:.4f}", flush=True)
     # return losses.avg, top5accs.avg, batchTime.avg, dataTime.avg
     return losses.avg, top5accs.avg, batchTimeAvg, dataTimeAvg
 
@@ -402,12 +494,8 @@ def validate(valDataLoader, encoder, decoder, criterion, device, world_size):
                 imgs = encoder(imgs)
 
             if lstmDecoder is True:
-                scores, capsSorted, decodeLengths, alphas, sortInd = decoder(imgs, caps, caplens)
-                targets = capsSorted[:, 1:]
-                scoresCopy = scores.clone()
-                scores = pack_padded_sequence(scores, decodeLengths, batch_first=True).data
-                targets = pack_padded_sequence(targets, decodeLengths, batch_first=True).data
-                loss = criterion(scores, targets)
+                scores, alphas, sequences, actualDecodeLengths = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=50)
+                loss, totalTokensEvaluated = sequenceLoss(scores, caps, actualDecodeLengths, criterion, wordMap['<pad>'])
                 # Add doubly stochastic attention regularization
                 loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
             else:     
@@ -420,9 +508,9 @@ def validate(valDataLoader, encoder, decoder, criterion, device, world_size):
                 loss = criterion(scores, targets)
 
             
-            globalLoss, totalTokens = reduceLossAndTokens(loss, decodeLengths, device)
+            globalLoss, totalTokens = reduceLossAndTokens(loss, totalTokensEvaluated, device)
 
-            correct5, total = accuracy(scores, targets, 5)
+            correct5, total = accuracyInference(scores, caps, actualDecodeLengths, 5, wordMap['<pad>'], 'multi')
             correct5 = torch.tensor(correct5, dtype=torch.float32, device=device)
             total = torch.tensor(total, dtype=torch.float32, device=device)
             dist.all_reduce(correct5, op=dist.ReduceOp.SUM)
@@ -436,28 +524,21 @@ def validate(valDataLoader, encoder, decoder, criterion, device, world_size):
             start = time.time()
 
             # References
-            if lstmDecoder is True:
-                sortInd = sortInd.to(device)
-                allcaps = allcaps.to(device)
-                allcaps = allcaps[sortInd]  # because images were sorted in the decoder
-            else:
-                allcaps = allcaps.to(device)
-
-            for j in range(allcaps.shape[0]):
-                imgCaps = allcaps[j].tolist()
-                imgCaptions = list(
-                    map(lambda c: [w for w in c if w not in {wordMap['<start>'], wordMap['<pad>']}],
-                        imgCaps))  # remove <start> and pads
+            allcaps = allcaps.to(device)
+            for j in range(allcaps.shape[0]): # Iterate through each image in the batch
+                imgCaps = allcaps[j].tolist() # This would be a list of lists, where each inner list is a reference
+                imgCaptions = []
+                for c_list in imgCaps: # Iterate through each reference caption for the current image
+                    filtered_caption = [w for w in c_list if w not in {wordMap['<start>'], wordMap['<pad>']}]
+                    imgCaptions.append(filtered_caption)
                 references.append(imgCaptions)
             
             # Hypotheses
-            _, preds = torch.max(scoresCopy, dim=2)
-            preds = preds.tolist()
-            tempPreds = list()
-            for j, p in enumerate(preds):
-                tempPreds.append(preds[j][:decodeLengths[j]])  # remove pads
-            preds = tempPreds
-            hypotheses.extend(preds)
+            batchHypotheses = [] # Create a temporary list to hold all captions for this batch
+            for j, p_seq_tensor in enumerate(sequences):
+                truncated_predicted_list = p_seq_tensor[:actualDecodeLengths[j]].tolist()
+                batchHypotheses.append(truncated_predicted_list) 
+            hypotheses.extend(batchHypotheses) 
 
             assert len(references) == len(hypotheses)
 

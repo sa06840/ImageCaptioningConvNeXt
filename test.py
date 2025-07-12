@@ -185,8 +185,8 @@ def test(testDataLoader, encoder, decoder, criterion):
                 imgs = encoder(imgs)
 
             if lstmDecoder is True:
-                scores, alphas, sequences, actualDecodeLengths = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=100)
-                loss, totalTokenEvaluated = sequenceLoss(scores, caps, actualDecodeLengths, criterion, wordMap['<pad>'])
+                scores, alphas, sequences, actualDecodeLengths = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=50)
+                loss, totalTokensEvaluated = sequenceLoss(scores, caps, actualDecodeLengths, criterion, wordMap['<pad>'])
                 # Add doubly stochastic attention regularization
                 loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
             else:
@@ -198,10 +198,9 @@ def test(testDataLoader, encoder, decoder, criterion):
                 targets = pack_padded_sequence(targets, decodeLengths, batch_first=True, enforce_sorted=False).data
                 loss = criterion(scores, targets)
 
-
-            top5 = accuracyInference(scores, caps, actualDecodeLengths, 5, wordMap['<pad>'])
-            losses.update(loss.item(), totalTokenEvaluated)
-            top5accs.update(top5, totalTokenEvaluated)
+            top5 = accuracyInference(scores, caps, actualDecodeLengths, 5, wordMap['<pad>'], 'single')
+            losses.update(loss.item(), totalTokensEvaluated)
+            top5accs.update(top5, totalTokensEvaluated)
             batchTime.update(time.time() - start)
 
             start = time.time()
@@ -217,11 +216,11 @@ def test(testDataLoader, encoder, decoder, criterion):
                 references.append(imgCaptions)
             
             # Hypotheses
-            for j, p_seq_tensor in enumerate(sequences): # Iterate through each predicted sequence tensor
+            batchHypotheses = [] # Create a temporary list to hold all captions for this batch
+            for j, p_seq_tensor in enumerate(sequences):
                 truncated_predicted_list = p_seq_tensor[:actualDecodeLengths[j]].tolist()
-                if wordMap['<end>'] in truncated_predicted_list:
-                    truncated_predicted_list = truncated_predicted_list[:truncated_predicted_list.index(wordMap['<end>'])]
-                hypotheses.append(truncated_predicted_list) # Append the processed predicted caption
+                batchHypotheses.append(truncated_predicted_list) 
+            hypotheses.extend(batchHypotheses) 
 
             assert len(references) == len(hypotheses)
         

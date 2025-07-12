@@ -40,7 +40,7 @@ from utils.utils import *
 import argparse
 
 # Set device to GPU (if available) or CPU
-device = torch.device("cuda")
+device = torch.device("mps")
 
 # Data parameters
 # dataFolder = 'flickr8kDataset/inputFiles'
@@ -59,7 +59,7 @@ maxLen = 52 # maximum length of captions (in words), used for padding
 
 # Training parameters
 startEpoch = 0
-epochs = 120  # number of epochs to train for (if early stopping is not triggered)
+epochs = 2  # number of epochs to train for (if early stopping is not triggered)
 epochsSinceImprovement = 0  # keeps track of number of epochs since there's been an improvement in validation BLEU
 batchSize = 32  #32
 workers = 6
@@ -73,9 +73,14 @@ fineTuneEncoder = False  # fine-tune encoder
 parser = argparse.ArgumentParser()
 parser.add_argument('--checkpoint', type=str, default=None, help='Path to checkpoint file')
 parser.add_argument('--lstmDecoder', action='store_true', help='Use LSTM decoder instead of Transformer')
+parser.add_argument('--teacherForcing', action='store_true', help='Use teacher forcing training strategy')
 args = parser.parse_args()
-checkpoint = args.checkpoint
-lstmDecoder = args.lstmDecoder
+# checkpoint = args.checkpoint
+# lstmDecoder = args.lstmDecoder
+# teacherForcing = args.teacherForcing
+checkpoint = None
+lstmDecoder = True
+teacherForcing = False
 
 
 def optimizer_to_device(optimizer, device):
@@ -154,15 +159,25 @@ def main():
             if fineTuneEncoder:
                 adjust_learning_rate(encoderOptimizer, 0.8)
 
-        trainLoss, trainTop5Acc, trainBatchTime, trainDataTime = train(trainDataLoader=trainDataLoader,
-            encoder=encoder,
-            decoder=decoder,
-            criterion=criterion,
-            encoderOptimizer=encoderOptimizer,
-            decoderOptimizer=decoderOptimizer,
-            epoch=epoch,
-            device=device)
-        
+        if teacherForcing is True:
+            trainLoss, trainTop5Acc, trainBatchTime, trainDataTime = trainWithTeacherForcing(trainDataLoader=trainDataLoader,
+                encoder=encoder,
+                decoder=decoder,
+                criterion=criterion,
+                encoderOptimizer=encoderOptimizer,
+                decoderOptimizer=decoderOptimizer,
+                epoch=epoch,
+                device=device)
+        else:
+            trainLoss, trainTop5Acc, trainBatchTime, trainDataTime = trainWithoutTeacherForcing(trainDataLoader=trainDataLoader,
+                encoder=encoder,
+                decoder=decoder,
+                criterion=criterion,
+                encoderOptimizer=encoderOptimizer,
+                decoderOptimizer=decoderOptimizer,
+                epoch=epoch,
+                device=device)
+
         valLoss, valTop5Acc, bleu1, bleu2, bleu3, recentBleu4 = validate(valDataLoader=valDataLoader,
                             encoder=encoder,
                             decoder=decoder,
@@ -201,13 +216,13 @@ def main():
     resultsDF = pd.DataFrame(results)
     os.makedirs('results', exist_ok=True)
     if lstmDecoder is True:
-        resultsDF.to_csv('results/metrics-lstmDecoder(6workers-60gbRAM-noReproducibility-singleGPU).csv', index=False)
+        resultsDF.to_csv('results/metrics-lstmDecoder(trainingNoTF-inferenceNoTF).csv', index=False)
     else: 
-        resultsDF.to_csv('results/metrics-transformerDecoder(6workers-60gbRAM-noReproducibility-singleGPU).csv', index=False)
+        resultsDF.to_csv('results/metrics-transformerDecoder(trainingNoTF-inferenceNoTF).csv', index=False)
 
 
 
-def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decoderOptimizer, epoch, device):
+def trainWithTeacherForcing(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decoderOptimizer, epoch, device):
 
     encoder.train()
     decoder.train()
@@ -230,7 +245,7 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
 
         imgs = encoder(imgs)
         if lstmDecoder is True:
-            scores, capsSorted, decodeLengths, alphas, sortInd = decoder(encoder_out=imgs, encoded_captions=caps, caption_lengths=caplens)
+            scores, capsSorted, decodeLengths, alphas, sortInd = decoder(teacherForcing=True, encoder_out=imgs, encoded_captions=caps, caption_lengths=caplens)
             # Since we decoded starting with <start>, the targets are all words after <start>, up to <end>
             targets = capsSorted[:, 1:]  # still in the form of indices
             # Remove timesteps that we didn't decode at, or are pads
@@ -264,7 +279,7 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
             encoderOptimizer.step()
         decoderOptimizer.step()
 
-        top5 = accuracySingleGPU(scores, targets, 5)
+        top5 = accuracy(scores, targets, 5, 'single')
         # Keep track of metrics
         losses.update(loss.item(), sum(decodeLengths))
         top5accs.update(top5, sum(decodeLengths))
@@ -274,6 +289,64 @@ def train(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decode
 
     print(f"Epoch {epoch}: Training Loss = {losses.avg:.4f}, Top-5 Accuracy = {top5accs.avg:.4f}", flush=True)
     return losses.avg, top5accs.avg, batchTime.avg, dataTime.avg
+
+
+def trainWithoutTeacherForcing(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decoderOptimizer, epoch, device):
+        encoder.train()
+        decoder.train()
+
+        batchTime = AverageMeter()
+        dataTime = AverageMeter() 
+        losses = AverageMeter()  
+        top5accs = AverageMeter() 
+        start = time.time()
+
+        for i, (imgs, caps, caplens) in enumerate(trainDataLoader):
+            dataTime.update(time.time() - start)
+
+            if (i % 100 == 0):
+                print(f"Epoch {epoch}, Batch {i + 1}/{len(trainDataLoader)}", flush=True)
+
+            imgs = imgs.to(device)
+            caps = caps.to(device)
+            caplens = caplens.to(device)
+
+            imgs = encoder(imgs)
+            if lstmDecoder is True:
+                scores, alphas, sequences, actualDecodeLengths = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=50)
+                loss, totalTokensEvaluated = sequenceLoss(scores, caps, actualDecodeLengths, criterion, wordMap['<pad>'])
+                loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
+            else: 
+                tgt_key_padding_mask = (caps == wordMap['<pad>'])
+                scores, capsSorted, decodeLengths = decoder(imgs, caps, caplens, tgt_key_padding_mask)
+                targets = capsSorted[:, 1:]
+                scores = pack_padded_sequence(scores, decodeLengths, batch_first=True, enforce_sorted=False).data  # scores are logits
+                targets = pack_padded_sequence(targets, decodeLengths, batch_first=True, enforce_sorted=False).data
+                loss = criterion(scores, targets)
+
+            if encoderOptimizer is not None:
+                encoderOptimizer.zero_grad()
+            decoderOptimizer.zero_grad()
+            loss.backward()
+
+            if gradClip is not None:
+                clip_gradient(decoderOptimizer, gradClip)
+                if encoderOptimizer is not None:
+                    clip_gradient(encoderOptimizer, gradClip)
+
+            if encoderOptimizer is not None:
+                encoderOptimizer.step()
+            decoderOptimizer.step()
+
+            top5 = accuracyInference(scores, caps, actualDecodeLengths, 5, wordMap['<pad>'], 'single')
+            losses.update(loss.item(), totalTokensEvaluated)
+            top5accs.update(top5, totalTokensEvaluated)
+            batchTime.update(time.time() - start)
+
+            start = time.time()
+
+        print(f"Epoch {epoch}: Training Loss = {losses.avg:.4f}, Top-5 Accuracy = {top5accs.avg:.4f}", flush=True)
+        return losses.avg, top5accs.avg, batchTime.avg, dataTime.avg
 
 
 def validate(valDataLoader, encoder, decoder, criterion, device):
@@ -305,8 +378,8 @@ def validate(valDataLoader, encoder, decoder, criterion, device):
                 imgs = encoder(imgs)
 
             if lstmDecoder is True:
-                scores, alphas, sequences, actualDecodeLengths = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=100)
-                loss = sequenceLoss(scores, caps, actualDecodeLengths, criterion)
+                scores, alphas, sequences, actualDecodeLengths = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=50)
+                loss, totalTokensEvaluated = sequenceLoss(scores, caps, actualDecodeLengths, criterion, wordMap['<pad>'])
                 # Add doubly stochastic attention regularization
                 loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
             else:     
@@ -318,11 +391,9 @@ def validate(valDataLoader, encoder, decoder, criterion, device):
                 targets = pack_padded_sequence(targets, decodeLengths, batch_first=True, enforce_sorted=False).data
                 loss = criterion(scores, targets)
 
-            top5 = accuracyInference(scores, caps, actualDecodeLengths, 5, wordMap['<pad>'])
-            # top5 = accuracySingleGPU(scores, targets, 5)
-
-            losses.update(loss.item(), sum(decodeLengths))
-            top5accs.update(top5, sum(decodeLengths))
+            top5 = accuracyInference(scores, caps, actualDecodeLengths, 5, wordMap['<pad>'], 'single')
+            losses.update(loss.item(), totalTokensEvaluated)
+            top5accs.update(top5, totalTokensEvaluated)
             batchTime.update(time.time() - start)
 
             start = time.time()
@@ -338,11 +409,11 @@ def validate(valDataLoader, encoder, decoder, criterion, device):
                 references.append(imgCaptions)
             
             # Hypotheses
-            for j, p_seq_tensor in enumerate(sequences): # Iterate through each predicted sequence tensor
+            batchHypotheses = [] # Create a temporary list to hold all captions for this batch
+            for j, p_seq_tensor in enumerate(sequences):
                 truncated_predicted_list = p_seq_tensor[:actualDecodeLengths[j]].tolist()
-                if wordMap['<end>'] in truncated_predicted_list:
-                    truncated_predicted_list = truncated_predicted_list[:truncated_predicted_list.index(wordMap['<end>'])]
-                hypotheses.append(truncated_predicted_list) # Append the processed predicted caption
+                batchHypotheses.append(truncated_predicted_list) 
+            hypotheses.extend(batchHypotheses) 
 
             assert len(references) == len(hypotheses)
         

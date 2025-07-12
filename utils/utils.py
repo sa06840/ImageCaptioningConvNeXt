@@ -228,7 +228,7 @@ def adjust_learning_rate(optimizer, shrink_factor):
     print("The new learning rate is %f\n" % (optimizer.param_groups[0]['lr'],))
 
 
-def accuracy(scores, targets, k):
+def accuracy(scores, targets, k, gpu):
     """
     Computes top-k accuracy, from predicted and true labels.
     :param scores: scores from the model
@@ -241,22 +241,10 @@ def accuracy(scores, targets, k):
     correct = ind.eq(targets.view(-1, 1).expand_as(ind))
     correct_total = correct.view(-1).float().sum()  # 0D tensor
     # return correct_total.item() * (100.0 / batch_size)
-    return correct_total.item(), batch_size
-
-
-def accuracySingleGPU(scores, targets, k):
-    """
-    Computes top-k accuracy, from predicted and true labels.
-    :param scores: scores from the model
-    :param targets: true labels
-    :param k: k in top-k accuracy
-    :return: top-k accuracy
-    """
-    batch_size = targets.size(0)
-    _, ind = scores.topk(k, 1, True, True)
-    correct = ind.eq(targets.view(-1, 1).expand_as(ind))
-    correct_total = correct.view(-1).float().sum()  # 0D tensor
-    return correct_total.item() * (100.0 / batch_size)
+    if gpu == 'multi':
+        return correct_total.item(), batch_size
+    elif gpu == 'single':
+        return correct_total.item() * (100.0 / batch_size)
 
 
 def sequenceLoss(predictions, encodedCaptions, actualDecodeLengths, criterion, pad_token_idx):
@@ -273,7 +261,7 @@ def sequenceLoss(predictions, encodedCaptions, actualDecodeLengths, criterion, p
         predictedLogitsCurrentSequence = predictedLogitsFullSequence[nonPaddingMask]
         groundTruthIdsCurrentSequence = groundTruthIdsFullSequence[nonPaddingMask]
 
-        numValidTokensInSequence = groundTruthIdsCurrentSequence.numel()
+        numValidTokensInSequence = groundTruthIdsCurrentSequence.numel()  # gives count
         if numValidTokensInSequence == 0:
             continue
             
@@ -288,7 +276,7 @@ def sequenceLoss(predictions, encodedCaptions, actualDecodeLengths, criterion, p
     return averageBatchLossPerToken, totalEvaluatedTokenCount
 
 
-def accuracyInference(predictions, encodedCaptions, actualDecodeLengths, k, pad_token_idx):
+def accuracyInference(predictions, encodedCaptions, actualDecodeLengths, k, pad_token_idx, gpu):
     batchSize = predictions.size(0)
     totalCorrectTokenCount = 0
     totalEvaluatedTokenCount = 0
@@ -306,11 +294,14 @@ def accuracyInference(predictions, encodedCaptions, actualDecodeLengths, k, pad_
 
         _, topKIndices = predictedLogitsFiltered.topk(k, dim=1, largest=True, sorted=True)
         correctPredictionsForSequence = topKIndices.eq(groundTruthIdsFiltered.view(-1, 1).expand_as(topKIndices))
-        correctCountForSequence = correctPredictionsForSequence.sum().item()   # Sum the number of correct predictions for this sequence
+        correctCountForSequence = correctPredictionsForSequence.sum().item()
 
         totalCorrectTokenCount += correctCountForSequence
-        totalEvaluatedTokenCount += groundTruthIdsFiltered.numel() # Number of non-pad tokens for this sequence
+        totalEvaluatedTokenCount += groundTruthIdsFiltered.numel()
 
-    if totalEvaluatedTokenCount == 0:
-        return 0.0   # Avoid division by zero if no tokens were evaluated
-    return (totalCorrectTokenCount / totalEvaluatedTokenCount) * 100.0
+    if gpu == 'multi':
+        return totalCorrectTokenCount, totalEvaluatedTokenCount
+
+    elif gpu == 'single':
+        return (totalCorrectTokenCount / totalEvaluatedTokenCount) * 100.0
+    
