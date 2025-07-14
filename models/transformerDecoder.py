@@ -47,32 +47,86 @@ class TransformerDecoder(nn.Module):
         self.encoder_proj = nn.Linear(encoder_dim, embed_dim) if encoder_dim != embed_dim else nn.Identity()
         self.device = device
 
-    def forward(self, encoder_out, encoded_captions, caption_lengths, tgt_key_padding_mask):
-        # encoder_out: (batch_size, enc_image_size, enc_image_size, encoder_dim)
-        # encoded_captions: (batch_size, max_caption_length)
+    def forwardWithTeacherForcing(self, encoder_out, encoded_captions, caption_lengths, tgt_key_padding_mask):
         batch_size = encoder_out.size(0)
         encoder_dim = encoder_out.size(-1)
         caption_lengths = caption_lengths.squeeze(1)
         decode_lengths = (caption_lengths - 1).tolist()
-        # Flatten image
+    
         encoder_out = encoder_out.view(batch_size, -1, encoder_dim)  # (batch_size, num_pixels, encoder_dim)
-
-        # Project encoder output to embed_dim and reshape to [num_pixels, batch_size, embed_dim]
         encoder_out = self.encoder_proj(encoder_out).permute(1, 0, 2)  # [num_pixels, batch_size, embed_dim]
 
-        # Embed captions and apply positional encoding
         embeddings = self.embedding(encoded_captions)  # [batch_size, max_caption_length, embed_dim]
         embeddings = self.pos_encoding(self.dropout(embeddings))
         tgt = embeddings.permute(1, 0, 2)  # [max_len, batch_size, embed_dim]
 
-        # Generate target mask for masked self-attention
         tgt_seq_len = tgt.size(0)
         tgt_mask = nn.Transformer.generate_square_subsequent_mask(tgt_seq_len).to(self.device).bool()  # [max_caption_length, max_caption_length]
 
-        # Transformer decoding
         decoder_out = self.transformer_decoder(tgt, encoder_out, tgt_mask=tgt_mask, tgt_key_padding_mask=tgt_key_padding_mask)  # [max_len, batch_size, embed_dim]
         decoder_out = decoder_out.permute(1, 0, 2)  # [batch_size, max_caption_length, embed_dim]
-        # Final prediction scores
         predictions = self.fc_out(decoder_out)  # [batch_size, max_caption_length, vocab_size]
 
         return predictions, encoded_captions, decode_lengths
+
+    def forwardWithoutTeacherForcing(self, encoder_out, wordMap, maxDecodeLen):
+        batch_size = encoder_out.size(0)
+        encoder_dim = encoder_out.size(-1)
+        encoder_out = encoder_out.view(batch_size, -1, encoder_dim)  # (batch_size, num_pixels, encoder_dim)
+        encoder_out = self.encoder_proj(encoder_out).permute(1, 0, 2)  # [num_pixels, batch_size, embed_dim]
+
+        start_token_idx = wordMap['<start>']
+        end_token_idx = wordMap['<end>']
+        
+        inputs = torch.full((batch_size, 1), start_token_idx, dtype=torch.long, device=self.device) 
+        predictions = torch.zeros(batch_size, maxDecodeLen, self.vocab_size, device=self.device) 
+        sequences = torch.zeros(batch_size, maxDecodeLen, dtype=torch.long, device=self.device) 
+        finished = torch.zeros(batch_size, dtype=torch.bool, device=self.device) 
+
+        for t in range(maxDecodeLen):
+            active_indices = (~finished).nonzero(as_tuple=False).squeeze(1) 
+            if len(active_indices) == 0:
+                break  
+
+            embeddings = self.embedding(inputs[active_indices]) 
+            embeddings = self.pos_encoding(self.dropout(embeddings)) 
+            
+            tgt = embeddings.permute(1, 0, 2)
+            tgt_seq_len = tgt.size(0)
+            tgt_mask = nn.Transformer.generate_square_subsequent_mask(tgt_seq_len).to(self.device).bool() 
+            
+            decoder_output_sliced = self.transformer_decoder(
+                tgt,                                    # [current_seq_len, active_batch_size, embed_dim]
+                encoder_out[:, active_indices, :],      # [num_pixels, active_batch_size, embed_dim]
+                tgt_mask=tgt_mask
+            ) # Output shape: [current_seq_len, active_batch_size, embed_dim]
+
+            last_token_output_sliced = decoder_output_sliced[-1, :, :] # [active_batch_size, embed_dim]
+
+            preds = self.fc_out(last_token_output_sliced) 
+            predictions[active_indices, t, :] = preds 
+
+            pred_ids = preds.argmax(dim=-1) 
+            sequences[active_indices, t] = pred_ids 
+            finished[active_indices] |= (pred_ids == end_token_idx) 
+
+            inputs_new_active = torch.cat([inputs[active_indices], pred_ids.unsqueeze(1)], dim=1)
+            new_full_inputs = torch.full( 
+                (batch_size, t + 2), 
+                wordMap['<pad>'], 
+                dtype=torch.long, 
+                device=self.device)
+            
+            new_full_inputs[:, :t+1] = inputs 
+            new_full_inputs[active_indices, t+1] = pred_ids
+            inputs = new_full_inputs 
+        
+        return predictions, sequences
+
+    def forward(self, teacherForcing, encoder_out, encoded_captions=None, caption_lengths=None, tgt_key_padding_mask=None, wordMap=None, maxDecodeLen=None):
+        if teacherForcing is True:
+            predictions, encoded_captions, decode_lengths = self.forwardWithTeacherForcing(encoder_out, encoded_captions, caption_lengths, tgt_key_padding_mask)
+            return predictions, encoded_captions, decode_lengths
+        elif teacherForcing is not True:
+            predictions, sequences = self.forwardWithoutTeacherForcing(encoder_out, wordMap, maxDecodeLen)
+            return predictions, sequences

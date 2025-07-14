@@ -209,7 +209,7 @@ def save_checkpoint(dataName, epoch, epochsSinceImprovement, encoderSaved, decod
     if lstmDecoder is True:
         filename = 'checkpoint_LSTM_' + dataName + '.pth.tar'
     else:
-        filename = 'checkpoint_Transformer_' + dataName + '.pth.tar'
+        filename = 'checkpoint_HFTransformer_' + dataName + '.pth.tar'
     torch.save(state, filename)
     # If this checkpoint is the best so far, store a copy so it doesn't get overwritten by a worse checkpoint
     if isBest:

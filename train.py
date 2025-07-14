@@ -35,6 +35,7 @@ import pandas as pd
 from models.encoder import Encoder 
 from models.decoder import DecoderWithAttention
 from models.transformerDecoder import TransformerDecoder
+from models.transformerDecoderHF import HFTransformerDecoder
 from dataLoader import CaptionDataset
 from utils.utils import *
 import argparse
@@ -79,8 +80,8 @@ args = parser.parse_args()
 # lstmDecoder = args.lstmDecoder
 # teacherForcing = args.teacherForcing
 checkpoint = None
-lstmDecoder = True
-teacherForcing = False
+lstmDecoder = False
+teacherForcing = True
 
 def optimizer_to_device(optimizer, device):
     for state in optimizer.state.values():
@@ -102,7 +103,8 @@ def main():
         if lstmDecoder is True:
             decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
         else:
-            decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device)
+            # decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device)
+            decoder = HFTransformerDecoder(vocab_size=len(wordMap), device=device, wordMap=wordMap)
         decoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, decoder.parameters()), lr=decoderLr)
         encoder = Encoder()
         encoder.fine_tune(fineTuneEncoder)
@@ -115,7 +117,8 @@ def main():
         if lstmDecoder is True:
             decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
         else:
-            decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device)
+            # decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device)
+            decoder = HFTransformerDecoder(vocab_size=len(wordMap), device=device, wordMap=wordMap)
         decoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, decoder.parameters()), lr=decoderLr)
         encoder = Encoder()
         checkpoint = torch.load(checkpoint, map_location=device, weights_only=False)
@@ -215,9 +218,9 @@ def main():
     resultsDF = pd.DataFrame(results)
     os.makedirs('results', exist_ok=True)
     if lstmDecoder is True:
-        resultsDF.to_csv('results/metrics-lstmDecoder(trainingNoTF-inferenceNoTF).csv', index=False)
+        resultsDF.to_csv('results/metrics-LSTM(trainingTF-inferenceNoTF).csv', index=False)
     else: 
-        resultsDF.to_csv('results/metrics-transformerDecoder(trainingNoTF-inferenceNoTF).csv', index=False)
+        resultsDF.to_csv('results/metrics-HFTransformerDecoder(trainingTF-inferenceNoTF).csv', index=False)
 
 
 
@@ -236,7 +239,7 @@ def trainWithTeacherForcing(trainDataLoader, encoder, decoder, criterion, encode
         dataTime.update(time.time() - start)
 
         if (i % 100 == 0):
-            print(f"Epoch {epoch}, Batch {i + 1}/{len(trainDataLoader)}", flush=True)
+            print(f"TF, Epoch {epoch}, Batch {i + 1}/{len(trainDataLoader)}", flush=True)
 
         imgs = imgs.to(device)
         caps = caps.to(device)
@@ -245,20 +248,19 @@ def trainWithTeacherForcing(trainDataLoader, encoder, decoder, criterion, encode
         imgs = encoder(imgs)
         if lstmDecoder is True:
             scores, capsSorted, decodeLengths, alphas, sortInd = decoder(teacherForcing=True, encoder_out=imgs, encoded_captions=caps, caption_lengths=caplens)
-            # Since we decoded starting with <start>, the targets are all words after <start>, up to <end>
             targets = capsSorted[:, 1:]  # still in the form of indices
-            # Remove timesteps that we didn't decode at, or are pads
-            # pack_padded_sequence is an easy trick to do this
             scores = pack_padded_sequence(scores, decodeLengths, batch_first=True).data  # scores are logits
             targets = pack_padded_sequence(targets, decodeLengths, batch_first=True).data
             loss = criterion(scores, targets)
-            # Add doubly stochastic attention regularization
             loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
         else: 
-            tgt_key_padding_mask = (caps == wordMap['<pad>'])
-            scores, capsSorted, decodeLengths = decoder(imgs, caps, caplens, tgt_key_padding_mask)
+            # tgt_key_padding_mask = (caps == wordMap['<pad>'])
+            # scores, capsSorted, decodeLengths = decoder(imgs, caps, caplens, tgt_key_padding_mask)
+            # scores, capsSorted, decodeLengths = decoder(teacherForcing=True, encoder_out=imgs, encoded_captions=caps, caption_lengths=caplens, tgt_key_padding_mask=tgt_key_padding_mask)
+            scores, remapped_encoded_captions, decodeLengths = decoder(teacherForcing=True, encoder_out=imgs, encoded_captions=caps, caption_lengths=caplens)
             # Since we decoded starting with <start>, the targets are all words after <start>, up to <end>
-            targets = capsSorted[:, 1:]  # still in the form of indices
+            targets = remapped_encoded_captions[:, 1:]  # still in the form of indices
+            # targets = capsSorted[:, 1:]
             scores = pack_padded_sequence(scores, decodeLengths, batch_first=True, enforce_sorted=False).data  # scores are logits
             targets = pack_padded_sequence(targets, decodeLengths, batch_first=True, enforce_sorted=False).data
             loss = criterion(scores, targets)
@@ -286,7 +288,7 @@ def trainWithTeacherForcing(trainDataLoader, encoder, decoder, criterion, encode
 
         start = time.time()
 
-    print(f"Epoch {epoch}: Training Loss = {losses.avg:.4f}, Top-5 Accuracy = {top5accs.avg:.4f}", flush=True)
+    print(f"TF, Epoch {epoch}: Training Loss = {losses.avg:.4f}, Top-5 Accuracy = {top5accs.avg:.4f}", flush=True)
     return losses.avg, top5accs.avg, batchTime.avg, dataTime.avg
 
 
@@ -303,8 +305,9 @@ def trainWithoutTeacherForcing(trainDataLoader, encoder, decoder, criterion, enc
         for i, (imgs, caps, caplens) in enumerate(trainDataLoader):
             dataTime.update(time.time() - start)
 
+
             if (i % 100 == 0):
-                print(f"Epoch {epoch}, Batch {i + 1}/{len(trainDataLoader)}", flush=True)
+                print(f"No TF, Epoch {epoch}, Batch {i + 1}/{len(trainDataLoader)}", flush=True)
 
             imgs = imgs.to(device)
             caps = caps.to(device)
@@ -317,12 +320,18 @@ def trainWithoutTeacherForcing(trainDataLoader, encoder, decoder, criterion, enc
                 loss = criterion(scoresUpdated, targetsUpdated)
                 loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
             else: 
-                tgt_key_padding_mask = (caps == wordMap['<pad>'])
-                scores, capsSorted, decodeLengths = decoder(imgs, caps, caplens, tgt_key_padding_mask)
-                targets = capsSorted[:, 1:]
-                scores = pack_padded_sequence(scores, decodeLengths, batch_first=True, enforce_sorted=False).data  # scores are logits
-                targets = pack_padded_sequence(targets, decodeLengths, batch_first=True, enforce_sorted=False).data
-                loss = criterion(scores, targets)
+                # tgt_key_padding_mask = (caps == wordMap['<pad>'])
+                # scores, capsSorted, decodeLengths = decoder(imgs, caps, caplens, tgt_key_padding_mask)
+                # targets = capsSorted[:, 1:]
+                # scores = pack_padded_sequence(scores, decodeLengths, batch_first=True, enforce_sorted=False).data  # scores are logits
+                # targets = pack_padded_sequence(targets, decodeLengths, batch_first=True, enforce_sorted=False).data
+                # loss = criterion(scores, targets)
+                # scores, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=50)
+                # scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, caps, wordMap['<end>'], wordMap['<pad>'], 50)
+                scores, sequences = decoder(teacherForcing=False, encoder_out=imgs, state='train', maxDecodeLen=50)
+                remapped_encoded_captions = decoder.customToT5[caps]
+                scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, remapped_encoded_captions, wordMap['<end>'], decoder.t5_pad_token_id, 50)
+                loss = criterion(scoresUpdated, targetsUpdated)
 
             if encoderOptimizer is not None:
                 encoderOptimizer.zero_grad()
@@ -345,7 +354,7 @@ def trainWithoutTeacherForcing(trainDataLoader, encoder, decoder, criterion, enc
 
             start = time.time()
 
-        print(f"Epoch {epoch}: Training Loss = {losses.avg:.4f}, Top-5 Accuracy = {top5accs.avg:.4f}", flush=True)
+        print(f"No TF, Epoch {epoch}: Training Loss = {losses.avg:.4f}, Top-5 Accuracy = {top5accs.avg:.4f}", flush=True)
         return losses.avg, top5accs.avg, batchTime.avg, dataTime.avg
 
 
@@ -368,7 +377,7 @@ def validate(valDataLoader, encoder, decoder, criterion, device):
         for i, (imgs, caps, caplens, allcaps) in enumerate(valDataLoader):
 
             if (i % 100 == 0):
-                print(f"Validation Batch {i + 1}/{len(valDataLoader)}", flush=True)
+                print(f"No TF, Validation Batch {i + 1}/{len(valDataLoader)}", flush=True)
 
             imgs = imgs.to(device)
             caps = caps.to(device)
@@ -384,13 +393,19 @@ def validate(valDataLoader, encoder, decoder, criterion, device):
                 # Add doubly stochastic attention regularization
                 loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
             else:     
-                tgt_key_padding_mask = (caps == wordMap['<pad>'])
-                scores, capsSorted, decodeLengths = decoder(imgs, caps, caplens, tgt_key_padding_mask)
-                targets = capsSorted[:, 1:]
-                scoresCopy = scores.clone()
-                scores = pack_padded_sequence(scores, decodeLengths, batch_first=True, enforce_sorted=False).data
-                targets = pack_padded_sequence(targets, decodeLengths, batch_first=True, enforce_sorted=False).data
-                loss = criterion(scores, targets)
+                # tgt_key_padding_mask = (caps == wordMap['<pad>'])
+                # scores, capsSorted, decodeLengths = decoder(imgs, caps, caplens, tgt_key_padding_mask)
+                # targets = capsSorted[:, 1:]
+                # scoresCopy = scores.clone()
+                # scores = pack_padded_sequence(scores, decodeLengths, batch_first=True, enforce_sorted=False).data
+                # targets = pack_padded_sequence(targets, decodeLengths, batch_first=True, enforce_sorted=False).data
+                # loss = criterion(scores, targets)
+                # scores, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=50)
+                # scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, caps, wordMap['<end>'], wordMap['<pad>'], 50)
+                scores, sequences = decoder(teacherForcing=False, encoder_out=imgs, state='inference', maxDecodeLen=50)
+                remapped_encoded_captions = decoder.customToT5[caps]
+                scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, remapped_encoded_captions, wordMap['<end>'], decoder.t5_pad_token_id, 50)
+                loss = criterion(scoresUpdated, targetsUpdated)
 
             top5 = accuracy(scoresUpdated, targetsUpdated, 5, 'single')
             losses.update(loss.item(), totalTokensEvaluated)
@@ -424,7 +439,7 @@ def validate(valDataLoader, encoder, decoder, criterion, device):
         bleu3 = corpus_bleu(references, hypotheses, weights=(0.33, 0.33, 0.33, 0.0))
         bleu4 = corpus_bleu(references, hypotheses, weights=(0.25, 0.25, 0.25, 0.25))
 
-        print(f"Validation Loss = {losses.avg:.4f}, Top-5 Accuracy = {top5accs.avg:.4f}, Bleu-1 = {bleu1:.4f}, Bleu-2 = {bleu2:.4f}, Bleu-3 = {bleu3:.4f}, Bleu-4 = {bleu4:.4f}", flush=True)
+        print(f"No TF, Validation Loss = {losses.avg:.4f}, Top-5 Accuracy = {top5accs.avg:.4f}, Bleu-1 = {bleu1:.4f}, Bleu-2 = {bleu2:.4f}, Bleu-3 = {bleu3:.4f}, Bleu-4 = {bleu4:.4f}", flush=True)
     
     return losses.avg, top5accs.avg, bleu1, bleu2, bleu3, bleu4
 

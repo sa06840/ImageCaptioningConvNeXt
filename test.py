@@ -6,6 +6,7 @@ import numpy as np
 from models.encoder import Encoder 
 from models.decoder import DecoderWithAttention
 from models.transformerDecoder import TransformerDecoder
+from models.transformerDecoderHF import HFTransformerDecoder
 
 def set_seed(seed):
     random.seed(seed)
@@ -64,10 +65,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--checkpoint', type=str, default=None, help='Path to checkpoint file')
 parser.add_argument('--lstmDecoder', action='store_true', help='Use LSTM decoder instead of Transformer')
 args = parser.parse_args()
-# modelPath = args.checkpoint
-# lstmDecoder = args.lstmDecoder
-modelPath = 'bestCheckpoints/mscoco/10-07-2025(lstmDecoder-trainingTF-inferenceTF-noFinetuning)/BEST_checkpoint_LSTM_coco_5_cap_per_img_5_min_word_freq.pth.tar'
-lstmDecoder = True
+modelPath = args.checkpoint
+lstmDecoder = args.lstmDecoder
 
 
 # def setup_distributed():
@@ -106,7 +105,8 @@ def main():
     if lstmDecoder is True:
         decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
     else:
-        decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device)
+        # decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device)
+        decoder = HFTransformerDecoder(vocab_size=len(wordMap), device=device, wordMap=wordMap)
     encoder = Encoder()
     encoder.load_state_dict(checkpoint['encoder'])
     decoder.load_state_dict(checkpoint['decoder'])
@@ -140,7 +140,7 @@ def main():
     if lstmDecoder is True:
         resultsDF.to_csv('results/test-lstmDecoder-teacherForcing-noFinetuning.csv', index=False)
     else:
-        resultsDF.to_csv('results/test-transformerDecoder-teacherForcing-noFinetuning.csv', index=False)
+        resultsDF.to_csv('results/test-HFtransformerDecoder-teacherForcing-noFinetuning.csv', index=False)
     
 
 
@@ -190,13 +190,17 @@ def test(testDataLoader, encoder, decoder, criterion):
                 # Add doubly stochastic attention regularization
                 loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
             else:
-                tgt_key_padding_mask = (caps == wordMap['<pad>'])
-                scores, capsSorted, decodeLengths = decoder(imgs, caps, caplens, tgt_key_padding_mask)
-                targets = capsSorted[:, 1:]
-                scoresCopy = scores.clone()
-                scores = pack_padded_sequence(scores, decodeLengths, batch_first=True, enforce_sorted=False).data  # scores are logits
-                targets = pack_padded_sequence(targets, decodeLengths, batch_first=True, enforce_sorted=False).data
-                loss = criterion(scores, targets)
+                # tgt_key_padding_mask = (caps == wordMap['<pad>'])
+                # scores, capsSorted, decodeLengths = decoder(imgs, caps, caplens, tgt_key_padding_mask)
+                # targets = capsSorted[:, 1:]
+                # scoresCopy = scores.clone()
+                # scores = pack_padded_sequence(scores, decodeLengths, batch_first=True, enforce_sorted=False).data  # scores are logits
+                # targets = pack_padded_sequence(targets, decodeLengths, batch_first=True, enforce_sorted=False).data
+                # loss = criterion(scores, targets)
+                scores, sequences = decoder(teacherForcing=False, encoder_out=imgs, state='inference', maxDecodeLen=50)
+                remapped_encoded_captions = decoder.customToT5[caps]
+                scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, remapped_encoded_captions, wordMap['<end>'], decoder.t5_pad_token_id, 50)
+                loss = criterion(scoresUpdated, targetsUpdated)
 
             top5 = accuracy(scoresUpdated, targetsUpdated, 5, 'single')
             losses.update(loss.item(), totalTokensEvaluated)
