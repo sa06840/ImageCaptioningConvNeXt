@@ -185,17 +185,17 @@ def test(testDataLoader, encoder, decoder, criterion):
                 imgs = encoder(imgs)
 
             if lstmDecoder is True:
-                scores, alphas, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=50)
-                scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, caps, wordMap['<end>'], wordMap['<pad>'], 50)
+                scores, alphas, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
+                scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, caps, wordMap['<end>'], wordMap['<pad>'], 51)
                 loss = criterion(scoresUpdated, targetsUpdated)
                 # Add doubly stochastic attention regularization
                 loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
             else:
-                scores, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=50)
-                scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, caps, wordMap['<end>'], wordMap['<pad>'], 50)
-                # scores, sequences = decoder(teacherForcing=False, encoder_out=imgs, state='inference', maxDecodeLen=50)
+                scores, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
+                scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, caps, wordMap['<end>'], wordMap['<pad>'], 51)
+                # scores, sequences = decoder(teacherForcing=False, encoder_out=imgs, state='inference', maxDecodeLen=51)
                 # remapped_encoded_captions = decoder.customToT5[caps]
-                # scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, remapped_encoded_captions, wordMap['<end>'], decoder.t5_pad_token_id, 50)
+                # scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, remapped_encoded_captions, wordMap['<end>'], decoder.t5_pad_token_id, 51)
                 loss = criterion(scoresUpdated, targetsUpdated)
 
             top5 = accuracy(scoresUpdated, targetsUpdated, 5, 'single')

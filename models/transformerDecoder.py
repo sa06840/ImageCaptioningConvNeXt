@@ -110,7 +110,6 @@ class TransformerDecoder(nn.Module):
             sequences[active_indices, t] = pred_ids 
             finished[active_indices] |= (pred_ids == end_token_idx) 
 
-            inputs_new_active = torch.cat([inputs[active_indices], pred_ids.unsqueeze(1)], dim=1)
             new_full_inputs = torch.full( 
                 (batch_size, t + 2), 
                 wordMap['<pad>'], 
