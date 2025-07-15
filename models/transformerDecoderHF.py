@@ -17,6 +17,10 @@ class HFTransformerDecoder(nn.Module):
         config = AutoConfig.from_pretrained(HF_MODEL_NAME)
         self.t5_model = AutoModelForSeq2SeqLM.from_pretrained(HF_MODEL_NAME, config=config)
 
+        for param in self.t5_model.encoder.parameters():
+            param.requires_grad = False
+        print("Froze T5 encoder parameters")
+
         if encoder_dim != config.d_model:
             self.encoder_proj = nn.Linear(encoder_dim, config.d_model)
         else:
@@ -184,7 +188,7 @@ class HFTransformerDecoder(nn.Module):
         generation_outputs = self.t5_model.generate( # type: ignore (for linting)
             encoder_outputs=encoder_outputs_for_generate, 
             generation_config=generation_config, 
-            encoder_attention_mask=encoder_attention_mask
+            attention_mask=encoder_attention_mask
         )
 
         reconstructed_predictions_logits = torch.stack(generation_outputs.scores, dim=0)

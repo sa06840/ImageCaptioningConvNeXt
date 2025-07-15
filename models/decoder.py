@@ -213,5 +213,5 @@ class DecoderWithAttention(nn.Module):
             return predictions, encoded_captions, decode_lengths, alphas, sort_ind
         
         elif teacherForcing is not True:
-            predictions, alphas, sequences= self.forwardWithoutTeacherForcing(encoder_out, wordMap, maxDecodeLen)
+            predictions, alphas, sequences = self.forwardWithoutTeacherForcing(encoder_out, wordMap, maxDecodeLen)
             return predictions, alphas, sequences
