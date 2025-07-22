@@ -41,7 +41,7 @@ from torch.serialization import add_safe_globals
 import argparse
 
 
-device = torch.device("mps")
+device = torch.device("cuda")
 
 # Model parameters
 embDim = 512  # dimension of word embeddings
@@ -65,10 +65,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--checkpoint', type=str, default=None, help='Path to checkpoint file')
 parser.add_argument('--lstmDecoder', action='store_true', help='Use LSTM decoder instead of Transformer')
 args = parser.parse_args()
-# modelPath = args.checkpoint
-# lstmDecoder = args.lstmDecoder
-modelPath = 'bestCheckpoints/mscoco/14-07-2025(lstmDecoder-trainingNoTF-inferenceNoTF-noFinetuning)/checkpoint_LSTM_coco_5_cap_per_img_5_min_word_freq.pth.tar'
-lstmDecoder = True
+modelPath = args.checkpoint
+lstmDecoder = args.lstmDecoder
 
 # def setup_distributed():
 #     rank = int(os.environ['SLURM_PROCID'])
@@ -107,7 +105,6 @@ def main():
         decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
     else:
         decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device)
-        # decoder = HFTransformerDecoder(vocab_size=len(wordMap), device=device, wordMap=wordMap)
     encoder = Encoder()
     encoder.load_state_dict(checkpoint['encoder'])
     decoder.load_state_dict(checkpoint['decoder'])
@@ -139,9 +136,9 @@ def main():
     resultsDF = pd.DataFrame(results)
     os.makedirs('results', exist_ok=True)
     if lstmDecoder is True:
-        resultsDF.to_csv('results/test-lstmDecoder-noTeacherForcing-noFinetuning.csv', index=False)
+        resultsDF.to_csv('results/test-lstmDecoder-TeacherForcing-noFinetuning.csv', index=False)
     else:
-        resultsDF.to_csv('results/test-HFtransformerDecoder-noTeacherForcing-noFinetuning.csv', index=False)
+        resultsDF.to_csv('results/test-TransformerDecoder-TeacherForcing-noFinetuning.csv', index=False)
     
 
 
@@ -171,9 +168,6 @@ def test(testDataLoader, encoder, decoder, criterion):
 
     with torch.no_grad():
         for i, (imgs, caps, caplens, allcaps) in enumerate(testDataLoader):
-
-            if (i==20):
-                break
 
             print(f"Test Batch {i + 1}/{len(testDataLoader)}")
 

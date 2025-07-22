@@ -1,0 +1,2851 @@
+[Rank 0] is using GPU 0
+[Rank 1] is using GPU 1
+No TF, Rank: 0, Epoch 0, Batch 1/8851
+No TF, Rank: 1, Epoch 0, Batch 1/8851
+No TF, Rank: 0, Epoch 0, Batch 1001/8851
+No TF, Rank: 1, Epoch 0, Batch 1001/8851
+No TF, Rank: 1, Epoch 0, Batch 2001/8851
+No TF, Rank: 0, Epoch 0, Batch 2001/8851
+No TF, Rank: 1, Epoch 0, Batch 3001/8851
+No TF, Rank: 0, Epoch 0, Batch 3001/8851
+No TF, Rank: 0, Epoch 0, Batch 4001/8851
+No TF, Rank: 1, Epoch 0, Batch 4001/8851
+No TF, Rank: 1, Epoch 0, Batch 5001/8851
+No TF, Rank: 0, Epoch 0, Batch 5001/8851
+No TF, Rank: 1, Epoch 0, Batch 6001/8851
+No TF, Rank: 0, Epoch 0, Batch 6001/8851
+No TF, Rank: 0, Epoch 0, Batch 7001/8851
+No TF, Rank: 1, Epoch 0, Batch 7001/8851
+No TF, Rank: 1, Epoch 0, Batch 8001/8851
+No TF, Rank: 0, Epoch 0, Batch 8001/8851
+No TF, Rank: 0, Epoch 0: Training Loss = 5.1358, Top-5 Accuracy = 42.1872
+No TF, Rank: 1, Epoch 0: Training Loss = 5.1358, Top-5 Accuracy = 42.1872
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.7359, Top-5 Accuracy = 46.2802, Bleu-1 = 0.5812, Bleu-2 = 0.3294, Bleu-3 = 0.1805, Bleu-4 = 0.0946
+No TF, Rank: 0, Epoch 1, Batch 1/8851
+No TF, Rank: 1, Epoch 1, Batch 1/8851
+No TF, Rank: 0, Epoch 1, Batch 1001/8851
+No TF, Rank: 1, Epoch 1, Batch 1001/8851
+No TF, Rank: 1, Epoch 1, Batch 2001/8851
+No TF, Rank: 0, Epoch 1, Batch 2001/8851
+No TF, Rank: 0, Epoch 1, Batch 3001/8851
+No TF, Rank: 1, Epoch 1, Batch 3001/8851
+No TF, Rank: 0, Epoch 1, Batch 4001/8851
+No TF, Rank: 1, Epoch 1, Batch 4001/8851
+No TF, Rank: 0, Epoch 1, Batch 5001/8851
+No TF, Rank: 1, Epoch 1, Batch 5001/8851
+No TF, Rank: 0, Epoch 1, Batch 6001/8851
+No TF, Rank: 1, Epoch 1, Batch 6001/8851
+No TF, Rank: 1, Epoch 1, Batch 7001/8851
+No TF, Rank: 0, Epoch 1, Batch 7001/8851
+No TF, Rank: 0, Epoch 1, Batch 8001/8851
+No TF, Rank: 1, Epoch 1, Batch 8001/8851
+No TF, Rank: 0, Epoch 1: Training Loss = 4.7909, Top-5 Accuracy = 45.2315
+No TF, Rank: 1, Epoch 1: Training Loss = 4.7909, Top-5 Accuracy = 45.2315
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.6391, Top-5 Accuracy = 47.2127, Bleu-1 = 0.5979, Bleu-2 = 0.3514, Bleu-3 = 0.2008, Bleu-4 = 0.1104
+No TF, Rank: 0, Epoch 2, Batch 1/8851
+No TF, Rank: 1, Epoch 2, Batch 1/8851
+No TF, Rank: 0, Epoch 2, Batch 1001/8851
+No TF, Rank: 1, Epoch 2, Batch 1001/8851
+No TF, Rank: 1, Epoch 2, Batch 2001/8851
+No TF, Rank: 0, Epoch 2, Batch 2001/8851
+No TF, Rank: 1, Epoch 2, Batch 3001/8851
+No TF, Rank: 0, Epoch 2, Batch 3001/8851
+No TF, Rank: 0, Epoch 2, Batch 4001/8851
+No TF, Rank: 1, Epoch 2, Batch 4001/8851
+No TF, Rank: 0, Epoch 2, Batch 5001/8851
+No TF, Rank: 1, Epoch 2, Batch 5001/8851
+No TF, Rank: 0, Epoch 2, Batch 6001/8851
+No TF, Rank: 1, Epoch 2, Batch 6001/8851
+No TF, Rank: 1, Epoch 2, Batch 7001/8851
+No TF, Rank: 0, Epoch 2, Batch 7001/8851
+No TF, Rank: 1, Epoch 2, Batch 8001/8851
+No TF, Rank: 0, Epoch 2, Batch 8001/8851
+No TF, Rank: 1, Epoch 2: Training Loss = 4.7062, Top-5 Accuracy = 46.0395
+No TF, Rank: 0, Epoch 2: Training Loss = 4.7062, Top-5 Accuracy = 46.0395
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.6014, Top-5 Accuracy = 47.5460, Bleu-1 = 0.6026, Bleu-2 = 0.3501, Bleu-3 = 0.2000, Bleu-4 = 0.1110
+No TF, Rank: 1, Epoch 3, Batch 1/8851
+No TF, Rank: 0, Epoch 3, Batch 1/8851
+No TF, Rank: 1, Epoch 3, Batch 1001/8851
+No TF, Rank: 0, Epoch 3, Batch 1001/8851
+No TF, Rank: 0, Epoch 3, Batch 2001/8851
+No TF, Rank: 1, Epoch 3, Batch 2001/8851
+No TF, Rank: 0, Epoch 3, Batch 3001/8851
+No TF, Rank: 1, Epoch 3, Batch 3001/8851
+No TF, Rank: 0, Epoch 3, Batch 4001/8851
+No TF, Rank: 1, Epoch 3, Batch 4001/8851
+No TF, Rank: 1, Epoch 3, Batch 5001/8851
+No TF, Rank: 0, Epoch 3, Batch 5001/8851
+No TF, Rank: 1, Epoch 3, Batch 6001/8851
+No TF, Rank: 0, Epoch 3, Batch 6001/8851
+No TF, Rank: 1, Epoch 3, Batch 7001/8851
+No TF, Rank: 0, Epoch 3, Batch 7001/8851
+No TF, Rank: 0, Epoch 3, Batch 8001/8851
+No TF, Rank: 1, Epoch 3, Batch 8001/8851
+No TF, Rank: 0, Epoch 3: Training Loss = 4.6547, Top-5 Accuracy = 46.5979
+No TF, Rank: 1, Epoch 3: Training Loss = 4.6547, Top-5 Accuracy = 46.5979
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5717, Top-5 Accuracy = 47.8598, Bleu-1 = 0.6083, Bleu-2 = 0.3610, Bleu-3 = 0.2107, Bleu-4 = 0.1194
+No TF, Rank: 1, Epoch 4, Batch 1/8851
+No TF, Rank: 0, Epoch 4, Batch 1/8851
+No TF, Rank: 0, Epoch 4, Batch 1001/8851
+No TF, Rank: 1, Epoch 4, Batch 1001/8851
+No TF, Rank: 1, Epoch 4, Batch 2001/8851
+No TF, Rank: 0, Epoch 4, Batch 2001/8851
+No TF, Rank: 1, Epoch 4, Batch 3001/8851
+No TF, Rank: 0, Epoch 4, Batch 3001/8851
+No TF, Rank: 1, Epoch 4, Batch 4001/8851
+No TF, Rank: 0, Epoch 4, Batch 4001/8851
+No TF, Rank: 0, Epoch 4, Batch 5001/8851
+No TF, Rank: 1, Epoch 4, Batch 5001/8851
+No TF, Rank: 0, Epoch 4, Batch 6001/8851
+No TF, Rank: 1, Epoch 4, Batch 6001/8851
+No TF, Rank: 1, Epoch 4, Batch 7001/8851
+No TF, Rank: 0, Epoch 4, Batch 7001/8851
+No TF, Rank: 0, Epoch 4, Batch 8001/8851
+No TF, Rank: 1, Epoch 4, Batch 8001/8851
+No TF, Rank: 0, Epoch 4: Training Loss = 4.6182, Top-5 Accuracy = 46.9618
+No TF, Rank: 1, Epoch 4: Training Loss = 4.6182, Top-5 Accuracy = 46.9618
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5545, Top-5 Accuracy = 48.0191, Bleu-1 = 0.6089, Bleu-2 = 0.3612, Bleu-3 = 0.2101, Bleu-4 = 0.1176
+
+Epochs since last improvement: 1
+
+No TF, Rank: 0, Epoch 5, Batch 1/8851
+No TF, Rank: 1, Epoch 5, Batch 1/8851
+No TF, Rank: 1, Epoch 5, Batch 1001/8851
+No TF, Rank: 0, Epoch 5, Batch 1001/8851
+No TF, Rank: 0, Epoch 5, Batch 2001/8851
+No TF, Rank: 1, Epoch 5, Batch 2001/8851
+No TF, Rank: 0, Epoch 5, Batch 3001/8851
+No TF, Rank: 1, Epoch 5, Batch 3001/8851
+No TF, Rank: 1, Epoch 5, Batch 4001/8851
+No TF, Rank: 0, Epoch 5, Batch 4001/8851
+No TF, Rank: 1, Epoch 5, Batch 5001/8851
+No TF, Rank: 0, Epoch 5, Batch 5001/8851
+No TF, Rank: 1, Epoch 5, Batch 6001/8851
+No TF, Rank: 0, Epoch 5, Batch 6001/8851
+No TF, Rank: 0, Epoch 5, Batch 7001/8851
+No TF, Rank: 1, Epoch 5, Batch 7001/8851
+No TF, Rank: 1, Epoch 5, Batch 8001/8851
+No TF, Rank: 0, Epoch 5, Batch 8001/8851
+No TF, Rank: 0, Epoch 5: Training Loss = 4.5892, Top-5 Accuracy = 47.2720
+No TF, Rank: 1, Epoch 5: Training Loss = 4.5892, Top-5 Accuracy = 47.2720
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5378, Top-5 Accuracy = 48.1876, Bleu-1 = 0.6101, Bleu-2 = 0.3634, Bleu-3 = 0.2130, Bleu-4 = 0.1220
+No TF, Rank: 1, Epoch 6, Batch 1/8851
+No TF, Rank: 0, Epoch 6, Batch 1/8851
+No TF, Rank: 1, Epoch 6, Batch 1001/8851
+No TF, Rank: 0, Epoch 6, Batch 1001/8851
+No TF, Rank: 1, Epoch 6, Batch 2001/8851
+No TF, Rank: 0, Epoch 6, Batch 2001/8851
+No TF, Rank: 1, Epoch 6, Batch 3001/8851
+No TF, Rank: 0, Epoch 6, Batch 3001/8851
+No TF, Rank: 1, Epoch 6, Batch 4001/8851
+No TF, Rank: 0, Epoch 6, Batch 4001/8851
+No TF, Rank: 1, Epoch 6, Batch 5001/8851
+No TF, Rank: 0, Epoch 6, Batch 5001/8851
+No TF, Rank: 0, Epoch 6, Batch 6001/8851
+No TF, Rank: 1, Epoch 6, Batch 6001/8851
+No TF, Rank: 0, Epoch 6, Batch 7001/8851
+No TF, Rank: 1, Epoch 6, Batch 7001/8851
+No TF, Rank: 0, Epoch 6, Batch 8001/8851
+No TF, Rank: 1, Epoch 6, Batch 8001/8851
+No TF, Rank: 1, Epoch 6: Training Loss = 4.5653, Top-5 Accuracy = 47.5564
+No TF, Rank: 0, Epoch 6: Training Loss = 4.5653, Top-5 Accuracy = 47.5564
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5285, Top-5 Accuracy = 48.2803, Bleu-1 = 0.6140, Bleu-2 = 0.3690, Bleu-3 = 0.2179, Bleu-4 = 0.1255
+No TF, Rank: 0, Epoch 7, Batch 1/8851
+No TF, Rank: 1, Epoch 7, Batch 1/8851
+No TF, Rank: 1, Epoch 7, Batch 1001/8851
+No TF, Rank: 0, Epoch 7, Batch 1001/8851
+No TF, Rank: 1, Epoch 7, Batch 2001/8851
+No TF, Rank: 0, Epoch 7, Batch 2001/8851
+No TF, Rank: 1, Epoch 7, Batch 3001/8851
+No TF, Rank: 0, Epoch 7, Batch 3001/8851
+No TF, Rank: 1, Epoch 7, Batch 4001/8851
+No TF, Rank: 0, Epoch 7, Batch 4001/8851
+No TF, Rank: 0, Epoch 7, Batch 5001/8851
+No TF, Rank: 1, Epoch 7, Batch 5001/8851
+No TF, Rank: 0, Epoch 7, Batch 6001/8851
+No TF, Rank: 1, Epoch 7, Batch 6001/8851
+No TF, Rank: 1, Epoch 7, Batch 7001/8851
+No TF, Rank: 0, Epoch 7, Batch 7001/8851
+No TF, Rank: 0, Epoch 7, Batch 8001/8851
+No TF, Rank: 1, Epoch 7, Batch 8001/8851
+No TF, Rank: 1, Epoch 7: Training Loss = 4.5448, Top-5 Accuracy = 47.7978
+No TF, Rank: 0, Epoch 7: Training Loss = 4.5448, Top-5 Accuracy = 47.7978
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5205, Top-5 Accuracy = 48.3520, Bleu-1 = 0.6179, Bleu-2 = 0.3737, Bleu-3 = 0.2205, Bleu-4 = 0.1268
+No TF, Rank: 1, Epoch 8, Batch 1/8851
+No TF, Rank: 0, Epoch 8, Batch 1/8851
+No TF, Rank: 1, Epoch 8, Batch 1001/8851
+No TF, Rank: 0, Epoch 8, Batch 1001/8851
+No TF, Rank: 0, Epoch 8, Batch 2001/8851
+No TF, Rank: 1, Epoch 8, Batch 2001/8851
+No TF, Rank: 0, Epoch 8, Batch 3001/8851
+No TF, Rank: 1, Epoch 8, Batch 3001/8851
+No TF, Rank: 0, Epoch 8, Batch 4001/8851
+No TF, Rank: 1, Epoch 8, Batch 4001/8851
+No TF, Rank: 1, Epoch 8, Batch 5001/8851
+No TF, Rank: 0, Epoch 8, Batch 5001/8851
+No TF, Rank: 0, Epoch 8, Batch 6001/8851
+No TF, Rank: 1, Epoch 8, Batch 6001/8851
+No TF, Rank: 0, Epoch 8, Batch 7001/8851
+No TF, Rank: 1, Epoch 8, Batch 7001/8851
+No TF, Rank: 0, Epoch 8, Batch 8001/8851
+No TF, Rank: 1, Epoch 8, Batch 8001/8851
+No TF, Rank: 0, Epoch 8: Training Loss = 4.5265, Top-5 Accuracy = 48.0146
+No TF, Rank: 1, Epoch 8: Training Loss = 4.5265, Top-5 Accuracy = 48.0146
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5113, Top-5 Accuracy = 48.4682, Bleu-1 = 0.6175, Bleu-2 = 0.3704, Bleu-3 = 0.2194, Bleu-4 = 0.1271
+No TF, Rank: 1, Epoch 9, Batch 1/8851
+No TF, Rank: 0, Epoch 9, Batch 1/8851
+No TF, Rank: 1, Epoch 9, Batch 1001/8851
+No TF, Rank: 0, Epoch 9, Batch 1001/8851
+No TF, Rank: 1, Epoch 9, Batch 2001/8851
+No TF, Rank: 0, Epoch 9, Batch 2001/8851
+No TF, Rank: 0, Epoch 9, Batch 3001/8851
+No TF, Rank: 1, Epoch 9, Batch 3001/8851
+No TF, Rank: 1, Epoch 9, Batch 4001/8851
+No TF, Rank: 0, Epoch 9, Batch 4001/8851
+No TF, Rank: 1, Epoch 9, Batch 5001/8851
+No TF, Rank: 0, Epoch 9, Batch 5001/8851
+No TF, Rank: 1, Epoch 9, Batch 6001/8851
+No TF, Rank: 0, Epoch 9, Batch 6001/8851
+No TF, Rank: 0, Epoch 9, Batch 7001/8851
+No TF, Rank: 1, Epoch 9, Batch 7001/8851
+No TF, Rank: 0, Epoch 9, Batch 8001/8851
+No TF, Rank: 1, Epoch 9, Batch 8001/8851
+No TF, Rank: 1, Epoch 9: Training Loss = 4.5108, Top-5 Accuracy = 48.2064
+No TF, Rank: 0, Epoch 9: Training Loss = 4.5108, Top-5 Accuracy = 48.2064
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5087, Top-5 Accuracy = 48.4944, Bleu-1 = 0.6279, Bleu-2 = 0.3816, Bleu-3 = 0.2271, Bleu-4 = 0.1319
+No TF, Rank: 0, Epoch 10, Batch 1/8851
+No TF, Rank: 1, Epoch 10, Batch 1/8851
+No TF, Rank: 1, Epoch 10, Batch 1001/8851
+No TF, Rank: 0, Epoch 10, Batch 1001/8851
+No TF, Rank: 1, Epoch 10, Batch 2001/8851
+No TF, Rank: 0, Epoch 10, Batch 2001/8851
+No TF, Rank: 0, Epoch 10, Batch 3001/8851
+No TF, Rank: 1, Epoch 10, Batch 3001/8851
+No TF, Rank: 1, Epoch 10, Batch 4001/8851
+No TF, Rank: 0, Epoch 10, Batch 4001/8851
+No TF, Rank: 0, Epoch 10, Batch 5001/8851
+No TF, Rank: 1, Epoch 10, Batch 5001/8851
+No TF, Rank: 0, Epoch 10, Batch 6001/8851
+No TF, Rank: 1, Epoch 10, Batch 6001/8851
+No TF, Rank: 1, Epoch 10, Batch 7001/8851
+No TF, Rank: 0, Epoch 10, Batch 7001/8851
+No TF, Rank: 0, Epoch 10, Batch 8001/8851
+No TF, Rank: 1, Epoch 10, Batch 8001/8851
+No TF, Rank: 1, Epoch 10: Training Loss = 4.4960, Top-5 Accuracy = 48.3828
+No TF, Rank: 0, Epoch 10: Training Loss = 4.4960, Top-5 Accuracy = 48.3828
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5018, Top-5 Accuracy = 48.5347, Bleu-1 = 0.6202, Bleu-2 = 0.3754, Bleu-3 = 0.2240, Bleu-4 = 0.1310
+
+Epochs since last improvement: 1
+
+No TF, Rank: 0, Epoch 11, Batch 1/8851
+No TF, Rank: 1, Epoch 11, Batch 1/8851
+No TF, Rank: 0, Epoch 11, Batch 1001/8851
+No TF, Rank: 1, Epoch 11, Batch 1001/8851
+No TF, Rank: 0, Epoch 11, Batch 2001/8851
+No TF, Rank: 1, Epoch 11, Batch 2001/8851
+No TF, Rank: 0, Epoch 11, Batch 3001/8851
+No TF, Rank: 1, Epoch 11, Batch 3001/8851
+No TF, Rank: 0, Epoch 11, Batch 4001/8851
+No TF, Rank: 1, Epoch 11, Batch 4001/8851
+No TF, Rank: 0, Epoch 11, Batch 5001/8851
+No TF, Rank: 1, Epoch 11, Batch 5001/8851
+No TF, Rank: 1, Epoch 11, Batch 6001/8851
+No TF, Rank: 0, Epoch 11, Batch 6001/8851
+No TF, Rank: 1, Epoch 11, Batch 7001/8851
+No TF, Rank: 0, Epoch 11, Batch 7001/8851
+No TF, Rank: 0, Epoch 11, Batch 8001/8851
+No TF, Rank: 1, Epoch 11, Batch 8001/8851
+No TF, Rank: 0, Epoch 11: Training Loss = 4.4827, Top-5 Accuracy = 48.5521
+No TF, Rank: 1, Epoch 11: Training Loss = 4.4827, Top-5 Accuracy = 48.5521
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.4999, Top-5 Accuracy = 48.5617, Bleu-1 = 0.6193, Bleu-2 = 0.3745, Bleu-3 = 0.2233, Bleu-4 = 0.1300
+No TF, Rank: 1, Epoch 12, Batch 1/8851
+
+Epochs since last improvement: 2
+
+No TF, Rank: 0, Epoch 12, Batch 1/8851
+No TF, Rank: 0, Epoch 12, Batch 1001/8851
+No TF, Rank: 1, Epoch 12, Batch 1001/8851
+No TF, Rank: 0, Epoch 12, Batch 2001/8851
+No TF, Rank: 1, Epoch 12, Batch 2001/8851
+No TF, Rank: 1, Epoch 12, Batch 3001/8851
+No TF, Rank: 0, Epoch 12, Batch 3001/8851
+No TF, Rank: 1, Epoch 12, Batch 4001/8851
+No TF, Rank: 0, Epoch 12, Batch 4001/8851
+No TF, Rank: 0, Epoch 12, Batch 5001/8851
+No TF, Rank: 1, Epoch 12, Batch 5001/8851
+No TF, Rank: 0, Epoch 12, Batch 6001/8851
+No TF, Rank: 1, Epoch 12, Batch 6001/8851
+No TF, Rank: 1, Epoch 12, Batch 7001/8851
+No TF, Rank: 0, Epoch 12, Batch 7001/8851
+No TF, Rank: 1, Epoch 12, Batch 8001/8851
+No TF, Rank: 0, Epoch 12, Batch 8001/8851
+No TF, Rank: 0, Epoch 12: Training Loss = 4.4703, Top-5 Accuracy = 48.7272
+No TF, Rank: 1, Epoch 12: Training Loss = 4.4703, Top-5 Accuracy = 48.7272
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.4988, Top-5 Accuracy = 48.6679, Bleu-1 = 0.6256, Bleu-2 = 0.3781, Bleu-3 = 0.2259, Bleu-4 = 0.1321
+No TF, Rank: 1, Epoch 13, Batch 1/8851
+No TF, Rank: 0, Epoch 13, Batch 1/8851
+No TF, Rank: 0, Epoch 13, Batch 1001/8851
+No TF, Rank: 1, Epoch 13, Batch 1001/8851
+No TF, Rank: 1, Epoch 13, Batch 2001/8851
+No TF, Rank: 0, Epoch 13, Batch 2001/8851
+No TF, Rank: 1, Epoch 13, Batch 3001/8851
+No TF, Rank: 0, Epoch 13, Batch 3001/8851
+No TF, Rank: 1, Epoch 13, Batch 4001/8851
+No TF, Rank: 0, Epoch 13, Batch 4001/8851
+No TF, Rank: 1, Epoch 13, Batch 5001/8851
+No TF, Rank: 0, Epoch 13, Batch 5001/8851
+No TF, Rank: 0, Epoch 13, Batch 6001/8851
+No TF, Rank: 1, Epoch 13, Batch 6001/8851
+No TF, Rank: 1, Epoch 13, Batch 7001/8851
+No TF, Rank: 0, Epoch 13, Batch 7001/8851
+No TF, Rank: 0, Epoch 13, Batch 8001/8851
+No TF, Rank: 1, Epoch 13, Batch 8001/8851
+No TF, Rank: 1, Epoch 13: Training Loss = 4.4599, Top-5 Accuracy = 48.8431
+No TF, Rank: 0, Epoch 13: Training Loss = 4.4599, Top-5 Accuracy = 48.8431
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.4946, Top-5 Accuracy = 48.6708, Bleu-1 = 0.6245, Bleu-2 = 0.3788, Bleu-3 = 0.2269, Bleu-4 = 0.1334
+No TF, Rank: 1, Epoch 14, Batch 1/8851
+No TF, Rank: 0, Epoch 14, Batch 1/8851
+No TF, Rank: 0, Epoch 14, Batch 1001/8851
+No TF, Rank: 1, Epoch 14, Batch 1001/8851
+No TF, Rank: 0, Epoch 14, Batch 2001/8851
+No TF, Rank: 1, Epoch 14, Batch 2001/8851
+No TF, Rank: 1, Epoch 14, Batch 3001/8851
+No TF, Rank: 0, Epoch 14, Batch 3001/8851
+No TF, Rank: 1, Epoch 14, Batch 4001/8851
+No TF, Rank: 0, Epoch 14, Batch 4001/8851
+No TF, Rank: 1, Epoch 14, Batch 5001/8851
+No TF, Rank: 0, Epoch 14, Batch 5001/8851
+No TF, Rank: 1, Epoch 14, Batch 6001/8851
+No TF, Rank: 0, Epoch 14, Batch 6001/8851
+No TF, Rank: 1, Epoch 14, Batch 7001/8851
+No TF, Rank: 0, Epoch 14, Batch 7001/8851
+No TF, Rank: 0, Epoch 14, Batch 8001/8851
+No TF, Rank: 1, Epoch 14, Batch 8001/8851
+No TF, Rank: 0, Epoch 14: Training Loss = 4.4484, Top-5 Accuracy = 48.9778
+No TF, Rank: 1, Epoch 14: Training Loss = 4.4484, Top-5 Accuracy = 48.9778
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.4962, Top-5 Accuracy = 48.7140, Bleu-1 = 0.6264, Bleu-2 = 0.3810, Bleu-3 = 0.2293, Bleu-4 = 0.1351
+No TF, Rank: 1, Epoch 15, Batch 1/8851
+No TF, Rank: 0, Epoch 15, Batch 1/8851
+No TF, Rank: 0, Epoch 15, Batch 1001/8851
+No TF, Rank: 1, Epoch 15, Batch 1001/8851
+No TF, Rank: 1, Epoch 15, Batch 2001/8851
+No TF, Rank: 0, Epoch 15, Batch 2001/8851
+No TF, Rank: 1, Epoch 15, Batch 3001/8851
+No TF, Rank: 0, Epoch 15, Batch 3001/8851
+No TF, Rank: 0, Epoch 15, Batch 4001/8851
+No TF, Rank: 1, Epoch 15, Batch 4001/8851
+No TF, Rank: 0, Epoch 15, Batch 5001/8851
+No TF, Rank: 1, Epoch 15, Batch 5001/8851
+No TF, Rank: 1, Epoch 15, Batch 6001/8851
+No TF, Rank: 0, Epoch 15, Batch 6001/8851
+No TF, Rank: 0, Epoch 15, Batch 7001/8851
+No TF, Rank: 1, Epoch 15, Batch 7001/8851
+No TF, Rank: 1, Epoch 15, Batch 8001/8851
+No TF, Rank: 0, Epoch 15, Batch 8001/8851
+No TF, Rank: 0, Epoch 15: Training Loss = 4.4392, Top-5 Accuracy = 49.1279
+No TF, Rank: 1, Epoch 15: Training Loss = 4.4392, Top-5 Accuracy = 49.1279
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.4918, Top-5 Accuracy = 48.6859, Bleu-1 = 0.6256, Bleu-2 = 0.3790, Bleu-3 = 0.2271, Bleu-4 = 0.1323
+
+Epochs since last improvement: 1
+
+No TF, Rank: 0, Epoch 16, Batch 1/8851
+No TF, Rank: 1, Epoch 16, Batch 1/8851
+No TF, Rank: 1, Epoch 16, Batch 1001/8851
+No TF, Rank: 0, Epoch 16, Batch 1001/8851
+No TF, Rank: 0, Epoch 16, Batch 2001/8851
+No TF, Rank: 1, Epoch 16, Batch 2001/8851
+No TF, Rank: 0, Epoch 16, Batch 3001/8851
+No TF, Rank: 1, Epoch 16, Batch 3001/8851
+No TF, Rank: 0, Epoch 16, Batch 4001/8851
+No TF, Rank: 1, Epoch 16, Batch 4001/8851
+No TF, Rank: 0, Epoch 16, Batch 5001/8851
+No TF, Rank: 1, Epoch 16, Batch 5001/8851
+No TF, Rank: 1, Epoch 16, Batch 6001/8851
+No TF, Rank: 0, Epoch 16, Batch 6001/8851
+No TF, Rank: 0, Epoch 16, Batch 7001/8851
+No TF, Rank: 1, Epoch 16, Batch 7001/8851
+No TF, Rank: 1, Epoch 16, Batch 8001/8851
+No TF, Rank: 0, Epoch 16, Batch 8001/8851
+No TF, Rank: 1, Epoch 16: Training Loss = 4.4300, Top-5 Accuracy = 49.2383
+No TF, Rank: 0, Epoch 16: Training Loss = 4.4300, Top-5 Accuracy = 49.2383
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.4937, Top-5 Accuracy = 48.6988, Bleu-1 = 0.6284, Bleu-2 = 0.3825, Bleu-3 = 0.2295, Bleu-4 = 0.1354
+No TF, Rank: 1, Epoch 17, Batch 1/8851
+No TF, Rank: 0, Epoch 17, Batch 1/8851
+No TF, Rank: 0, Epoch 17, Batch 1001/8851
+No TF, Rank: 1, Epoch 17, Batch 1001/8851
+No TF, Rank: 0, Epoch 17, Batch 2001/8851
+No TF, Rank: 1, Epoch 17, Batch 2001/8851
+No TF, Rank: 1, Epoch 17, Batch 3001/8851
+No TF, Rank: 0, Epoch 17, Batch 3001/8851
+No TF, Rank: 1, Epoch 17, Batch 4001/8851
+No TF, Rank: 0, Epoch 17, Batch 4001/8851
+No TF, Rank: 0, Epoch 17, Batch 5001/8851
+No TF, Rank: 1, Epoch 17, Batch 5001/8851
+No TF, Rank: 0, Epoch 17, Batch 6001/8851
+No TF, Rank: 1, Epoch 17, Batch 6001/8851
+No TF, Rank: 0, Epoch 17, Batch 7001/8851
+No TF, Rank: 1, Epoch 17, Batch 7001/8851
+No TF, Rank: 0, Epoch 17, Batch 8001/8851
+No TF, Rank: 1, Epoch 17, Batch 8001/8851
+No TF, Rank: 1, Epoch 17: Training Loss = 4.4209, Top-5 Accuracy = 49.3513
+No TF, Rank: 0, Epoch 17: Training Loss = 4.4209, Top-5 Accuracy = 49.3513
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.4938, Top-5 Accuracy = 48.6963, Bleu-1 = 0.6284, Bleu-2 = 0.3836, Bleu-3 = 0.2315, Bleu-4 = 0.1377
+No TF, Rank: 0, Epoch 18, Batch 1/8851
+No TF, Rank: 1, Epoch 18, Batch 1/8851
+No TF, Rank: 1, Epoch 18, Batch 1001/8851
+No TF, Rank: 0, Epoch 18, Batch 1001/8851
+No TF, Rank: 1, Epoch 18, Batch 2001/8851
+No TF, Rank: 0, Epoch 18, Batch 2001/8851
+No TF, Rank: 1, Epoch 18, Batch 3001/8851
+No TF, Rank: 0, Epoch 18, Batch 3001/8851
+No TF, Rank: 0, Epoch 18, Batch 4001/8851
+No TF, Rank: 1, Epoch 18, Batch 4001/8851
+No TF, Rank: 0, Epoch 18, Batch 5001/8851
+No TF, Rank: 1, Epoch 18, Batch 5001/8851
+No TF, Rank: 0, Epoch 18, Batch 6001/8851
+No TF, Rank: 1, Epoch 18, Batch 6001/8851
+No TF, Rank: 0, Epoch 18, Batch 7001/8851
+No TF, Rank: 1, Epoch 18, Batch 7001/8851
+No TF, Rank: 1, Epoch 18, Batch 8001/8851
+No TF, Rank: 0, Epoch 18, Batch 8001/8851
+No TF, Rank: 0, Epoch 18: Training Loss = 4.4125, Top-5 Accuracy = 49.4672
+No TF, Rank: 1, Epoch 18: Training Loss = 4.4125, Top-5 Accuracy = 49.4672
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.4913, Top-5 Accuracy = 48.7446, Bleu-1 = 0.6315, Bleu-2 = 0.3871, Bleu-3 = 0.2322, Bleu-4 = 0.1365
+
+Epochs since last improvement: 1
+
+No TF, Rank: 0, Epoch 19, Batch 1/8851
+No TF, Rank: 1, Epoch 19, Batch 1/8851
+No TF, Rank: 0, Epoch 19, Batch 1001/8851
+No TF, Rank: 1, Epoch 19, Batch 1001/8851
+No TF, Rank: 0, Epoch 19, Batch 2001/8851
+No TF, Rank: 1, Epoch 19, Batch 2001/8851
+No TF, Rank: 1, Epoch 19, Batch 3001/8851
+No TF, Rank: 0, Epoch 19, Batch 3001/8851
+No TF, Rank: 1, Epoch 19, Batch 4001/8851
+No TF, Rank: 0, Epoch 19, Batch 4001/8851
+No TF, Rank: 0, Epoch 19, Batch 5001/8851
+No TF, Rank: 1, Epoch 19, Batch 5001/8851
+No TF, Rank: 0, Epoch 19, Batch 6001/8851
+No TF, Rank: 1, Epoch 19, Batch 6001/8851
+No TF, Rank: 1, Epoch 19, Batch 7001/8851
+No TF, Rank: 0, Epoch 19, Batch 7001/8851
+No TF, Rank: 0, Epoch 19, Batch 8001/8851
+No TF, Rank: 1, Epoch 19, Batch 8001/8851
+No TF, Rank: 0, Epoch 19: Training Loss = 4.4044, Top-5 Accuracy = 49.5712
+No TF, Rank: 1, Epoch 19: Training Loss = 4.4044, Top-5 Accuracy = 49.5712
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.4881, Top-5 Accuracy = 48.7803, Bleu-1 = 0.6283, Bleu-2 = 0.3824, Bleu-3 = 0.2274, Bleu-4 = 0.1328
+No TF, Rank: 1, Epoch 20, Batch 1/8851
+
+Epochs since last improvement: 2
+
+No TF, Rank: 0, Epoch 20, Batch 1/8851
+No TF, Rank: 0, Epoch 20, Batch 1001/8851
+No TF, Rank: 1, Epoch 20, Batch 1001/8851
+No TF, Rank: 1, Epoch 20, Batch 2001/8851
+No TF, Rank: 0, Epoch 20, Batch 2001/8851
+No TF, Rank: 0, Epoch 20, Batch 3001/8851
+No TF, Rank: 1, Epoch 20, Batch 3001/8851
+No TF, Rank: 1, Epoch 20, Batch 4001/8851
+No TF, Rank: 0, Epoch 20, Batch 4001/8851
+No TF, Rank: 1, Epoch 20, Batch 5001/8851
+No TF, Rank: 0, Epoch 20, Batch 5001/8851
+No TF, Rank: 0, Epoch 20, Batch 6001/8851
+No TF, Rank: 1, Epoch 20, Batch 6001/8851
+No TF, Rank: 1, Epoch 20, Batch 7001/8851
+No TF, Rank: 0, Epoch 20, Batch 7001/8851
+No TF, Rank: 1, Epoch 20, Batch 8001/8851
+No TF, Rank: 0, Epoch 20, Batch 8001/8851
+No TF, Rank: 0, Epoch 20: Training Loss = 4.3970, Top-5 Accuracy = 49.6945
+No TF, Rank: 1, Epoch 20: Training Loss = 4.3970, Top-5 Accuracy = 49.6945
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.4862, Top-5 Accuracy = 48.7289, Bleu-1 = 0.6279, Bleu-2 = 0.3854, Bleu-3 = 0.2320, Bleu-4 = 0.1368
+
+Epochs since last improvement: 3
+
+No TF, Rank: 0, Epoch 21, Batch 1/8851
+No TF, Rank: 1, Epoch 21, Batch 1/8851
+No TF, Rank: 0, Epoch 21, Batch 1001/8851
+No TF, Rank: 1, Epoch 21, Batch 1001/8851
+No TF, Rank: 0, Epoch 21, Batch 2001/8851
+No TF, Rank: 1, Epoch 21, Batch 2001/8851
+No TF, Rank: 0, Epoch 21, Batch 3001/8851
+No TF, Rank: 1, Epoch 21, Batch 3001/8851
+No TF, Rank: 1, Epoch 21, Batch 4001/8851
+No TF, Rank: 0, Epoch 21, Batch 4001/8851
+No TF, Rank: 0, Epoch 21, Batch 5001/8851
+No TF, Rank: 1, Epoch 21, Batch 5001/8851
+No TF, Rank: 0, Epoch 21, Batch 6001/8851
+No TF, Rank: 1, Epoch 21, Batch 6001/8851
+No TF, Rank: 0, Epoch 21, Batch 7001/8851
+No TF, Rank: 1, Epoch 21, Batch 7001/8851
+No TF, Rank: 0, Epoch 21, Batch 8001/8851
+No TF, Rank: 1, Epoch 21, Batch 8001/8851
+No TF, Rank: 0, Epoch 21: Training Loss = 4.3903, Top-5 Accuracy = 49.7772
+No TF, Rank: 1, Epoch 21: Training Loss = 4.3903, Top-5 Accuracy = 49.7772
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.4898, Top-5 Accuracy = 48.7218, Bleu-1 = 0.6312, Bleu-2 = 0.3866, Bleu-3 = 0.2336, Bleu-4 = 0.1383
+No TF, Rank: 1, Epoch 22, Batch 1/8851
+No TF, Rank: 0, Epoch 22, Batch 1/8851
+No TF, Rank: 0, Epoch 22, Batch 1001/8851
+No TF, Rank: 1, Epoch 22, Batch 1001/8851
+No TF, Rank: 0, Epoch 22, Batch 2001/8851
+No TF, Rank: 1, Epoch 22, Batch 2001/8851
+No TF, Rank: 0, Epoch 22, Batch 3001/8851
+No TF, Rank: 1, Epoch 22, Batch 3001/8851
+No TF, Rank: 0, Epoch 22, Batch 4001/8851
+No TF, Rank: 1, Epoch 22, Batch 4001/8851
+No TF, Rank: 0, Epoch 22, Batch 5001/8851
+No TF, Rank: 1, Epoch 22, Batch 5001/8851
+No TF, Rank: 1, Epoch 22, Batch 6001/8851
+No TF, Rank: 0, Epoch 22, Batch 6001/8851
+No TF, Rank: 1, Epoch 22, Batch 7001/8851
+No TF, Rank: 0, Epoch 22, Batch 7001/8851
+No TF, Rank: 0, Epoch 22, Batch 8001/8851
+No TF, Rank: 1, Epoch 22, Batch 8001/8851
+No TF, Rank: 1, Epoch 22: Training Loss = 4.3834, Top-5 Accuracy = 49.8791
+No TF, Rank: 0, Epoch 22: Training Loss = 4.3834, Top-5 Accuracy = 49.8791
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.4860, Top-5 Accuracy = 48.7645, Bleu-1 = 0.6309, Bleu-2 = 0.3830, Bleu-3 = 0.2290, Bleu-4 = 0.1342
+No TF, Rank: 1, Epoch 23, Batch 1/8851
+
+Epochs since last improvement: 1
+
+No TF, Rank: 0, Epoch 23, Batch 1/8851
+No TF, Rank: 1, Epoch 23, Batch 1001/8851
+No TF, Rank: 0, Epoch 23, Batch 1001/8851
+No TF, Rank: 0, Epoch 23, Batch 2001/8851
+No TF, Rank: 1, Epoch 23, Batch 2001/8851
+No TF, Rank: 1, Epoch 23, Batch 3001/8851
+No TF, Rank: 0, Epoch 23, Batch 3001/8851
+No TF, Rank: 1, Epoch 23, Batch 4001/8851
+No TF, Rank: 0, Epoch 23, Batch 4001/8851
+No TF, Rank: 1, Epoch 23, Batch 5001/8851
+No TF, Rank: 0, Epoch 23, Batch 5001/8851
+No TF, Rank: 1, Epoch 23, Batch 6001/8851
+No TF, Rank: 0, Epoch 23, Batch 6001/8851
+No TF, Rank: 1, Epoch 23, Batch 7001/8851
+No TF, Rank: 0, Epoch 23, Batch 7001/8851
+No TF, Rank: 1, Epoch 23, Batch 8001/8851
+No TF, Rank: 0, Epoch 23, Batch 8001/8851
+No TF, Rank: 0, Epoch 23: Training Loss = 4.3770, Top-5 Accuracy = 49.9578
+No TF, Rank: 1, Epoch 23: Training Loss = 4.3770, Top-5 Accuracy = 49.9578
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.4896, Top-5 Accuracy = 48.6800, Bleu-1 = 0.6361, Bleu-2 = 0.3899, Bleu-3 = 0.2340, Bleu-4 = 0.1371
+
+Epochs since last improvement: 2
+
+No TF, Rank: 0, Epoch 24, Batch 1/8851
+No TF, Rank: 1, Epoch 24, Batch 1/8851
+No TF, Rank: 1, Epoch 24, Batch 1001/8851
+No TF, Rank: 0, Epoch 24, Batch 1001/8851
+No TF, Rank: 1, Epoch 24, Batch 2001/8851
+No TF, Rank: 0, Epoch 24, Batch 2001/8851
+No TF, Rank: 1, Epoch 24, Batch 3001/8851
+No TF, Rank: 0, Epoch 24, Batch 3001/8851
+No TF, Rank: 0, Epoch 24, Batch 4001/8851
+No TF, Rank: 1, Epoch 24, Batch 4001/8851
+No TF, Rank: 1, Epoch 24, Batch 5001/8851
+No TF, Rank: 0, Epoch 24, Batch 5001/8851
+No TF, Rank: 0, Epoch 24, Batch 6001/8851
+No TF, Rank: 1, Epoch 24, Batch 6001/8851
+No TF, Rank: 1, Epoch 24, Batch 7001/8851
+No TF, Rank: 0, Epoch 24, Batch 7001/8851
+No TF, Rank: 1, Epoch 24, Batch 8001/8851
+No TF, Rank: 0, Epoch 24, Batch 8001/8851
+No TF, Rank: 0, Epoch 24: Training Loss = 4.3708, Top-5 Accuracy = 50.0380
+No TF, Rank: 1, Epoch 24: Training Loss = 4.3708, Top-5 Accuracy = 50.0380
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.4888, Top-5 Accuracy = 48.7568, Bleu-1 = 0.6380, Bleu-2 = 0.3932, Bleu-3 = 0.2375, Bleu-4 = 0.1404
+No TF, Rank: 1, Epoch 25, Batch 1/8851
+No TF, Rank: 0, Epoch 25, Batch 1/8851
+No TF, Rank: 0, Epoch 25, Batch 1001/8851
+No TF, Rank: 1, Epoch 25, Batch 1001/8851
+No TF, Rank: 1, Epoch 25, Batch 2001/8851
+No TF, Rank: 0, Epoch 25, Batch 2001/8851
+No TF, Rank: 0, Epoch 25, Batch 3001/8851
+No TF, Rank: 1, Epoch 25, Batch 3001/8851
+No TF, Rank: 0, Epoch 25, Batch 4001/8851
+No TF, Rank: 1, Epoch 25, Batch 4001/8851
+No TF, Rank: 0, Epoch 25, Batch 5001/8851
+No TF, Rank: 1, Epoch 25, Batch 5001/8851
+No TF, Rank: 1, Epoch 25, Batch 6001/8851
+No TF, Rank: 0, Epoch 25, Batch 6001/8851
+No TF, Rank: 1, Epoch 25, Batch 7001/8851
+No TF, Rank: 0, Epoch 25, Batch 7001/8851
+No TF, Rank: 0, Epoch 25, Batch 8001/8851
+No TF, Rank: 1, Epoch 25, Batch 8001/8851
+No TF, Rank: 1, Epoch 25: Training Loss = 4.3647, Top-5 Accuracy = 50.1298
+No TF, Rank: 0, Epoch 25: Training Loss = 4.3647, Top-5 Accuracy = 50.1298
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.4898, Top-5 Accuracy = 48.6775, Bleu-1 = 0.6352, Bleu-2 = 0.3923, Bleu-3 = 0.2385, Bleu-4 = 0.1408
+No TF, Rank: 0, Epoch 26, Batch 1/8851
+No TF, Rank: 1, Epoch 26, Batch 1/8851
+No TF, Rank: 0, Epoch 26, Batch 1001/8851
+No TF, Rank: 1, Epoch 26, Batch 1001/8851
+No TF, Rank: 1, Epoch 26, Batch 2001/8851
+No TF, Rank: 0, Epoch 26, Batch 2001/8851
+No TF, Rank: 1, Epoch 26, Batch 3001/8851
+No TF, Rank: 0, Epoch 26, Batch 3001/8851
+No TF, Rank: 0, Epoch 26, Batch 4001/8851
+No TF, Rank: 1, Epoch 26, Batch 4001/8851
+No TF, Rank: 0, Epoch 26, Batch 5001/8851
+No TF, Rank: 1, Epoch 26, Batch 5001/8851
+No TF, Rank: 0, Epoch 26, Batch 6001/8851
+No TF, Rank: 1, Epoch 26, Batch 6001/8851
+No TF, Rank: 1, Epoch 26, Batch 7001/8851
+No TF, Rank: 0, Epoch 26, Batch 7001/8851
+No TF, Rank: 1, Epoch 26, Batch 8001/8851
+No TF, Rank: 0, Epoch 26, Batch 8001/8851
+No TF, Rank: 0, Epoch 26: Training Loss = 4.3595, Top-5 Accuracy = 50.2033
+No TF, Rank: 1, Epoch 26: Training Loss = 4.3595, Top-5 Accuracy = 50.2033
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.4902, Top-5 Accuracy = 48.6939, Bleu-1 = 0.6359, Bleu-2 = 0.3893, Bleu-3 = 0.2345, Bleu-4 = 0.1375
+No TF, Rank: 1, Epoch 27, Batch 1/8851
+
+Epochs since last improvement: 1
+
+No TF, Rank: 0, Epoch 27, Batch 1/8851
+No TF, Rank: 1, Epoch 27, Batch 1001/8851
+No TF, Rank: 0, Epoch 27, Batch 1001/8851
+No TF, Rank: 1, Epoch 27, Batch 2001/8851
+No TF, Rank: 0, Epoch 27, Batch 2001/8851
+No TF, Rank: 1, Epoch 27, Batch 3001/8851
+No TF, Rank: 0, Epoch 27, Batch 3001/8851
+No TF, Rank: 1, Epoch 27, Batch 4001/8851
+No TF, Rank: 0, Epoch 27, Batch 4001/8851
+No TF, Rank: 1, Epoch 27, Batch 5001/8851
+No TF, Rank: 0, Epoch 27, Batch 5001/8851
+No TF, Rank: 0, Epoch 27, Batch 6001/8851
+No TF, Rank: 1, Epoch 27, Batch 6001/8851
+No TF, Rank: 1, Epoch 27, Batch 7001/8851
+No TF, Rank: 0, Epoch 27, Batch 7001/8851
+No TF, Rank: 0, Epoch 27, Batch 8001/8851
+No TF, Rank: 1, Epoch 27, Batch 8001/8851
+No TF, Rank: 0, Epoch 27: Training Loss = 4.3535, Top-5 Accuracy = 50.3036
+No TF, Rank: 1, Epoch 27: Training Loss = 4.3535, Top-5 Accuracy = 50.3036
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.4884, Top-5 Accuracy = 48.7593, Bleu-1 = 0.6346, Bleu-2 = 0.3885, Bleu-3 = 0.2326, Bleu-4 = 0.1360
+No TF, Rank: 1, Epoch 28, Batch 1/8851
+
+Epochs since last improvement: 2
+
+No TF, Rank: 0, Epoch 28, Batch 1/8851
+No TF, Rank: 0, Epoch 28, Batch 1001/8851
+No TF, Rank: 1, Epoch 28, Batch 1001/8851
+No TF, Rank: 1, Epoch 28, Batch 2001/8851
+No TF, Rank: 0, Epoch 28, Batch 2001/8851
+No TF, Rank: 1, Epoch 28, Batch 3001/8851
+No TF, Rank: 0, Epoch 28, Batch 3001/8851
+No TF, Rank: 0, Epoch 28, Batch 4001/8851
+No TF, Rank: 1, Epoch 28, Batch 4001/8851
+No TF, Rank: 1, Epoch 28, Batch 5001/8851
+No TF, Rank: 0, Epoch 28, Batch 5001/8851
+No TF, Rank: 1, Epoch 28, Batch 6001/8851
+No TF, Rank: 0, Epoch 28, Batch 6001/8851
+No TF, Rank: 1, Epoch 28, Batch 7001/8851
+No TF, Rank: 0, Epoch 28, Batch 7001/8851
+No TF, Rank: 1, Epoch 28, Batch 8001/8851
+No TF, Rank: 0, Epoch 28, Batch 8001/8851
+No TF, Rank: 0, Epoch 28: Training Loss = 4.3483, Top-5 Accuracy = 50.3553
+No TF, Rank: 1, Epoch 28: Training Loss = 4.3483, Top-5 Accuracy = 50.3553
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.4922, Top-5 Accuracy = 48.7469, Bleu-1 = 0.6329, Bleu-2 = 0.3895, Bleu-3 = 0.2363, Bleu-4 = 0.1405
+
+Epochs since last improvement: 3
+
+No TF, Rank: 0, Epoch 29, Batch 1/8851
+No TF, Rank: 1, Epoch 29, Batch 1/8851
+No TF, Rank: 0, Epoch 29, Batch 1001/8851
+No TF, Rank: 1, Epoch 29, Batch 1001/8851
+No TF, Rank: 0, Epoch 29, Batch 2001/8851
+No TF, Rank: 1, Epoch 29, Batch 2001/8851
+No TF, Rank: 0, Epoch 29, Batch 3001/8851
+No TF, Rank: 1, Epoch 29, Batch 3001/8851
+No TF, Rank: 0, Epoch 29, Batch 4001/8851
+No TF, Rank: 1, Epoch 29, Batch 4001/8851
+No TF, Rank: 0, Epoch 29, Batch 5001/8851
+No TF, Rank: 1, Epoch 29, Batch 5001/8851
+No TF, Rank: 1, Epoch 29, Batch 6001/8851
+No TF, Rank: 0, Epoch 29, Batch 6001/8851
+No TF, Rank: 1, Epoch 29, Batch 7001/8851
+No TF, Rank: 0, Epoch 29, Batch 7001/8851
+No TF, Rank: 1, Epoch 29, Batch 8001/8851
+No TF, Rank: 0, Epoch 29, Batch 8001/8851
+No TF, Rank: 0, Epoch 29: Training Loss = 4.3430, Top-5 Accuracy = 50.4531
+No TF, Rank: 1, Epoch 29: Training Loss = 4.3430, Top-5 Accuracy = 50.4531
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.4904, Top-5 Accuracy = 48.6944, Bleu-1 = 0.6372, Bleu-2 = 0.3945, Bleu-3 = 0.2374, Bleu-4 = 0.1390
+No TF, Rank: 1, Epoch 30, Batch 1/8851
+
+Epochs since last improvement: 4
+
+No TF, Rank: 0, Epoch 30, Batch 1/8851
+No TF, Rank: 1, Epoch 30, Batch 1001/8851
+No TF, Rank: 0, Epoch 30, Batch 1001/8851
+No TF, Rank: 1, Epoch 30, Batch 2001/8851
+No TF, Rank: 0, Epoch 30, Batch 2001/8851
+No TF, Rank: 0, Epoch 30, Batch 3001/8851
+No TF, Rank: 1, Epoch 30, Batch 3001/8851
+No TF, Rank: 1, Epoch 30, Batch 4001/8851
+No TF, Rank: 0, Epoch 30, Batch 4001/8851
+No TF, Rank: 0, Epoch 30, Batch 5001/8851
+No TF, Rank: 1, Epoch 30, Batch 5001/8851
+No TF, Rank: 1, Epoch 30, Batch 6001/8851
+No TF, Rank: 0, Epoch 30, Batch 6001/8851
+No TF, Rank: 0, Epoch 30, Batch 7001/8851
+No TF, Rank: 1, Epoch 30, Batch 7001/8851
+No TF, Rank: 1, Epoch 30, Batch 8001/8851
+No TF, Rank: 0, Epoch 30, Batch 8001/8851
+No TF, Rank: 1, Epoch 30: Training Loss = 4.3386, Top-5 Accuracy = 50.5254
+No TF, Rank: 0, Epoch 30: Training Loss = 4.3386, Top-5 Accuracy = 50.5254
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.4925, Top-5 Accuracy = 48.7045, Bleu-1 = 0.6375, Bleu-2 = 0.3948, Bleu-3 = 0.2407, Bleu-4 = 0.1440
+No TF, Rank: 0, Epoch 31, Batch 1/8851
+No TF, Rank: 1, Epoch 31, Batch 1/8851
+No TF, Rank: 0, Epoch 31, Batch 1001/8851
+No TF, Rank: 1, Epoch 31, Batch 1001/8851
+No TF, Rank: 0, Epoch 31, Batch 2001/8851
+No TF, Rank: 1, Epoch 31, Batch 2001/8851
+No TF, Rank: 0, Epoch 31, Batch 3001/8851
+No TF, Rank: 1, Epoch 31, Batch 3001/8851
+No TF, Rank: 1, Epoch 31, Batch 4001/8851
+No TF, Rank: 0, Epoch 31, Batch 4001/8851
+No TF, Rank: 1, Epoch 31, Batch 5001/8851
+No TF, Rank: 0, Epoch 31, Batch 5001/8851
+No TF, Rank: 0, Epoch 31, Batch 6001/8851
+No TF, Rank: 1, Epoch 31, Batch 6001/8851
+No TF, Rank: 0, Epoch 31, Batch 7001/8851
+No TF, Rank: 1, Epoch 31, Batch 7001/8851
+No TF, Rank: 1, Epoch 31, Batch 8001/8851
+No TF, Rank: 0, Epoch 31, Batch 8001/8851
+No TF, Rank: 1, Epoch 31: Training Loss = 4.3337, Top-5 Accuracy = 50.5798
+No TF, Rank: 0, Epoch 31: Training Loss = 4.3337, Top-5 Accuracy = 50.5798
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.4919, Top-5 Accuracy = 48.7835, Bleu-1 = 0.6403, Bleu-2 = 0.3963, Bleu-3 = 0.2404, Bleu-4 = 0.1423
+
+Epochs since last improvement: 1
+
+No TF, Rank: 0, Epoch 32, Batch 1/8851
+No TF, Rank: 1, Epoch 32, Batch 1/8851
+No TF, Rank: 1, Epoch 32, Batch 1001/8851
+No TF, Rank: 0, Epoch 32, Batch 1001/8851
+No TF, Rank: 0, Epoch 32, Batch 2001/8851
+No TF, Rank: 1, Epoch 32, Batch 2001/8851
+No TF, Rank: 1, Epoch 32, Batch 3001/8851
+No TF, Rank: 0, Epoch 32, Batch 3001/8851
+No TF, Rank: 0, Epoch 32, Batch 4001/8851
+No TF, Rank: 1, Epoch 32, Batch 4001/8851
+No TF, Rank: 1, Epoch 32, Batch 5001/8851
+No TF, Rank: 0, Epoch 32, Batch 5001/8851
+No TF, Rank: 1, Epoch 32, Batch 6001/8851
+No TF, Rank: 0, Epoch 32, Batch 6001/8851
+No TF, Rank: 0, Epoch 32, Batch 7001/8851
+No TF, Rank: 1, Epoch 32, Batch 7001/8851
+No TF, Rank: 1, Epoch 32, Batch 8001/8851
+No TF, Rank: 0, Epoch 32, Batch 8001/8851
+No TF, Rank: 0, Epoch 32: Training Loss = 4.3295, Top-5 Accuracy = 50.6482
+No TF, Rank: 1, Epoch 32: Training Loss = 4.3295, Top-5 Accuracy = 50.6482
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.4933, Top-5 Accuracy = 48.7316, Bleu-1 = 0.6413, Bleu-2 = 0.3965, Bleu-3 = 0.2384, Bleu-4 = 0.1392
+No TF, Rank: 1, Epoch 33, Batch 1/8851
+
+Epochs since last improvement: 2
+
+No TF, Rank: 0, Epoch 33, Batch 1/8851
+No TF, Rank: 0, Epoch 33, Batch 1001/8851
+No TF, Rank: 1, Epoch 33, Batch 1001/8851
+No TF, Rank: 1, Epoch 33, Batch 2001/8851
+No TF, Rank: 0, Epoch 33, Batch 2001/8851
+No TF, Rank: 0, Epoch 33, Batch 3001/8851
+No TF, Rank: 1, Epoch 33, Batch 3001/8851
+No TF, Rank: 0, Epoch 33, Batch 4001/8851
+No TF, Rank: 1, Epoch 33, Batch 4001/8851
+No TF, Rank: 1, Epoch 33, Batch 5001/8851
+No TF, Rank: 0, Epoch 33, Batch 5001/8851
+No TF, Rank: 0, Epoch 33, Batch 6001/8851
+No TF, Rank: 1, Epoch 33, Batch 6001/8851
+No TF, Rank: 0, Epoch 33, Batch 7001/8851
+No TF, Rank: 1, Epoch 33, Batch 7001/8851
+No TF, Rank: 0, Epoch 33, Batch 8001/8851
+No TF, Rank: 1, Epoch 33, Batch 8001/8851
+No TF, Rank: 1, Epoch 33: Training Loss = 4.3248, Top-5 Accuracy = 50.7359
+No TF, Rank: 0, Epoch 33: Training Loss = 4.3248, Top-5 Accuracy = 50.7359
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.4994, Top-5 Accuracy = 48.7008, Bleu-1 = 0.6415, Bleu-2 = 0.3980, Bleu-3 = 0.2396, Bleu-4 = 0.1403
+No TF, Rank: 1, Epoch 34, Batch 1/8851
+
+Epochs since last improvement: 3
+
+No TF, Rank: 0, Epoch 34, Batch 1/8851
+No TF, Rank: 0, Epoch 34, Batch 1001/8851
+No TF, Rank: 1, Epoch 34, Batch 1001/8851
+No TF, Rank: 0, Epoch 34, Batch 2001/8851
+No TF, Rank: 1, Epoch 34, Batch 2001/8851
+No TF, Rank: 0, Epoch 34, Batch 3001/8851
+No TF, Rank: 1, Epoch 34, Batch 3001/8851
+No TF, Rank: 0, Epoch 34, Batch 4001/8851
+No TF, Rank: 1, Epoch 34, Batch 4001/8851
+No TF, Rank: 1, Epoch 34, Batch 5001/8851
+No TF, Rank: 0, Epoch 34, Batch 5001/8851
+No TF, Rank: 1, Epoch 34, Batch 6001/8851
+No TF, Rank: 0, Epoch 34, Batch 6001/8851
+No TF, Rank: 0, Epoch 34, Batch 7001/8851
+No TF, Rank: 1, Epoch 34, Batch 7001/8851
+No TF, Rank: 0, Epoch 34, Batch 8001/8851
+No TF, Rank: 1, Epoch 34, Batch 8001/8851
+No TF, Rank: 0, Epoch 34: Training Loss = 4.3201, Top-5 Accuracy = 50.7979
+No TF, Rank: 1, Epoch 34: Training Loss = 4.3201, Top-5 Accuracy = 50.7979
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.4973, Top-5 Accuracy = 48.6818, Bleu-1 = 0.6472, Bleu-2 = 0.4021, Bleu-3 = 0.2428, Bleu-4 = 0.1428
+
+Epochs since last improvement: 4
+
+No TF, Rank: 0, Epoch 35, Batch 1/8851
+No TF, Rank: 1, Epoch 35, Batch 1/8851
+No TF, Rank: 0, Epoch 35, Batch 1001/8851
+No TF, Rank: 1, Epoch 35, Batch 1001/8851
+No TF, Rank: 0, Epoch 35, Batch 2001/8851
+No TF, Rank: 1, Epoch 35, Batch 2001/8851
+No TF, Rank: 1, Epoch 35, Batch 3001/8851
+No TF, Rank: 0, Epoch 35, Batch 3001/8851
+No TF, Rank: 0, Epoch 35, Batch 4001/8851
+No TF, Rank: 1, Epoch 35, Batch 4001/8851
+No TF, Rank: 0, Epoch 35, Batch 5001/8851
+No TF, Rank: 1, Epoch 35, Batch 5001/8851
+No TF, Rank: 0, Epoch 35, Batch 6001/8851
+No TF, Rank: 1, Epoch 35, Batch 6001/8851
+No TF, Rank: 0, Epoch 35, Batch 7001/8851
+No TF, Rank: 1, Epoch 35, Batch 7001/8851
+No TF, Rank: 0, Epoch 35, Batch 8001/8851
+No TF, Rank: 1, Epoch 35, Batch 8001/8851
+No TF, Rank: 1, Epoch 35: Training Loss = 4.3159, Top-5 Accuracy = 50.8641
+No TF, Rank: 0, Epoch 35: Training Loss = 4.3159, Top-5 Accuracy = 50.8641
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.4973, Top-5 Accuracy = 48.6021, Bleu-1 = 0.6413, Bleu-2 = 0.3969, Bleu-3 = 0.2399, Bleu-4 = 0.1413
+
+Epochs since last improvement: 5
+
+No TF, Rank: 0, Epoch 36, Batch 1/8851
+No TF, Rank: 1, Epoch 36, Batch 1/8851
+No TF, Rank: 1, Epoch 36, Batch 1001/8851
+No TF, Rank: 0, Epoch 36, Batch 1001/8851
+No TF, Rank: 0, Epoch 36, Batch 2001/8851
+No TF, Rank: 1, Epoch 36, Batch 2001/8851
+No TF, Rank: 0, Epoch 36, Batch 3001/8851
+No TF, Rank: 1, Epoch 36, Batch 3001/8851
+No TF, Rank: 1, Epoch 36, Batch 4001/8851
+No TF, Rank: 0, Epoch 36, Batch 4001/8851
+No TF, Rank: 1, Epoch 36, Batch 5001/8851
+No TF, Rank: 0, Epoch 36, Batch 5001/8851
+No TF, Rank: 1, Epoch 36, Batch 6001/8851
+No TF, Rank: 0, Epoch 36, Batch 6001/8851
+No TF, Rank: 0, Epoch 36, Batch 7001/8851
+No TF, Rank: 1, Epoch 36, Batch 7001/8851
+No TF, Rank: 0, Epoch 36, Batch 8001/8851
+No TF, Rank: 1, Epoch 36, Batch 8001/8851
+No TF, Rank: 0, Epoch 36: Training Loss = 4.3123, Top-5 Accuracy = 50.9089
+No TF, Rank: 1, Epoch 36: Training Loss = 4.3123, Top-5 Accuracy = 50.9089
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5006, Top-5 Accuracy = 48.5869, Bleu-1 = 0.6438, Bleu-2 = 0.4018, Bleu-3 = 0.2436, Bleu-4 = 0.1440
+
+Epochs since last improvement: 6
+
+No TF, Rank: 0, Epoch 37, Batch 1/8851
+No TF, Rank: 1, Epoch 37, Batch 1/8851
+No TF, Rank: 0, Epoch 37, Batch 1001/8851
+No TF, Rank: 1, Epoch 37, Batch 1001/8851
+No TF, Rank: 0, Epoch 37, Batch 2001/8851
+No TF, Rank: 1, Epoch 37, Batch 2001/8851
+No TF, Rank: 0, Epoch 37, Batch 3001/8851
+No TF, Rank: 1, Epoch 37, Batch 3001/8851
+No TF, Rank: 0, Epoch 37, Batch 4001/8851
+No TF, Rank: 1, Epoch 37, Batch 4001/8851
+No TF, Rank: 0, Epoch 37, Batch 5001/8851
+No TF, Rank: 1, Epoch 37, Batch 5001/8851
+No TF, Rank: 1, Epoch 37, Batch 6001/8851
+No TF, Rank: 0, Epoch 37, Batch 6001/8851
+No TF, Rank: 1, Epoch 37, Batch 7001/8851
+No TF, Rank: 0, Epoch 37, Batch 7001/8851
+No TF, Rank: 1, Epoch 37, Batch 8001/8851
+No TF, Rank: 0, Epoch 37, Batch 8001/8851
+No TF, Rank: 1, Epoch 37: Training Loss = 4.3080, Top-5 Accuracy = 50.9830
+No TF, Rank: 0, Epoch 37: Training Loss = 4.3080, Top-5 Accuracy = 50.9830
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5012, Top-5 Accuracy = 48.6605, Bleu-1 = 0.6441, Bleu-2 = 0.4004, Bleu-3 = 0.2411, Bleu-4 = 0.1415
+No TF, Rank: 1, Epoch 38, Batch 1/8851
+
+Epochs since last improvement: 7
+
+No TF, Rank: 0, Epoch 38, Batch 1/8851
+No TF, Rank: 1, Epoch 38, Batch 1001/8851
+No TF, Rank: 0, Epoch 38, Batch 1001/8851
+No TF, Rank: 0, Epoch 38, Batch 2001/8851
+No TF, Rank: 1, Epoch 38, Batch 2001/8851
+No TF, Rank: 0, Epoch 38, Batch 3001/8851
+No TF, Rank: 1, Epoch 38, Batch 3001/8851
+No TF, Rank: 0, Epoch 38, Batch 4001/8851
+No TF, Rank: 1, Epoch 38, Batch 4001/8851
+No TF, Rank: 0, Epoch 38, Batch 5001/8851
+No TF, Rank: 1, Epoch 38, Batch 5001/8851
+No TF, Rank: 0, Epoch 38, Batch 6001/8851
+No TF, Rank: 1, Epoch 38, Batch 6001/8851
+No TF, Rank: 0, Epoch 38, Batch 7001/8851
+No TF, Rank: 1, Epoch 38, Batch 7001/8851
+No TF, Rank: 1, Epoch 38, Batch 8001/8851
+No TF, Rank: 0, Epoch 38, Batch 8001/8851
+No TF, Rank: 0, Epoch 38: Training Loss = 4.3045, Top-5 Accuracy = 51.0430
+No TF, Rank: 1, Epoch 38: Training Loss = 4.3045, Top-5 Accuracy = 51.0430
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.4991, Top-5 Accuracy = 48.5372, Bleu-1 = 0.6464, Bleu-2 = 0.4014, Bleu-3 = 0.2424, Bleu-4 = 0.1427
+
+Epochs since last improvement: 8
+
+
+DECAYING learning rate.
+The new learning rate is 0.000080
+
+No TF, Rank: 0, Epoch 39, Batch 1/8851
+
+DECAYING learning rate.
+The new learning rate is 0.000080
+
+No TF, Rank: 1, Epoch 39, Batch 1/8851
+No TF, Rank: 1, Epoch 39, Batch 1001/8851
+No TF, Rank: 0, Epoch 39, Batch 1001/8851
+No TF, Rank: 0, Epoch 39, Batch 2001/8851
+No TF, Rank: 1, Epoch 39, Batch 2001/8851
+No TF, Rank: 1, Epoch 39, Batch 3001/8851
+No TF, Rank: 0, Epoch 39, Batch 3001/8851
+No TF, Rank: 1, Epoch 39, Batch 4001/8851
+No TF, Rank: 0, Epoch 39, Batch 4001/8851
+No TF, Rank: 0, Epoch 39, Batch 5001/8851
+No TF, Rank: 1, Epoch 39, Batch 5001/8851
+No TF, Rank: 0, Epoch 39, Batch 6001/8851
+No TF, Rank: 1, Epoch 39, Batch 6001/8851
+No TF, Rank: 1, Epoch 39, Batch 7001/8851
+No TF, Rank: 0, Epoch 39, Batch 7001/8851
+No TF, Rank: 1, Epoch 39, Batch 8001/8851
+No TF, Rank: 0, Epoch 39, Batch 8001/8851
+No TF, Rank: 0, Epoch 39: Training Loss = 4.2932, Top-5 Accuracy = 51.1902
+No TF, Rank: 1, Epoch 39: Training Loss = 4.2932, Top-5 Accuracy = 51.1902
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5011, Top-5 Accuracy = 48.6128, Bleu-1 = 0.6423, Bleu-2 = 0.4014, Bleu-3 = 0.2450, Bleu-4 = 0.1461
+No TF, Rank: 1, Epoch 40, Batch 1/8851
+No TF, Rank: 0, Epoch 40, Batch 1/8851
+No TF, Rank: 1, Epoch 40, Batch 1001/8851
+No TF, Rank: 0, Epoch 40, Batch 1001/8851
+No TF, Rank: 0, Epoch 40, Batch 2001/8851
+No TF, Rank: 1, Epoch 40, Batch 2001/8851
+No TF, Rank: 1, Epoch 40, Batch 3001/8851
+No TF, Rank: 0, Epoch 40, Batch 3001/8851
+No TF, Rank: 0, Epoch 40, Batch 4001/8851
+No TF, Rank: 1, Epoch 40, Batch 4001/8851
+No TF, Rank: 0, Epoch 40, Batch 5001/8851
+No TF, Rank: 1, Epoch 40, Batch 5001/8851
+No TF, Rank: 0, Epoch 40, Batch 6001/8851
+No TF, Rank: 1, Epoch 40, Batch 6001/8851
+No TF, Rank: 0, Epoch 40, Batch 7001/8851
+No TF, Rank: 1, Epoch 40, Batch 7001/8851
+No TF, Rank: 1, Epoch 40, Batch 8001/8851
+No TF, Rank: 0, Epoch 40, Batch 8001/8851
+No TF, Rank: 0, Epoch 40: Training Loss = 4.2888, Top-5 Accuracy = 51.2641
+No TF, Rank: 1, Epoch 40: Training Loss = 4.2888, Top-5 Accuracy = 51.2641
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.4987, Top-5 Accuracy = 48.6169, Bleu-1 = 0.6444, Bleu-2 = 0.4028, Bleu-3 = 0.2450, Bleu-4 = 0.1438
+No TF, Rank: 1, Epoch 41, Batch 1/8851
+
+Epochs since last improvement: 1
+
+No TF, Rank: 0, Epoch 41, Batch 1/8851
+No TF, Rank: 1, Epoch 41, Batch 1001/8851
+No TF, Rank: 0, Epoch 41, Batch 1001/8851
+No TF, Rank: 0, Epoch 41, Batch 2001/8851
+No TF, Rank: 1, Epoch 41, Batch 2001/8851
+No TF, Rank: 1, Epoch 41, Batch 3001/8851
+No TF, Rank: 0, Epoch 41, Batch 3001/8851
+No TF, Rank: 1, Epoch 41, Batch 4001/8851
+No TF, Rank: 0, Epoch 41, Batch 4001/8851
+No TF, Rank: 1, Epoch 41, Batch 5001/8851
+No TF, Rank: 0, Epoch 41, Batch 5001/8851
+No TF, Rank: 0, Epoch 41, Batch 6001/8851
+No TF, Rank: 1, Epoch 41, Batch 6001/8851
+No TF, Rank: 1, Epoch 41, Batch 7001/8851
+No TF, Rank: 0, Epoch 41, Batch 7001/8851
+No TF, Rank: 1, Epoch 41, Batch 8001/8851
+No TF, Rank: 0, Epoch 41, Batch 8001/8851
+No TF, Rank: 1, Epoch 41: Training Loss = 4.2855, Top-5 Accuracy = 51.3049
+No TF, Rank: 0, Epoch 41: Training Loss = 4.2855, Top-5 Accuracy = 51.3049
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5037, Top-5 Accuracy = 48.6270, Bleu-1 = 0.6507, Bleu-2 = 0.4090, Bleu-3 = 0.2491, Bleu-4 = 0.1475
+No TF, Rank: 0, Epoch 42, Batch 1/8851
+No TF, Rank: 1, Epoch 42, Batch 1/8851
+No TF, Rank: 0, Epoch 42, Batch 1001/8851
+No TF, Rank: 1, Epoch 42, Batch 1001/8851
+No TF, Rank: 0, Epoch 42, Batch 2001/8851
+No TF, Rank: 1, Epoch 42, Batch 2001/8851
+No TF, Rank: 1, Epoch 42, Batch 3001/8851
+No TF, Rank: 0, Epoch 42, Batch 3001/8851
+No TF, Rank: 1, Epoch 42, Batch 4001/8851
+No TF, Rank: 0, Epoch 42, Batch 4001/8851
+No TF, Rank: 1, Epoch 42, Batch 5001/8851
+No TF, Rank: 0, Epoch 42, Batch 5001/8851
+No TF, Rank: 0, Epoch 42, Batch 6001/8851
+No TF, Rank: 1, Epoch 42, Batch 6001/8851
+No TF, Rank: 0, Epoch 42, Batch 7001/8851
+No TF, Rank: 1, Epoch 42, Batch 7001/8851
+No TF, Rank: 0, Epoch 42, Batch 8001/8851
+No TF, Rank: 1, Epoch 42, Batch 8001/8851
+No TF, Rank: 1, Epoch 42: Training Loss = 4.2826, Top-5 Accuracy = 51.3750
+No TF, Rank: 0, Epoch 42: Training Loss = 4.2826, Top-5 Accuracy = 51.3750
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5047, Top-5 Accuracy = 48.5607, Bleu-1 = 0.6461, Bleu-2 = 0.4026, Bleu-3 = 0.2442, Bleu-4 = 0.1450
+
+Epochs since last improvement: 1
+
+No TF, Rank: 0, Epoch 43, Batch 1/8851
+No TF, Rank: 1, Epoch 43, Batch 1/8851
+No TF, Rank: 0, Epoch 43, Batch 1001/8851
+No TF, Rank: 1, Epoch 43, Batch 1001/8851
+No TF, Rank: 0, Epoch 43, Batch 2001/8851
+No TF, Rank: 1, Epoch 43, Batch 2001/8851
+No TF, Rank: 1, Epoch 43, Batch 3001/8851
+No TF, Rank: 0, Epoch 43, Batch 3001/8851
+No TF, Rank: 0, Epoch 43, Batch 4001/8851
+No TF, Rank: 1, Epoch 43, Batch 4001/8851
+No TF, Rank: 1, Epoch 43, Batch 5001/8851
+No TF, Rank: 0, Epoch 43, Batch 5001/8851
+No TF, Rank: 0, Epoch 43, Batch 6001/8851
+No TF, Rank: 1, Epoch 43, Batch 6001/8851
+No TF, Rank: 0, Epoch 43, Batch 7001/8851
+No TF, Rank: 1, Epoch 43, Batch 7001/8851
+No TF, Rank: 1, Epoch 43, Batch 8001/8851
+No TF, Rank: 0, Epoch 43, Batch 8001/8851
+No TF, Rank: 1, Epoch 43: Training Loss = 4.2795, Top-5 Accuracy = 51.4127
+No TF, Rank: 0, Epoch 43: Training Loss = 4.2795, Top-5 Accuracy = 51.4127
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5066, Top-5 Accuracy = 48.5319, Bleu-1 = 0.6469, Bleu-2 = 0.4026, Bleu-3 = 0.2420, Bleu-4 = 0.1412
+
+Epochs since last improvement: 2
+
+No TF, Rank: 0, Epoch 44, Batch 1/8851
+No TF, Rank: 1, Epoch 44, Batch 1/8851
+No TF, Rank: 0, Epoch 44, Batch 1001/8851
+No TF, Rank: 1, Epoch 44, Batch 1001/8851
+No TF, Rank: 0, Epoch 44, Batch 2001/8851
+No TF, Rank: 1, Epoch 44, Batch 2001/8851
+No TF, Rank: 0, Epoch 44, Batch 3001/8851
+No TF, Rank: 1, Epoch 44, Batch 3001/8851
+No TF, Rank: 0, Epoch 44, Batch 4001/8851
+No TF, Rank: 1, Epoch 44, Batch 4001/8851
+No TF, Rank: 1, Epoch 44, Batch 5001/8851
+No TF, Rank: 0, Epoch 44, Batch 5001/8851
+No TF, Rank: 1, Epoch 44, Batch 6001/8851
+No TF, Rank: 0, Epoch 44, Batch 6001/8851
+No TF, Rank: 1, Epoch 44, Batch 7001/8851
+No TF, Rank: 0, Epoch 44, Batch 7001/8851
+No TF, Rank: 1, Epoch 44, Batch 8001/8851
+No TF, Rank: 0, Epoch 44, Batch 8001/8851
+No TF, Rank: 0, Epoch 44: Training Loss = 4.2770, Top-5 Accuracy = 51.4472
+No TF, Rank: 1, Epoch 44: Training Loss = 4.2770, Top-5 Accuracy = 51.4472
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5047, Top-5 Accuracy = 48.5716, Bleu-1 = 0.6519, Bleu-2 = 0.4084, Bleu-3 = 0.2475, Bleu-4 = 0.1455
+
+Epochs since last improvement: 3
+
+No TF, Rank: 0, Epoch 45, Batch 1/8851
+No TF, Rank: 1, Epoch 45, Batch 1/8851
+No TF, Rank: 1, Epoch 45, Batch 1001/8851
+No TF, Rank: 0, Epoch 45, Batch 1001/8851
+No TF, Rank: 0, Epoch 45, Batch 2001/8851
+No TF, Rank: 1, Epoch 45, Batch 2001/8851
+No TF, Rank: 0, Epoch 45, Batch 3001/8851
+No TF, Rank: 1, Epoch 45, Batch 3001/8851
+No TF, Rank: 0, Epoch 45, Batch 4001/8851
+No TF, Rank: 1, Epoch 45, Batch 4001/8851
+No TF, Rank: 0, Epoch 45, Batch 5001/8851
+No TF, Rank: 1, Epoch 45, Batch 5001/8851
+No TF, Rank: 0, Epoch 45, Batch 6001/8851
+No TF, Rank: 1, Epoch 45, Batch 6001/8851
+No TF, Rank: 1, Epoch 45, Batch 7001/8851
+No TF, Rank: 0, Epoch 45, Batch 7001/8851
+No TF, Rank: 1, Epoch 45, Batch 8001/8851
+No TF, Rank: 0, Epoch 45, Batch 8001/8851
+No TF, Rank: 1, Epoch 45: Training Loss = 4.2745, Top-5 Accuracy = 51.4974
+No TF, Rank: 0, Epoch 45: Training Loss = 4.2745, Top-5 Accuracy = 51.4974
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5046, Top-5 Accuracy = 48.5618, Bleu-1 = 0.6518, Bleu-2 = 0.4082, Bleu-3 = 0.2488, Bleu-4 = 0.1479
+No TF, Rank: 0, Epoch 46, Batch 1/8851
+No TF, Rank: 1, Epoch 46, Batch 1/8851
+No TF, Rank: 0, Epoch 46, Batch 1001/8851
+No TF, Rank: 1, Epoch 46, Batch 1001/8851
+No TF, Rank: 1, Epoch 46, Batch 2001/8851
+No TF, Rank: 0, Epoch 46, Batch 2001/8851
+No TF, Rank: 1, Epoch 46, Batch 3001/8851
+No TF, Rank: 0, Epoch 46, Batch 3001/8851
+No TF, Rank: 0, Epoch 46, Batch 4001/8851
+No TF, Rank: 1, Epoch 46, Batch 4001/8851
+No TF, Rank: 0, Epoch 46, Batch 5001/8851
+No TF, Rank: 1, Epoch 46, Batch 5001/8851
+No TF, Rank: 0, Epoch 46, Batch 6001/8851
+No TF, Rank: 1, Epoch 46, Batch 6001/8851
+No TF, Rank: 0, Epoch 46, Batch 7001/8851
+No TF, Rank: 1, Epoch 46, Batch 7001/8851
+No TF, Rank: 0, Epoch 46, Batch 8001/8851
+No TF, Rank: 1, Epoch 46, Batch 8001/8851
+No TF, Rank: 0, Epoch 46: Training Loss = 4.2710, Top-5 Accuracy = 51.5465
+No TF, Rank: 1, Epoch 46: Training Loss = 4.2710, Top-5 Accuracy = 51.5465
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5099, Top-5 Accuracy = 48.5119, Bleu-1 = 0.6533, Bleu-2 = 0.4117, Bleu-3 = 0.2510, Bleu-4 = 0.1487
+No TF, Rank: 0, Epoch 47, Batch 1/8851
+No TF, Rank: 1, Epoch 47, Batch 1/8851
+No TF, Rank: 1, Epoch 47, Batch 1001/8851
+No TF, Rank: 0, Epoch 47, Batch 1001/8851
+No TF, Rank: 0, Epoch 47, Batch 2001/8851
+No TF, Rank: 1, Epoch 47, Batch 2001/8851
+No TF, Rank: 0, Epoch 47, Batch 3001/8851
+No TF, Rank: 1, Epoch 47, Batch 3001/8851
+No TF, Rank: 0, Epoch 47, Batch 4001/8851
+No TF, Rank: 1, Epoch 47, Batch 4001/8851
+No TF, Rank: 1, Epoch 47, Batch 5001/8851
+No TF, Rank: 0, Epoch 47, Batch 5001/8851
+No TF, Rank: 0, Epoch 47, Batch 6001/8851
+No TF, Rank: 1, Epoch 47, Batch 6001/8851
+No TF, Rank: 0, Epoch 47, Batch 7001/8851
+No TF, Rank: 1, Epoch 47, Batch 7001/8851
+No TF, Rank: 0, Epoch 47, Batch 8001/8851
+No TF, Rank: 1, Epoch 47, Batch 8001/8851
+No TF, Rank: 0, Epoch 47: Training Loss = 4.2691, Top-5 Accuracy = 51.5783
+No TF, Rank: 1, Epoch 47: Training Loss = 4.2691, Top-5 Accuracy = 51.5783
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5086, Top-5 Accuracy = 48.5285, Bleu-1 = 0.6484, Bleu-2 = 0.4048, Bleu-3 = 0.2458, Bleu-4 = 0.1458
+No TF, Rank: 1, Epoch 48, Batch 1/8851
+
+Epochs since last improvement: 1
+
+No TF, Rank: 0, Epoch 48, Batch 1/8851
+No TF, Rank: 0, Epoch 48, Batch 1001/8851
+No TF, Rank: 1, Epoch 48, Batch 1001/8851
+No TF, Rank: 1, Epoch 48, Batch 2001/8851
+No TF, Rank: 0, Epoch 48, Batch 2001/8851
+No TF, Rank: 0, Epoch 48, Batch 3001/8851
+No TF, Rank: 1, Epoch 48, Batch 3001/8851
+No TF, Rank: 1, Epoch 48, Batch 4001/8851
+No TF, Rank: 0, Epoch 48, Batch 4001/8851
+No TF, Rank: 1, Epoch 48, Batch 5001/8851
+No TF, Rank: 0, Epoch 48, Batch 5001/8851
+No TF, Rank: 0, Epoch 48, Batch 6001/8851
+No TF, Rank: 1, Epoch 48, Batch 6001/8851
+No TF, Rank: 0, Epoch 48, Batch 7001/8851
+No TF, Rank: 1, Epoch 48, Batch 7001/8851
+No TF, Rank: 0, Epoch 48, Batch 8001/8851
+No TF, Rank: 1, Epoch 48, Batch 8001/8851
+No TF, Rank: 0, Epoch 48: Training Loss = 4.2665, Top-5 Accuracy = 51.6205
+No TF, Rank: 1, Epoch 48: Training Loss = 4.2665, Top-5 Accuracy = 51.6205
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5108, Top-5 Accuracy = 48.4510, Bleu-1 = 0.6531, Bleu-2 = 0.4109, Bleu-3 = 0.2509, Bleu-4 = 0.1501
+No TF, Rank: 0, Epoch 49, Batch 1/8851
+No TF, Rank: 1, Epoch 49, Batch 1/8851
+No TF, Rank: 0, Epoch 49, Batch 1001/8851
+No TF, Rank: 1, Epoch 49, Batch 1001/8851
+No TF, Rank: 1, Epoch 49, Batch 2001/8851
+No TF, Rank: 0, Epoch 49, Batch 2001/8851
+No TF, Rank: 0, Epoch 49, Batch 3001/8851
+No TF, Rank: 1, Epoch 49, Batch 3001/8851
+No TF, Rank: 0, Epoch 49, Batch 4001/8851
+No TF, Rank: 1, Epoch 49, Batch 4001/8851
+No TF, Rank: 1, Epoch 49, Batch 5001/8851
+No TF, Rank: 0, Epoch 49, Batch 5001/8851
+No TF, Rank: 0, Epoch 49, Batch 6001/8851
+No TF, Rank: 1, Epoch 49, Batch 6001/8851
+No TF, Rank: 0, Epoch 49, Batch 7001/8851
+No TF, Rank: 1, Epoch 49, Batch 7001/8851
+No TF, Rank: 0, Epoch 49, Batch 8001/8851
+No TF, Rank: 1, Epoch 49, Batch 8001/8851
+No TF, Rank: 0, Epoch 49: Training Loss = 4.2640, Top-5 Accuracy = 51.6617
+No TF, Rank: 1, Epoch 49: Training Loss = 4.2640, Top-5 Accuracy = 51.6617
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5098, Top-5 Accuracy = 48.4793, Bleu-1 = 0.6472, Bleu-2 = 0.4051, Bleu-3 = 0.2465, Bleu-4 = 0.1462
+No TF, Rank: 1, Epoch 50, Batch 1/8851
+
+Epochs since last improvement: 1
+
+No TF, Rank: 0, Epoch 50, Batch 1/8851
+No TF, Rank: 0, Epoch 50, Batch 1001/8851
+No TF, Rank: 1, Epoch 50, Batch 1001/8851
+No TF, Rank: 1, Epoch 50, Batch 2001/8851
+No TF, Rank: 0, Epoch 50, Batch 2001/8851
+No TF, Rank: 1, Epoch 50, Batch 3001/8851
+No TF, Rank: 0, Epoch 50, Batch 3001/8851
+No TF, Rank: 1, Epoch 50, Batch 4001/8851
+No TF, Rank: 0, Epoch 50, Batch 4001/8851
+No TF, Rank: 0, Epoch 50, Batch 5001/8851
+No TF, Rank: 1, Epoch 50, Batch 5001/8851
+No TF, Rank: 1, Epoch 50, Batch 6001/8851
+No TF, Rank: 0, Epoch 50, Batch 6001/8851
+No TF, Rank: 1, Epoch 50, Batch 7001/8851
+No TF, Rank: 0, Epoch 50, Batch 7001/8851
+No TF, Rank: 1, Epoch 50, Batch 8001/8851
+No TF, Rank: 0, Epoch 50, Batch 8001/8851
+No TF, Rank: 0, Epoch 50: Training Loss = 4.2613, Top-5 Accuracy = 51.6955
+No TF, Rank: 1, Epoch 50: Training Loss = 4.2613, Top-5 Accuracy = 51.6955
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5114, Top-5 Accuracy = 48.4397, Bleu-1 = 0.6518, Bleu-2 = 0.4089, Bleu-3 = 0.2480, Bleu-4 = 0.1469
+No TF, Rank: 1, Epoch 51, Batch 1/8851
+
+Epochs since last improvement: 2
+
+No TF, Rank: 0, Epoch 51, Batch 1/8851
+No TF, Rank: 0, Epoch 51, Batch 1001/8851
+No TF, Rank: 1, Epoch 51, Batch 1001/8851
+No TF, Rank: 0, Epoch 51, Batch 2001/8851
+No TF, Rank: 1, Epoch 51, Batch 2001/8851
+No TF, Rank: 0, Epoch 51, Batch 3001/8851
+No TF, Rank: 1, Epoch 51, Batch 3001/8851
+No TF, Rank: 0, Epoch 51, Batch 4001/8851
+No TF, Rank: 1, Epoch 51, Batch 4001/8851
+No TF, Rank: 1, Epoch 51, Batch 5001/8851
+No TF, Rank: 0, Epoch 51, Batch 5001/8851
+No TF, Rank: 1, Epoch 51, Batch 6001/8851
+No TF, Rank: 0, Epoch 51, Batch 6001/8851
+No TF, Rank: 0, Epoch 51, Batch 7001/8851
+No TF, Rank: 1, Epoch 51, Batch 7001/8851
+No TF, Rank: 0, Epoch 51, Batch 8001/8851
+No TF, Rank: 1, Epoch 51, Batch 8001/8851
+No TF, Rank: 0, Epoch 51: Training Loss = 4.2589, Top-5 Accuracy = 51.7513
+No TF, Rank: 1, Epoch 51: Training Loss = 4.2589, Top-5 Accuracy = 51.7513
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5129, Top-5 Accuracy = 48.4028, Bleu-1 = 0.6537, Bleu-2 = 0.4124, Bleu-3 = 0.2518, Bleu-4 = 0.1500
+
+Epochs since last improvement: 3
+
+No TF, Rank: 0, Epoch 52, Batch 1/8851
+No TF, Rank: 1, Epoch 52, Batch 1/8851
+No TF, Rank: 1, Epoch 52, Batch 1001/8851
+No TF, Rank: 0, Epoch 52, Batch 1001/8851
+No TF, Rank: 1, Epoch 52, Batch 2001/8851
+No TF, Rank: 0, Epoch 52, Batch 2001/8851
+No TF, Rank: 1, Epoch 52, Batch 3001/8851
+No TF, Rank: 0, Epoch 52, Batch 3001/8851
+No TF, Rank: 1, Epoch 52, Batch 4001/8851
+No TF, Rank: 0, Epoch 52, Batch 4001/8851
+No TF, Rank: 1, Epoch 52, Batch 5001/8851
+No TF, Rank: 0, Epoch 52, Batch 5001/8851
+No TF, Rank: 1, Epoch 52, Batch 6001/8851
+No TF, Rank: 0, Epoch 52, Batch 6001/8851
+No TF, Rank: 0, Epoch 52, Batch 7001/8851
+No TF, Rank: 1, Epoch 52, Batch 7001/8851
+No TF, Rank: 1, Epoch 52, Batch 8001/8851
+No TF, Rank: 0, Epoch 52, Batch 8001/8851
+No TF, Rank: 1, Epoch 52: Training Loss = 4.2572, Top-5 Accuracy = 51.7897
+No TF, Rank: 0, Epoch 52: Training Loss = 4.2572, Top-5 Accuracy = 51.7897
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5129, Top-5 Accuracy = 48.3819, Bleu-1 = 0.6493, Bleu-2 = 0.4073, Bleu-3 = 0.2471, Bleu-4 = 0.1447
+
+Epochs since last improvement: 4
+
+No TF, Rank: 0, Epoch 53, Batch 1/8851
+No TF, Rank: 1, Epoch 53, Batch 1/8851
+No TF, Rank: 0, Epoch 53, Batch 1001/8851
+No TF, Rank: 1, Epoch 53, Batch 1001/8851
+No TF, Rank: 0, Epoch 53, Batch 2001/8851
+No TF, Rank: 1, Epoch 53, Batch 2001/8851
+No TF, Rank: 0, Epoch 53, Batch 3001/8851
+No TF, Rank: 1, Epoch 53, Batch 3001/8851
+No TF, Rank: 0, Epoch 53, Batch 4001/8851
+No TF, Rank: 1, Epoch 53, Batch 4001/8851
+No TF, Rank: 1, Epoch 53, Batch 5001/8851
+No TF, Rank: 0, Epoch 53, Batch 5001/8851
+No TF, Rank: 1, Epoch 53, Batch 6001/8851
+No TF, Rank: 0, Epoch 53, Batch 6001/8851
+No TF, Rank: 0, Epoch 53, Batch 7001/8851
+No TF, Rank: 1, Epoch 53, Batch 7001/8851
+No TF, Rank: 0, Epoch 53, Batch 8001/8851
+No TF, Rank: 1, Epoch 53, Batch 8001/8851
+No TF, Rank: 0, Epoch 53: Training Loss = 4.2551, Top-5 Accuracy = 51.7974
+No TF, Rank: 1, Epoch 53: Training Loss = 4.2551, Top-5 Accuracy = 51.7974
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5155, Top-5 Accuracy = 48.4337, Bleu-1 = 0.6535, Bleu-2 = 0.4115, Bleu-3 = 0.2513, Bleu-4 = 0.1486
+No TF, Rank: 1, Epoch 54, Batch 1/8851
+
+Epochs since last improvement: 5
+
+No TF, Rank: 0, Epoch 54, Batch 1/8851
+No TF, Rank: 1, Epoch 54, Batch 1001/8851
+No TF, Rank: 0, Epoch 54, Batch 1001/8851
+No TF, Rank: 1, Epoch 54, Batch 2001/8851
+No TF, Rank: 0, Epoch 54, Batch 2001/8851
+No TF, Rank: 0, Epoch 54, Batch 3001/8851
+No TF, Rank: 1, Epoch 54, Batch 3001/8851
+No TF, Rank: 1, Epoch 54, Batch 4001/8851
+No TF, Rank: 0, Epoch 54, Batch 4001/8851
+No TF, Rank: 1, Epoch 54, Batch 5001/8851
+No TF, Rank: 0, Epoch 54, Batch 5001/8851
+No TF, Rank: 0, Epoch 54, Batch 6001/8851
+No TF, Rank: 1, Epoch 54, Batch 6001/8851
+No TF, Rank: 0, Epoch 54, Batch 7001/8851
+No TF, Rank: 1, Epoch 54, Batch 7001/8851
+No TF, Rank: 1, Epoch 54, Batch 8001/8851
+No TF, Rank: 0, Epoch 54, Batch 8001/8851
+No TF, Rank: 1, Epoch 54: Training Loss = 4.2533, Top-5 Accuracy = 51.8434
+No TF, Rank: 0, Epoch 54: Training Loss = 4.2533, Top-5 Accuracy = 51.8434
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5141, Top-5 Accuracy = 48.4127, Bleu-1 = 0.6524, Bleu-2 = 0.4110, Bleu-3 = 0.2499, Bleu-4 = 0.1478
+No TF, Rank: 1, Epoch 55, Batch 1/8851
+
+Epochs since last improvement: 6
+
+No TF, Rank: 0, Epoch 55, Batch 1/8851
+No TF, Rank: 1, Epoch 55, Batch 1001/8851
+No TF, Rank: 0, Epoch 55, Batch 1001/8851
+No TF, Rank: 0, Epoch 55, Batch 2001/8851
+No TF, Rank: 1, Epoch 55, Batch 2001/8851
+No TF, Rank: 1, Epoch 55, Batch 3001/8851
+No TF, Rank: 0, Epoch 55, Batch 3001/8851
+No TF, Rank: 1, Epoch 55, Batch 4001/8851
+No TF, Rank: 0, Epoch 55, Batch 4001/8851
+No TF, Rank: 1, Epoch 55, Batch 5001/8851
+No TF, Rank: 0, Epoch 55, Batch 5001/8851
+No TF, Rank: 0, Epoch 55, Batch 6001/8851
+No TF, Rank: 1, Epoch 55, Batch 6001/8851
+No TF, Rank: 1, Epoch 55, Batch 7001/8851
+No TF, Rank: 0, Epoch 55, Batch 7001/8851
+No TF, Rank: 1, Epoch 55, Batch 8001/8851
+No TF, Rank: 0, Epoch 55, Batch 8001/8851
+No TF, Rank: 0, Epoch 55: Training Loss = 4.2505, Top-5 Accuracy = 51.8791
+No TF, Rank: 1, Epoch 55: Training Loss = 4.2505, Top-5 Accuracy = 51.8791
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5139, Top-5 Accuracy = 48.4113, Bleu-1 = 0.6542, Bleu-2 = 0.4125, Bleu-3 = 0.2507, Bleu-4 = 0.1477
+No TF, Rank: 1, Epoch 56, Batch 1/8851
+
+Epochs since last improvement: 7
+
+No TF, Rank: 0, Epoch 56, Batch 1/8851
+No TF, Rank: 1, Epoch 56, Batch 1001/8851
+No TF, Rank: 0, Epoch 56, Batch 1001/8851
+No TF, Rank: 0, Epoch 56, Batch 2001/8851
+No TF, Rank: 1, Epoch 56, Batch 2001/8851
+No TF, Rank: 0, Epoch 56, Batch 3001/8851
+No TF, Rank: 1, Epoch 56, Batch 3001/8851
+No TF, Rank: 0, Epoch 56, Batch 4001/8851
+No TF, Rank: 1, Epoch 56, Batch 4001/8851
+No TF, Rank: 0, Epoch 56, Batch 5001/8851
+No TF, Rank: 1, Epoch 56, Batch 5001/8851
+No TF, Rank: 1, Epoch 56, Batch 6001/8851
+No TF, Rank: 0, Epoch 56, Batch 6001/8851
+No TF, Rank: 1, Epoch 56, Batch 7001/8851
+No TF, Rank: 0, Epoch 56, Batch 7001/8851
+No TF, Rank: 0, Epoch 56, Batch 8001/8851
+No TF, Rank: 1, Epoch 56, Batch 8001/8851
+No TF, Rank: 0, Epoch 56: Training Loss = 4.2483, Top-5 Accuracy = 51.9265
+No TF, Rank: 1, Epoch 56: Training Loss = 4.2483, Top-5 Accuracy = 51.9265
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5166, Top-5 Accuracy = 48.3409, Bleu-1 = 0.6542, Bleu-2 = 0.4122, Bleu-3 = 0.2508, Bleu-4 = 0.1477
+
+DECAYING learning rate.
+The new learning rate is 0.000064
+
+No TF, Rank: 1, Epoch 57, Batch 1/8851
+
+Epochs since last improvement: 8
+
+
+DECAYING learning rate.
+The new learning rate is 0.000064
+
+No TF, Rank: 0, Epoch 57, Batch 1/8851
+No TF, Rank: 1, Epoch 57, Batch 1001/8851
+No TF, Rank: 0, Epoch 57, Batch 1001/8851
+No TF, Rank: 0, Epoch 57, Batch 2001/8851
+No TF, Rank: 1, Epoch 57, Batch 2001/8851
+No TF, Rank: 0, Epoch 57, Batch 3001/8851
+No TF, Rank: 1, Epoch 57, Batch 3001/8851
+No TF, Rank: 0, Epoch 57, Batch 4001/8851
+No TF, Rank: 1, Epoch 57, Batch 4001/8851
+No TF, Rank: 0, Epoch 57, Batch 5001/8851
+No TF, Rank: 1, Epoch 57, Batch 5001/8851
+No TF, Rank: 1, Epoch 57, Batch 6001/8851
+No TF, Rank: 0, Epoch 57, Batch 6001/8851
+No TF, Rank: 0, Epoch 57, Batch 7001/8851
+No TF, Rank: 1, Epoch 57, Batch 7001/8851
+No TF, Rank: 1, Epoch 57, Batch 8001/8851
+No TF, Rank: 0, Epoch 57, Batch 8001/8851
+No TF, Rank: 0, Epoch 57: Training Loss = 4.2398, Top-5 Accuracy = 52.0366
+No TF, Rank: 1, Epoch 57: Training Loss = 4.2398, Top-5 Accuracy = 52.0366
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5182, Top-5 Accuracy = 48.3314, Bleu-1 = 0.6540, Bleu-2 = 0.4115, Bleu-3 = 0.2505, Bleu-4 = 0.1482
+No TF, Rank: 1, Epoch 58, Batch 1/8851
+
+Epochs since last improvement: 9
+
+No TF, Rank: 0, Epoch 58, Batch 1/8851
+No TF, Rank: 0, Epoch 58, Batch 1001/8851
+No TF, Rank: 1, Epoch 58, Batch 1001/8851
+No TF, Rank: 1, Epoch 58, Batch 2001/8851
+No TF, Rank: 0, Epoch 58, Batch 2001/8851
+No TF, Rank: 0, Epoch 58, Batch 3001/8851
+No TF, Rank: 1, Epoch 58, Batch 3001/8851
+No TF, Rank: 1, Epoch 58, Batch 4001/8851
+No TF, Rank: 0, Epoch 58, Batch 4001/8851
+No TF, Rank: 1, Epoch 58, Batch 5001/8851
+No TF, Rank: 0, Epoch 58, Batch 5001/8851
+No TF, Rank: 1, Epoch 58, Batch 6001/8851
+No TF, Rank: 0, Epoch 58, Batch 6001/8851
+No TF, Rank: 0, Epoch 58, Batch 7001/8851
+No TF, Rank: 1, Epoch 58, Batch 7001/8851
+No TF, Rank: 0, Epoch 58, Batch 8001/8851
+No TF, Rank: 1, Epoch 58, Batch 8001/8851
+No TF, Rank: 0, Epoch 58: Training Loss = 4.2365, Top-5 Accuracy = 52.1185
+No TF, Rank: 1, Epoch 58: Training Loss = 4.2365, Top-5 Accuracy = 52.1185
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5196, Top-5 Accuracy = 48.3422, Bleu-1 = 0.6548, Bleu-2 = 0.4136, Bleu-3 = 0.2517, Bleu-4 = 0.1492
+
+Epochs since last improvement: 10
+
+No TF, Rank: 0, Epoch 59, Batch 1/8851
+No TF, Rank: 1, Epoch 59, Batch 1/8851
+No TF, Rank: 0, Epoch 59, Batch 1001/8851
+No TF, Rank: 1, Epoch 59, Batch 1001/8851
+No TF, Rank: 1, Epoch 59, Batch 2001/8851
+No TF, Rank: 0, Epoch 59, Batch 2001/8851
+No TF, Rank: 1, Epoch 59, Batch 3001/8851
+No TF, Rank: 0, Epoch 59, Batch 3001/8851
+No TF, Rank: 1, Epoch 59, Batch 4001/8851
+No TF, Rank: 0, Epoch 59, Batch 4001/8851
+No TF, Rank: 0, Epoch 59, Batch 5001/8851
+No TF, Rank: 1, Epoch 59, Batch 5001/8851
+No TF, Rank: 1, Epoch 59, Batch 6001/8851
+No TF, Rank: 0, Epoch 59, Batch 6001/8851
+No TF, Rank: 0, Epoch 59, Batch 7001/8851
+No TF, Rank: 1, Epoch 59, Batch 7001/8851
+No TF, Rank: 0, Epoch 59, Batch 8001/8851
+No TF, Rank: 1, Epoch 59, Batch 8001/8851
+No TF, Rank: 1, Epoch 59: Training Loss = 4.2345, Top-5 Accuracy = 52.1438
+No TF, Rank: 0, Epoch 59: Training Loss = 4.2345, Top-5 Accuracy = 52.1438
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5198, Top-5 Accuracy = 48.3458, Bleu-1 = 0.6567, Bleu-2 = 0.4157, Bleu-3 = 0.2526, Bleu-4 = 0.1486
+
+Epochs since last improvement: 11
+
+No TF, Rank: 0, Epoch 60, Batch 1/8851
+No TF, Rank: 1, Epoch 60, Batch 1/8851
+No TF, Rank: 0, Epoch 60, Batch 1001/8851
+No TF, Rank: 1, Epoch 60, Batch 1001/8851
+No TF, Rank: 0, Epoch 60, Batch 2001/8851
+No TF, Rank: 1, Epoch 60, Batch 2001/8851
+No TF, Rank: 0, Epoch 60, Batch 3001/8851
+No TF, Rank: 1, Epoch 60, Batch 3001/8851
+No TF, Rank: 1, Epoch 60, Batch 4001/8851
+No TF, Rank: 0, Epoch 60, Batch 4001/8851
+No TF, Rank: 0, Epoch 60, Batch 5001/8851
+No TF, Rank: 1, Epoch 60, Batch 5001/8851
+No TF, Rank: 1, Epoch 60, Batch 6001/8851
+No TF, Rank: 0, Epoch 60, Batch 6001/8851
+No TF, Rank: 1, Epoch 60, Batch 7001/8851
+No TF, Rank: 0, Epoch 60, Batch 7001/8851
+No TF, Rank: 0, Epoch 60, Batch 8001/8851
+No TF, Rank: 1, Epoch 60, Batch 8001/8851
+No TF, Rank: 0, Epoch 60: Training Loss = 4.2322, Top-5 Accuracy = 52.1748
+No TF, Rank: 1, Epoch 60: Training Loss = 4.2322, Top-5 Accuracy = 52.1748
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5226, Top-5 Accuracy = 48.3376, Bleu-1 = 0.6596, Bleu-2 = 0.4194, Bleu-3 = 0.2577, Bleu-4 = 0.1542
+No TF, Rank: 0, Epoch 61, Batch 1/8851
+No TF, Rank: 1, Epoch 61, Batch 1/8851
+No TF, Rank: 0, Epoch 61, Batch 1001/8851
+No TF, Rank: 1, Epoch 61, Batch 1001/8851
+No TF, Rank: 1, Epoch 61, Batch 2001/8851
+No TF, Rank: 0, Epoch 61, Batch 2001/8851
+No TF, Rank: 1, Epoch 61, Batch 3001/8851
+No TF, Rank: 0, Epoch 61, Batch 3001/8851
+No TF, Rank: 0, Epoch 61, Batch 4001/8851
+No TF, Rank: 1, Epoch 61, Batch 4001/8851
+No TF, Rank: 0, Epoch 61, Batch 5001/8851
+No TF, Rank: 1, Epoch 61, Batch 5001/8851
+No TF, Rank: 1, Epoch 61, Batch 6001/8851
+No TF, Rank: 0, Epoch 61, Batch 6001/8851
+No TF, Rank: 0, Epoch 61, Batch 7001/8851
+No TF, Rank: 1, Epoch 61, Batch 7001/8851
+No TF, Rank: 0, Epoch 61, Batch 8001/8851
+No TF, Rank: 1, Epoch 61, Batch 8001/8851
+No TF, Rank: 1, Epoch 61: Training Loss = 4.2312, Top-5 Accuracy = 52.1875
+No TF, Rank: 0, Epoch 61: Training Loss = 4.2312, Top-5 Accuracy = 52.1875
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5219, Top-5 Accuracy = 48.3164, Bleu-1 = 0.6598, Bleu-2 = 0.4174, Bleu-3 = 0.2549, Bleu-4 = 0.1513
+
+Epochs since last improvement: 1
+
+No TF, Rank: 0, Epoch 62, Batch 1/8851
+No TF, Rank: 1, Epoch 62, Batch 1/8851
+No TF, Rank: 0, Epoch 62, Batch 1001/8851
+No TF, Rank: 1, Epoch 62, Batch 1001/8851
+No TF, Rank: 1, Epoch 62, Batch 2001/8851
+No TF, Rank: 0, Epoch 62, Batch 2001/8851
+No TF, Rank: 0, Epoch 62, Batch 3001/8851
+No TF, Rank: 1, Epoch 62, Batch 3001/8851
+No TF, Rank: 1, Epoch 62, Batch 4001/8851
+No TF, Rank: 0, Epoch 62, Batch 4001/8851
+No TF, Rank: 1, Epoch 62, Batch 5001/8851
+No TF, Rank: 0, Epoch 62, Batch 5001/8851
+No TF, Rank: 0, Epoch 62, Batch 6001/8851
+No TF, Rank: 1, Epoch 62, Batch 6001/8851
+No TF, Rank: 1, Epoch 62, Batch 7001/8851
+No TF, Rank: 0, Epoch 62, Batch 7001/8851
+No TF, Rank: 1, Epoch 62, Batch 8001/8851
+No TF, Rank: 0, Epoch 62, Batch 8001/8851
+No TF, Rank: 0, Epoch 62: Training Loss = 4.2297, Top-5 Accuracy = 52.2261
+No TF, Rank: 1, Epoch 62: Training Loss = 4.2297, Top-5 Accuracy = 52.2261
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5203, Top-5 Accuracy = 48.3031, Bleu-1 = 0.6538, Bleu-2 = 0.4111, Bleu-3 = 0.2496, Bleu-4 = 0.1472
+No TF, Rank: 1, Epoch 63, Batch 1/8851
+
+Epochs since last improvement: 2
+
+No TF, Rank: 0, Epoch 63, Batch 1/8851
+No TF, Rank: 0, Epoch 63, Batch 1001/8851
+No TF, Rank: 1, Epoch 63, Batch 1001/8851
+No TF, Rank: 1, Epoch 63, Batch 2001/8851
+No TF, Rank: 0, Epoch 63, Batch 2001/8851
+No TF, Rank: 0, Epoch 63, Batch 3001/8851
+No TF, Rank: 1, Epoch 63, Batch 3001/8851
+No TF, Rank: 0, Epoch 63, Batch 4001/8851
+No TF, Rank: 1, Epoch 63, Batch 4001/8851
+No TF, Rank: 1, Epoch 63, Batch 5001/8851
+No TF, Rank: 0, Epoch 63, Batch 5001/8851
+No TF, Rank: 0, Epoch 63, Batch 6001/8851
+No TF, Rank: 1, Epoch 63, Batch 6001/8851
+No TF, Rank: 0, Epoch 63, Batch 7001/8851
+No TF, Rank: 1, Epoch 63, Batch 7001/8851
+No TF, Rank: 0, Epoch 63, Batch 8001/8851
+No TF, Rank: 1, Epoch 63, Batch 8001/8851
+No TF, Rank: 0, Epoch 63: Training Loss = 4.2274, Top-5 Accuracy = 52.2552
+No TF, Rank: 1, Epoch 63: Training Loss = 4.2274, Top-5 Accuracy = 52.2552
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5225, Top-5 Accuracy = 48.2684, Bleu-1 = 0.6555, Bleu-2 = 0.4135, Bleu-3 = 0.2523, Bleu-4 = 0.1485
+
+Epochs since last improvement: 3
+
+No TF, Rank: 0, Epoch 64, Batch 1/8851
+No TF, Rank: 1, Epoch 64, Batch 1/8851
+No TF, Rank: 1, Epoch 64, Batch 1001/8851
+No TF, Rank: 0, Epoch 64, Batch 1001/8851
+No TF, Rank: 0, Epoch 64, Batch 2001/8851
+No TF, Rank: 1, Epoch 64, Batch 2001/8851
+No TF, Rank: 0, Epoch 64, Batch 3001/8851
+No TF, Rank: 1, Epoch 64, Batch 3001/8851
+No TF, Rank: 0, Epoch 64, Batch 4001/8851
+No TF, Rank: 1, Epoch 64, Batch 4001/8851
+No TF, Rank: 1, Epoch 64, Batch 5001/8851
+No TF, Rank: 0, Epoch 64, Batch 5001/8851
+No TF, Rank: 0, Epoch 64, Batch 6001/8851
+No TF, Rank: 1, Epoch 64, Batch 6001/8851
+No TF, Rank: 0, Epoch 64, Batch 7001/8851
+No TF, Rank: 1, Epoch 64, Batch 7001/8851
+No TF, Rank: 0, Epoch 64, Batch 8001/8851
+No TF, Rank: 1, Epoch 64, Batch 8001/8851
+No TF, Rank: 1, Epoch 64: Training Loss = 4.2263, Top-5 Accuracy = 52.2789
+No TF, Rank: 0, Epoch 64: Training Loss = 4.2263, Top-5 Accuracy = 52.2789
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5243, Top-5 Accuracy = 48.2965, Bleu-1 = 0.6598, Bleu-2 = 0.4186, Bleu-3 = 0.2553, Bleu-4 = 0.1512
+
+Epochs since last improvement: 4
+
+No TF, Rank: 0, Epoch 65, Batch 1/8851
+No TF, Rank: 1, Epoch 65, Batch 1/8851
+No TF, Rank: 1, Epoch 65, Batch 1001/8851
+No TF, Rank: 0, Epoch 65, Batch 1001/8851
+No TF, Rank: 0, Epoch 65, Batch 2001/8851
+No TF, Rank: 1, Epoch 65, Batch 2001/8851
+No TF, Rank: 1, Epoch 65, Batch 3001/8851
+No TF, Rank: 0, Epoch 65, Batch 3001/8851
+No TF, Rank: 1, Epoch 65, Batch 4001/8851
+No TF, Rank: 0, Epoch 65, Batch 4001/8851
+No TF, Rank: 0, Epoch 65, Batch 5001/8851
+No TF, Rank: 1, Epoch 65, Batch 5001/8851
+No TF, Rank: 1, Epoch 65, Batch 6001/8851
+No TF, Rank: 0, Epoch 65, Batch 6001/8851
+No TF, Rank: 0, Epoch 65, Batch 7001/8851
+No TF, Rank: 1, Epoch 65, Batch 7001/8851
+No TF, Rank: 1, Epoch 65, Batch 8001/8851
+No TF, Rank: 0, Epoch 65, Batch 8001/8851
+No TF, Rank: 0, Epoch 65: Training Loss = 4.2247, Top-5 Accuracy = 52.2995
+No TF, Rank: 1, Epoch 65: Training Loss = 4.2247, Top-5 Accuracy = 52.2995
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5227, Top-5 Accuracy = 48.3136, Bleu-1 = 0.6579, Bleu-2 = 0.4167, Bleu-3 = 0.2548, Bleu-4 = 0.1512
+No TF, Rank: 1, Epoch 66, Batch 1/8851
+
+Epochs since last improvement: 5
+
+No TF, Rank: 0, Epoch 66, Batch 1/8851
+No TF, Rank: 1, Epoch 66, Batch 1001/8851
+No TF, Rank: 0, Epoch 66, Batch 1001/8851
+No TF, Rank: 1, Epoch 66, Batch 2001/8851
+No TF, Rank: 0, Epoch 66, Batch 2001/8851
+No TF, Rank: 0, Epoch 66, Batch 3001/8851
+No TF, Rank: 1, Epoch 66, Batch 3001/8851
+No TF, Rank: 1, Epoch 66, Batch 4001/8851
+No TF, Rank: 0, Epoch 66, Batch 4001/8851
+No TF, Rank: 1, Epoch 66, Batch 5001/8851
+No TF, Rank: 0, Epoch 66, Batch 5001/8851
+No TF, Rank: 0, Epoch 66, Batch 6001/8851
+No TF, Rank: 1, Epoch 66, Batch 6001/8851
+No TF, Rank: 1, Epoch 66, Batch 7001/8851
+No TF, Rank: 0, Epoch 66, Batch 7001/8851
+No TF, Rank: 1, Epoch 66, Batch 8001/8851
+No TF, Rank: 0, Epoch 66, Batch 8001/8851
+No TF, Rank: 0, Epoch 66: Training Loss = 4.2226, Top-5 Accuracy = 52.3516
+No TF, Rank: 1, Epoch 66: Training Loss = 4.2226, Top-5 Accuracy = 52.3516
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5248, Top-5 Accuracy = 48.2471, Bleu-1 = 0.6592, Bleu-2 = 0.4177, Bleu-3 = 0.2548, Bleu-4 = 0.1500
+No TF, Rank: 1, Epoch 67, Batch 1/8851
+
+Epochs since last improvement: 6
+
+No TF, Rank: 0, Epoch 67, Batch 1/8851
+No TF, Rank: 1, Epoch 67, Batch 1001/8851
+No TF, Rank: 0, Epoch 67, Batch 1001/8851
+No TF, Rank: 1, Epoch 67, Batch 2001/8851
+No TF, Rank: 0, Epoch 67, Batch 2001/8851
+No TF, Rank: 0, Epoch 67, Batch 3001/8851
+No TF, Rank: 1, Epoch 67, Batch 3001/8851
+No TF, Rank: 1, Epoch 67, Batch 4001/8851
+No TF, Rank: 0, Epoch 67, Batch 4001/8851
+No TF, Rank: 0, Epoch 67, Batch 5001/8851
+No TF, Rank: 1, Epoch 67, Batch 5001/8851
+No TF, Rank: 0, Epoch 67, Batch 6001/8851
+No TF, Rank: 1, Epoch 67, Batch 6001/8851
+No TF, Rank: 0, Epoch 67, Batch 7001/8851
+No TF, Rank: 1, Epoch 67, Batch 7001/8851
+No TF, Rank: 0, Epoch 67, Batch 8001/8851
+No TF, Rank: 1, Epoch 67, Batch 8001/8851
+No TF, Rank: 0, Epoch 67: Training Loss = 4.2206, Top-5 Accuracy = 52.3670
+No TF, Rank: 1, Epoch 67: Training Loss = 4.2206, Top-5 Accuracy = 52.3670
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5260, Top-5 Accuracy = 48.2600, Bleu-1 = 0.6588, Bleu-2 = 0.4178, Bleu-3 = 0.2543, Bleu-4 = 0.1503
+No TF, Rank: 1, Epoch 68, Batch 1/8851
+
+Epochs since last improvement: 7
+
+No TF, Rank: 0, Epoch 68, Batch 1/8851
+No TF, Rank: 0, Epoch 68, Batch 1001/8851
+No TF, Rank: 1, Epoch 68, Batch 1001/8851
+No TF, Rank: 1, Epoch 68, Batch 2001/8851
+No TF, Rank: 0, Epoch 68, Batch 2001/8851
+No TF, Rank: 0, Epoch 68, Batch 3001/8851
+No TF, Rank: 1, Epoch 68, Batch 3001/8851
+No TF, Rank: 1, Epoch 68, Batch 4001/8851
+No TF, Rank: 0, Epoch 68, Batch 4001/8851
+No TF, Rank: 0, Epoch 68, Batch 5001/8851
+No TF, Rank: 1, Epoch 68, Batch 5001/8851
+No TF, Rank: 1, Epoch 68, Batch 6001/8851
+No TF, Rank: 0, Epoch 68, Batch 6001/8851
+No TF, Rank: 1, Epoch 68, Batch 7001/8851
+No TF, Rank: 0, Epoch 68, Batch 7001/8851
+No TF, Rank: 1, Epoch 68, Batch 8001/8851
+No TF, Rank: 0, Epoch 68, Batch 8001/8851
+No TF, Rank: 1, Epoch 68: Training Loss = 4.2198, Top-5 Accuracy = 52.3845
+No TF, Rank: 0, Epoch 68: Training Loss = 4.2198, Top-5 Accuracy = 52.3845
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5242, Top-5 Accuracy = 48.2372, Bleu-1 = 0.6561, Bleu-2 = 0.4143, Bleu-3 = 0.2516, Bleu-4 = 0.1483
+
+Epochs since last improvement: 8
+
+
+DECAYING learning rate.
+The new learning rate is 0.000051
+
+No TF, Rank: 0, Epoch 69, Batch 1/8851
+
+DECAYING learning rate.
+The new learning rate is 0.000051
+
+No TF, Rank: 1, Epoch 69, Batch 1/8851
+No TF, Rank: 1, Epoch 69, Batch 1001/8851
+No TF, Rank: 0, Epoch 69, Batch 1001/8851
+No TF, Rank: 1, Epoch 69, Batch 2001/8851
+No TF, Rank: 0, Epoch 69, Batch 2001/8851
+No TF, Rank: 0, Epoch 69, Batch 3001/8851
+No TF, Rank: 1, Epoch 69, Batch 3001/8851
+No TF, Rank: 0, Epoch 69, Batch 4001/8851
+No TF, Rank: 1, Epoch 69, Batch 4001/8851
+No TF, Rank: 1, Epoch 69, Batch 5001/8851
+No TF, Rank: 0, Epoch 69, Batch 5001/8851
+No TF, Rank: 0, Epoch 69, Batch 6001/8851
+No TF, Rank: 1, Epoch 69, Batch 6001/8851
+No TF, Rank: 1, Epoch 69, Batch 7001/8851
+No TF, Rank: 0, Epoch 69, Batch 7001/8851
+No TF, Rank: 1, Epoch 69, Batch 8001/8851
+No TF, Rank: 0, Epoch 69, Batch 8001/8851
+No TF, Rank: 0, Epoch 69: Training Loss = 4.2125, Top-5 Accuracy = 52.4985
+No TF, Rank: 1, Epoch 69: Training Loss = 4.2125, Top-5 Accuracy = 52.4985
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5268, Top-5 Accuracy = 48.2204, Bleu-1 = 0.6618, Bleu-2 = 0.4194, Bleu-3 = 0.2553, Bleu-4 = 0.1509
+
+Epochs since last improvement: 9
+
+No TF, Rank: 0, Epoch 70, Batch 1/8851
+No TF, Rank: 1, Epoch 70, Batch 1/8851
+No TF, Rank: 1, Epoch 70, Batch 1001/8851
+No TF, Rank: 0, Epoch 70, Batch 1001/8851
+No TF, Rank: 1, Epoch 70, Batch 2001/8851
+No TF, Rank: 0, Epoch 70, Batch 2001/8851
+No TF, Rank: 1, Epoch 70, Batch 3001/8851
+No TF, Rank: 0, Epoch 70, Batch 3001/8851
+No TF, Rank: 0, Epoch 70, Batch 4001/8851
+No TF, Rank: 1, Epoch 70, Batch 4001/8851
+No TF, Rank: 0, Epoch 70, Batch 5001/8851
+No TF, Rank: 1, Epoch 70, Batch 5001/8851
+No TF, Rank: 0, Epoch 70, Batch 6001/8851
+No TF, Rank: 1, Epoch 70, Batch 6001/8851
+No TF, Rank: 0, Epoch 70, Batch 7001/8851
+No TF, Rank: 1, Epoch 70, Batch 7001/8851
+No TF, Rank: 1, Epoch 70, Batch 8001/8851
+No TF, Rank: 0, Epoch 70, Batch 8001/8851
+No TF, Rank: 0, Epoch 70: Training Loss = 4.2109, Top-5 Accuracy = 52.5373
+No TF, Rank: 1, Epoch 70: Training Loss = 4.2109, Top-5 Accuracy = 52.5373
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5245, Top-5 Accuracy = 48.2070, Bleu-1 = 0.6604, Bleu-2 = 0.4193, Bleu-3 = 0.2557, Bleu-4 = 0.1518
+
+Epochs since last improvement: 10
+
+No TF, Rank: 0, Epoch 71, Batch 1/8851
+No TF, Rank: 1, Epoch 71, Batch 1/8851
+No TF, Rank: 1, Epoch 71, Batch 1001/8851
+No TF, Rank: 0, Epoch 71, Batch 1001/8851
+No TF, Rank: 0, Epoch 71, Batch 2001/8851
+No TF, Rank: 1, Epoch 71, Batch 2001/8851
+No TF, Rank: 0, Epoch 71, Batch 3001/8851
+No TF, Rank: 1, Epoch 71, Batch 3001/8851
+No TF, Rank: 1, Epoch 71, Batch 4001/8851
+No TF, Rank: 0, Epoch 71, Batch 4001/8851
+No TF, Rank: 0, Epoch 71, Batch 5001/8851
+No TF, Rank: 1, Epoch 71, Batch 5001/8851
+No TF, Rank: 0, Epoch 71, Batch 6001/8851
+No TF, Rank: 1, Epoch 71, Batch 6001/8851
+No TF, Rank: 1, Epoch 71, Batch 7001/8851
+No TF, Rank: 0, Epoch 71, Batch 7001/8851
+No TF, Rank: 0, Epoch 71, Batch 8001/8851
+No TF, Rank: 1, Epoch 71, Batch 8001/8851
+No TF, Rank: 0, Epoch 71: Training Loss = 4.2094, Top-5 Accuracy = 52.5564
+No TF, Rank: 1, Epoch 71: Training Loss = 4.2094, Top-5 Accuracy = 52.5564
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5277, Top-5 Accuracy = 48.2432, Bleu-1 = 0.6617, Bleu-2 = 0.4214, Bleu-3 = 0.2569, Bleu-4 = 0.1522
+No TF, Rank: 1, Epoch 72, Batch 1/8851
+
+Epochs since last improvement: 11
+
+No TF, Rank: 0, Epoch 72, Batch 1/8851
+No TF, Rank: 1, Epoch 72, Batch 1001/8851
+No TF, Rank: 0, Epoch 72, Batch 1001/8851
+No TF, Rank: 0, Epoch 72, Batch 2001/8851
+No TF, Rank: 1, Epoch 72, Batch 2001/8851
+No TF, Rank: 1, Epoch 72, Batch 3001/8851
+No TF, Rank: 0, Epoch 72, Batch 3001/8851
+No TF, Rank: 1, Epoch 72, Batch 4001/8851
+No TF, Rank: 0, Epoch 72, Batch 4001/8851
+No TF, Rank: 0, Epoch 72, Batch 5001/8851
+No TF, Rank: 1, Epoch 72, Batch 5001/8851
+No TF, Rank: 1, Epoch 72, Batch 6001/8851
+No TF, Rank: 0, Epoch 72, Batch 6001/8851
+No TF, Rank: 0, Epoch 72, Batch 7001/8851
+No TF, Rank: 1, Epoch 72, Batch 7001/8851
+No TF, Rank: 1, Epoch 72, Batch 8001/8851
+No TF, Rank: 0, Epoch 72, Batch 8001/8851
+No TF, Rank: 0, Epoch 72: Training Loss = 4.2082, Top-5 Accuracy = 52.5763
+No TF, Rank: 1, Epoch 72: Training Loss = 4.2082, Top-5 Accuracy = 52.5763
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5280, Top-5 Accuracy = 48.2254, Bleu-1 = 0.6593, Bleu-2 = 0.4185, Bleu-3 = 0.2557, Bleu-4 = 0.1517
+
+Epochs since last improvement: 12
+
+No TF, Rank: 0, Epoch 73, Batch 1/8851
+No TF, Rank: 1, Epoch 73, Batch 1/8851
+No TF, Rank: 1, Epoch 73, Batch 1001/8851
+No TF, Rank: 0, Epoch 73, Batch 1001/8851
+No TF, Rank: 1, Epoch 73, Batch 2001/8851
+No TF, Rank: 0, Epoch 73, Batch 2001/8851
+No TF, Rank: 1, Epoch 73, Batch 3001/8851
+No TF, Rank: 0, Epoch 73, Batch 3001/8851
+No TF, Rank: 1, Epoch 73, Batch 4001/8851
+No TF, Rank: 0, Epoch 73, Batch 4001/8851
+No TF, Rank: 0, Epoch 73, Batch 5001/8851
+No TF, Rank: 1, Epoch 73, Batch 5001/8851
+No TF, Rank: 0, Epoch 73, Batch 6001/8851
+No TF, Rank: 1, Epoch 73, Batch 6001/8851
+No TF, Rank: 0, Epoch 73, Batch 7001/8851
+No TF, Rank: 1, Epoch 73, Batch 7001/8851
+No TF, Rank: 1, Epoch 73, Batch 8001/8851
+No TF, Rank: 0, Epoch 73, Batch 8001/8851
+No TF, Rank: 1, Epoch 73: Training Loss = 4.2069, Top-5 Accuracy = 52.5970
+No TF, Rank: 0, Epoch 73: Training Loss = 4.2069, Top-5 Accuracy = 52.5970
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5285, Top-5 Accuracy = 48.2224, Bleu-1 = 0.6590, Bleu-2 = 0.4173, Bleu-3 = 0.2542, Bleu-4 = 0.1505
+No TF, Rank: 1, Epoch 74, Batch 1/8851
+
+Epochs since last improvement: 13
+
+No TF, Rank: 0, Epoch 74, Batch 1/8851
+No TF, Rank: 0, Epoch 74, Batch 1001/8851
+No TF, Rank: 1, Epoch 74, Batch 1001/8851
+No TF, Rank: 0, Epoch 74, Batch 2001/8851
+No TF, Rank: 1, Epoch 74, Batch 2001/8851
+No TF, Rank: 1, Epoch 74, Batch 3001/8851
+No TF, Rank: 0, Epoch 74, Batch 3001/8851
+No TF, Rank: 0, Epoch 74, Batch 4001/8851
+No TF, Rank: 1, Epoch 74, Batch 4001/8851
+No TF, Rank: 0, Epoch 74, Batch 5001/8851
+No TF, Rank: 1, Epoch 74, Batch 5001/8851
+No TF, Rank: 1, Epoch 74, Batch 6001/8851
+No TF, Rank: 0, Epoch 74, Batch 6001/8851
+No TF, Rank: 0, Epoch 74, Batch 7001/8851
+No TF, Rank: 1, Epoch 74, Batch 7001/8851
+No TF, Rank: 1, Epoch 74, Batch 8001/8851
+No TF, Rank: 0, Epoch 74, Batch 8001/8851
+No TF, Rank: 1, Epoch 74: Training Loss = 4.2049, Top-5 Accuracy = 52.6495
+No TF, Rank: 0, Epoch 74: Training Loss = 4.2049, Top-5 Accuracy = 52.6495
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5295, Top-5 Accuracy = 48.2018, Bleu-1 = 0.6620, Bleu-2 = 0.4196, Bleu-3 = 0.2545, Bleu-4 = 0.1497
+
+Epochs since last improvement: 14
+
+No TF, Rank: 0, Epoch 75, Batch 1/8851
+No TF, Rank: 1, Epoch 75, Batch 1/8851
+No TF, Rank: 1, Epoch 75, Batch 1001/8851
+No TF, Rank: 0, Epoch 75, Batch 1001/8851
+No TF, Rank: 0, Epoch 75, Batch 2001/8851
+No TF, Rank: 1, Epoch 75, Batch 2001/8851
+No TF, Rank: 1, Epoch 75, Batch 3001/8851
+No TF, Rank: 0, Epoch 75, Batch 3001/8851
+No TF, Rank: 0, Epoch 75, Batch 4001/8851
+No TF, Rank: 1, Epoch 75, Batch 4001/8851
+No TF, Rank: 1, Epoch 75, Batch 5001/8851
+No TF, Rank: 0, Epoch 75, Batch 5001/8851
+No TF, Rank: 1, Epoch 75, Batch 6001/8851
+No TF, Rank: 0, Epoch 75, Batch 6001/8851
+No TF, Rank: 1, Epoch 75, Batch 7001/8851
+No TF, Rank: 0, Epoch 75, Batch 7001/8851
+No TF, Rank: 0, Epoch 75, Batch 8001/8851
+No TF, Rank: 1, Epoch 75, Batch 8001/8851
+No TF, Rank: 1, Epoch 75: Training Loss = 4.2041, Top-5 Accuracy = 52.6470
+No TF, Rank: 0, Epoch 75: Training Loss = 4.2041, Top-5 Accuracy = 52.6470
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5286, Top-5 Accuracy = 48.1709, Bleu-1 = 0.6605, Bleu-2 = 0.4184, Bleu-3 = 0.2526, Bleu-4 = 0.1468
+
+Epochs since last improvement: 15
+
+No TF, Rank: 0, Epoch 76, Batch 1/8851
+No TF, Rank: 1, Epoch 76, Batch 1/8851
+No TF, Rank: 0, Epoch 76, Batch 1001/8851
+No TF, Rank: 1, Epoch 76, Batch 1001/8851
+No TF, Rank: 1, Epoch 76, Batch 2001/8851
+No TF, Rank: 0, Epoch 76, Batch 2001/8851
+No TF, Rank: 1, Epoch 76, Batch 3001/8851
+No TF, Rank: 0, Epoch 76, Batch 3001/8851
+No TF, Rank: 0, Epoch 76, Batch 4001/8851
+No TF, Rank: 1, Epoch 76, Batch 4001/8851
+No TF, Rank: 0, Epoch 76, Batch 5001/8851
+No TF, Rank: 1, Epoch 76, Batch 5001/8851
+No TF, Rank: 0, Epoch 76, Batch 6001/8851
+No TF, Rank: 1, Epoch 76, Batch 6001/8851
+No TF, Rank: 1, Epoch 76, Batch 7001/8851
+No TF, Rank: 0, Epoch 76, Batch 7001/8851
+No TF, Rank: 0, Epoch 76, Batch 8001/8851
+No TF, Rank: 1, Epoch 76, Batch 8001/8851
+No TF, Rank: 0, Epoch 76: Training Loss = 4.2037, Top-5 Accuracy = 52.6486
+No TF, Rank: 1, Epoch 76: Training Loss = 4.2037, Top-5 Accuracy = 52.6486
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5342, Top-5 Accuracy = 48.1280, Bleu-1 = 0.6651, Bleu-2 = 0.4242, Bleu-3 = 0.2580, Bleu-4 = 0.1520
+
+Epochs since last improvement: 16
+
+
+DECAYING learning rate.
+The new learning rate is 0.000041
+
+No TF, Rank: 0, Epoch 77, Batch 1/8851
+
+DECAYING learning rate.
+The new learning rate is 0.000041
+
+No TF, Rank: 1, Epoch 77, Batch 1/8851
+No TF, Rank: 0, Epoch 77, Batch 1001/8851
+No TF, Rank: 1, Epoch 77, Batch 1001/8851
+No TF, Rank: 0, Epoch 77, Batch 2001/8851
+No TF, Rank: 1, Epoch 77, Batch 2001/8851
+No TF, Rank: 0, Epoch 77, Batch 3001/8851
+No TF, Rank: 1, Epoch 77, Batch 3001/8851
+No TF, Rank: 1, Epoch 77, Batch 4001/8851
+No TF, Rank: 0, Epoch 77, Batch 4001/8851
+No TF, Rank: 0, Epoch 77, Batch 5001/8851
+No TF, Rank: 1, Epoch 77, Batch 5001/8851
+No TF, Rank: 0, Epoch 77, Batch 6001/8851
+No TF, Rank: 1, Epoch 77, Batch 6001/8851
+No TF, Rank: 0, Epoch 77, Batch 7001/8851
+No TF, Rank: 1, Epoch 77, Batch 7001/8851
+No TF, Rank: 1, Epoch 77, Batch 8001/8851
+No TF, Rank: 0, Epoch 77, Batch 8001/8851
+No TF, Rank: 0, Epoch 77: Training Loss = 4.1969, Top-5 Accuracy = 52.7558
+No TF, Rank: 1, Epoch 77: Training Loss = 4.1969, Top-5 Accuracy = 52.7558
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5307, Top-5 Accuracy = 48.1298, Bleu-1 = 0.6593, Bleu-2 = 0.4173, Bleu-3 = 0.2525, Bleu-4 = 0.1481
+No TF, Rank: 1, Epoch 78, Batch 1/8851
+
+Epochs since last improvement: 17
+
+No TF, Rank: 0, Epoch 78, Batch 1/8851
+No TF, Rank: 1, Epoch 78, Batch 1001/8851
+No TF, Rank: 0, Epoch 78, Batch 1001/8851
+No TF, Rank: 0, Epoch 78, Batch 2001/8851
+No TF, Rank: 1, Epoch 78, Batch 2001/8851
+No TF, Rank: 1, Epoch 78, Batch 3001/8851
+No TF, Rank: 0, Epoch 78, Batch 3001/8851
+No TF, Rank: 1, Epoch 78, Batch 4001/8851
+No TF, Rank: 0, Epoch 78, Batch 4001/8851
+No TF, Rank: 0, Epoch 78, Batch 5001/8851
+No TF, Rank: 1, Epoch 78, Batch 5001/8851
+No TF, Rank: 0, Epoch 78, Batch 6001/8851
+No TF, Rank: 1, Epoch 78, Batch 6001/8851
+No TF, Rank: 1, Epoch 78, Batch 7001/8851
+No TF, Rank: 0, Epoch 78, Batch 7001/8851
+No TF, Rank: 0, Epoch 78, Batch 8001/8851
+No TF, Rank: 1, Epoch 78, Batch 8001/8851
+No TF, Rank: 0, Epoch 78: Training Loss = 4.1951, Top-5 Accuracy = 52.8060
+No TF, Rank: 1, Epoch 78: Training Loss = 4.1951, Top-5 Accuracy = 52.8060
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5328, Top-5 Accuracy = 48.1543, Bleu-1 = 0.6660, Bleu-2 = 0.4263, Bleu-3 = 0.2605, Bleu-4 = 0.1546
+No TF, Rank: 1, Epoch 79, Batch 1/8851
+No TF, Rank: 0, Epoch 79, Batch 1/8851
+No TF, Rank: 1, Epoch 79, Batch 1001/8851
+No TF, Rank: 0, Epoch 79, Batch 1001/8851
+No TF, Rank: 1, Epoch 79, Batch 2001/8851
+No TF, Rank: 0, Epoch 79, Batch 2001/8851
+No TF, Rank: 1, Epoch 79, Batch 3001/8851
+No TF, Rank: 0, Epoch 79, Batch 3001/8851
+No TF, Rank: 1, Epoch 79, Batch 4001/8851
+No TF, Rank: 0, Epoch 79, Batch 4001/8851
+No TF, Rank: 0, Epoch 79, Batch 5001/8851
+No TF, Rank: 1, Epoch 79, Batch 5001/8851
+No TF, Rank: 0, Epoch 79, Batch 6001/8851
+No TF, Rank: 1, Epoch 79, Batch 6001/8851
+No TF, Rank: 0, Epoch 79, Batch 7001/8851
+No TF, Rank: 1, Epoch 79, Batch 7001/8851
+No TF, Rank: 0, Epoch 79, Batch 8001/8851
+No TF, Rank: 1, Epoch 79, Batch 8001/8851
+No TF, Rank: 1, Epoch 79: Training Loss = 4.1948, Top-5 Accuracy = 52.8070
+No TF, Rank: 0, Epoch 79: Training Loss = 4.1948, Top-5 Accuracy = 52.8070
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5348, Top-5 Accuracy = 48.1414, Bleu-1 = 0.6652, Bleu-2 = 0.4245, Bleu-3 = 0.2585, Bleu-4 = 0.1523
+No TF, Rank: 1, Epoch 80, Batch 1/8851
+
+Epochs since last improvement: 1
+
+No TF, Rank: 0, Epoch 80, Batch 1/8851
+No TF, Rank: 0, Epoch 80, Batch 1001/8851
+No TF, Rank: 1, Epoch 80, Batch 1001/8851
+No TF, Rank: 0, Epoch 80, Batch 2001/8851
+No TF, Rank: 1, Epoch 80, Batch 2001/8851
+No TF, Rank: 0, Epoch 80, Batch 3001/8851
+No TF, Rank: 1, Epoch 80, Batch 3001/8851
+No TF, Rank: 1, Epoch 80, Batch 4001/8851
+No TF, Rank: 0, Epoch 80, Batch 4001/8851
+No TF, Rank: 1, Epoch 80, Batch 5001/8851
+No TF, Rank: 0, Epoch 80, Batch 5001/8851
+No TF, Rank: 0, Epoch 80, Batch 6001/8851
+No TF, Rank: 1, Epoch 80, Batch 6001/8851
+No TF, Rank: 1, Epoch 80, Batch 7001/8851
+No TF, Rank: 0, Epoch 80, Batch 7001/8851
+No TF, Rank: 1, Epoch 80, Batch 8001/8851
+No TF, Rank: 0, Epoch 80, Batch 8001/8851
+No TF, Rank: 1, Epoch 80: Training Loss = 4.1931, Top-5 Accuracy = 52.8336
+No TF, Rank: 0, Epoch 80: Training Loss = 4.1931, Top-5 Accuracy = 52.8336
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5326, Top-5 Accuracy = 48.1057, Bleu-1 = 0.6636, Bleu-2 = 0.4218, Bleu-3 = 0.2571, Bleu-4 = 0.1521
+
+Epochs since last improvement: 2
+
+No TF, Rank: 0, Epoch 81, Batch 1/8851
+No TF, Rank: 1, Epoch 81, Batch 1/8851
+No TF, Rank: 1, Epoch 81, Batch 1001/8851
+No TF, Rank: 0, Epoch 81, Batch 1001/8851
+No TF, Rank: 0, Epoch 81, Batch 2001/8851
+No TF, Rank: 1, Epoch 81, Batch 2001/8851
+No TF, Rank: 1, Epoch 81, Batch 3001/8851
+No TF, Rank: 0, Epoch 81, Batch 3001/8851
+No TF, Rank: 0, Epoch 81, Batch 4001/8851
+No TF, Rank: 1, Epoch 81, Batch 4001/8851
+No TF, Rank: 1, Epoch 81, Batch 5001/8851
+No TF, Rank: 0, Epoch 81, Batch 5001/8851
+No TF, Rank: 0, Epoch 81, Batch 6001/8851
+No TF, Rank: 1, Epoch 81, Batch 6001/8851
+No TF, Rank: 0, Epoch 81, Batch 7001/8851
+No TF, Rank: 1, Epoch 81, Batch 7001/8851
+No TF, Rank: 1, Epoch 81, Batch 8001/8851
+No TF, Rank: 0, Epoch 81, Batch 8001/8851
+No TF, Rank: 0, Epoch 81: Training Loss = 4.1919, Top-5 Accuracy = 52.8622
+No TF, Rank: 1, Epoch 81: Training Loss = 4.1919, Top-5 Accuracy = 52.8622
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5355, Top-5 Accuracy = 48.1083, Bleu-1 = 0.6647, Bleu-2 = 0.4231, Bleu-3 = 0.2569, Bleu-4 = 0.1510
+No TF, Rank: 1, Epoch 82, Batch 1/8851
+
+Epochs since last improvement: 3
+
+No TF, Rank: 0, Epoch 82, Batch 1/8851
+No TF, Rank: 0, Epoch 82, Batch 1001/8851
+No TF, Rank: 1, Epoch 82, Batch 1001/8851
+No TF, Rank: 1, Epoch 82, Batch 2001/8851
+No TF, Rank: 0, Epoch 82, Batch 2001/8851
+No TF, Rank: 0, Epoch 82, Batch 3001/8851
+No TF, Rank: 1, Epoch 82, Batch 3001/8851
+No TF, Rank: 0, Epoch 82, Batch 4001/8851
+No TF, Rank: 1, Epoch 82, Batch 4001/8851
+No TF, Rank: 0, Epoch 82, Batch 5001/8851
+No TF, Rank: 1, Epoch 82, Batch 5001/8851
+No TF, Rank: 1, Epoch 82, Batch 6001/8851
+No TF, Rank: 0, Epoch 82, Batch 6001/8851
+No TF, Rank: 1, Epoch 82, Batch 7001/8851
+No TF, Rank: 0, Epoch 82, Batch 7001/8851
+No TF, Rank: 0, Epoch 82, Batch 8001/8851
+No TF, Rank: 1, Epoch 82, Batch 8001/8851
+No TF, Rank: 0, Epoch 82: Training Loss = 4.1912, Top-5 Accuracy = 52.8627
+No TF, Rank: 1, Epoch 82: Training Loss = 4.1912, Top-5 Accuracy = 52.8627
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5361, Top-5 Accuracy = 48.1142, Bleu-1 = 0.6635, Bleu-2 = 0.4228, Bleu-3 = 0.2578, Bleu-4 = 0.1520
+
+Epochs since last improvement: 4
+
+No TF, Rank: 0, Epoch 83, Batch 1/8851
+No TF, Rank: 1, Epoch 83, Batch 1/8851
+No TF, Rank: 1, Epoch 83, Batch 1001/8851
+No TF, Rank: 0, Epoch 83, Batch 1001/8851
+No TF, Rank: 1, Epoch 83, Batch 2001/8851
+No TF, Rank: 0, Epoch 83, Batch 2001/8851
+No TF, Rank: 0, Epoch 83, Batch 3001/8851
+No TF, Rank: 1, Epoch 83, Batch 3001/8851
+No TF, Rank: 0, Epoch 83, Batch 4001/8851
+No TF, Rank: 1, Epoch 83, Batch 4001/8851
+No TF, Rank: 0, Epoch 83, Batch 5001/8851
+No TF, Rank: 1, Epoch 83, Batch 5001/8851
+No TF, Rank: 0, Epoch 83, Batch 6001/8851
+No TF, Rank: 1, Epoch 83, Batch 6001/8851
+No TF, Rank: 1, Epoch 83, Batch 7001/8851
+No TF, Rank: 0, Epoch 83, Batch 7001/8851
+No TF, Rank: 0, Epoch 83, Batch 8001/8851
+No TF, Rank: 1, Epoch 83, Batch 8001/8851
+No TF, Rank: 1, Epoch 83: Training Loss = 4.1896, Top-5 Accuracy = 52.9000
+No TF, Rank: 0, Epoch 83: Training Loss = 4.1896, Top-5 Accuracy = 52.9000
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5319, Top-5 Accuracy = 48.1138, Bleu-1 = 0.6616, Bleu-2 = 0.4202, Bleu-3 = 0.2554, Bleu-4 = 0.1493
+
+Epochs since last improvement: 5
+
+No TF, Rank: 0, Epoch 84, Batch 1/8851
+No TF, Rank: 1, Epoch 84, Batch 1/8851
+No TF, Rank: 0, Epoch 84, Batch 1001/8851
+No TF, Rank: 1, Epoch 84, Batch 1001/8851
+No TF, Rank: 0, Epoch 84, Batch 2001/8851
+No TF, Rank: 1, Epoch 84, Batch 2001/8851
+No TF, Rank: 0, Epoch 84, Batch 3001/8851
+No TF, Rank: 1, Epoch 84, Batch 3001/8851
+No TF, Rank: 1, Epoch 84, Batch 4001/8851
+No TF, Rank: 0, Epoch 84, Batch 4001/8851
+No TF, Rank: 1, Epoch 84, Batch 5001/8851
+No TF, Rank: 0, Epoch 84, Batch 5001/8851
+No TF, Rank: 0, Epoch 84, Batch 6001/8851
+No TF, Rank: 1, Epoch 84, Batch 6001/8851
+No TF, Rank: 1, Epoch 84, Batch 7001/8851
+No TF, Rank: 0, Epoch 84, Batch 7001/8851
+No TF, Rank: 0, Epoch 84, Batch 8001/8851
+No TF, Rank: 1, Epoch 84, Batch 8001/8851
+No TF, Rank: 1, Epoch 84: Training Loss = 4.1895, Top-5 Accuracy = 52.8856
+No TF, Rank: 0, Epoch 84: Training Loss = 4.1895, Top-5 Accuracy = 52.8856
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5345, Top-5 Accuracy = 48.0833, Bleu-1 = 0.6622, Bleu-2 = 0.4206, Bleu-3 = 0.2567, Bleu-4 = 0.1521
+No TF, Rank: 1, Epoch 85, Batch 1/8851
+
+Epochs since last improvement: 6
+
+No TF, Rank: 0, Epoch 85, Batch 1/8851
+No TF, Rank: 1, Epoch 85, Batch 1001/8851
+No TF, Rank: 0, Epoch 85, Batch 1001/8851
+No TF, Rank: 1, Epoch 85, Batch 2001/8851
+No TF, Rank: 0, Epoch 85, Batch 2001/8851
+No TF, Rank: 0, Epoch 85, Batch 3001/8851
+No TF, Rank: 1, Epoch 85, Batch 3001/8851
+No TF, Rank: 1, Epoch 85, Batch 4001/8851
+No TF, Rank: 0, Epoch 85, Batch 4001/8851
+No TF, Rank: 0, Epoch 85, Batch 5001/8851
+No TF, Rank: 1, Epoch 85, Batch 5001/8851
+No TF, Rank: 0, Epoch 85, Batch 6001/8851
+No TF, Rank: 1, Epoch 85, Batch 6001/8851
+No TF, Rank: 1, Epoch 85, Batch 7001/8851
+No TF, Rank: 0, Epoch 85, Batch 7001/8851
+No TF, Rank: 1, Epoch 85, Batch 8001/8851
+No TF, Rank: 0, Epoch 85, Batch 8001/8851
+No TF, Rank: 0, Epoch 85: Training Loss = 4.1883, Top-5 Accuracy = 52.9149
+No TF, Rank: 1, Epoch 85: Training Loss = 4.1883, Top-5 Accuracy = 52.9149
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5364, Top-5 Accuracy = 48.0951, Bleu-1 = 0.6656, Bleu-2 = 0.4242, Bleu-3 = 0.2583, Bleu-4 = 0.1517
+
+Epochs since last improvement: 7
+
+No TF, Rank: 0, Epoch 86, Batch 1/8851
+No TF, Rank: 1, Epoch 86, Batch 1/8851
+No TF, Rank: 1, Epoch 86, Batch 1001/8851
+No TF, Rank: 0, Epoch 86, Batch 1001/8851
+No TF, Rank: 0, Epoch 86, Batch 2001/8851
+No TF, Rank: 1, Epoch 86, Batch 2001/8851
+No TF, Rank: 1, Epoch 86, Batch 3001/8851
+No TF, Rank: 0, Epoch 86, Batch 3001/8851
+No TF, Rank: 1, Epoch 86, Batch 4001/8851
+No TF, Rank: 0, Epoch 86, Batch 4001/8851
+No TF, Rank: 1, Epoch 86, Batch 5001/8851
+No TF, Rank: 0, Epoch 86, Batch 5001/8851
+No TF, Rank: 1, Epoch 86, Batch 6001/8851
+No TF, Rank: 0, Epoch 86, Batch 6001/8851
+No TF, Rank: 1, Epoch 86, Batch 7001/8851
+No TF, Rank: 0, Epoch 86, Batch 7001/8851
+No TF, Rank: 1, Epoch 86, Batch 8001/8851
+No TF, Rank: 0, Epoch 86, Batch 8001/8851
+No TF, Rank: 1, Epoch 86: Training Loss = 4.1877, Top-5 Accuracy = 52.9162
+No TF, Rank: 0, Epoch 86: Training Loss = 4.1877, Top-5 Accuracy = 52.9162
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5355, Top-5 Accuracy = 48.1282, Bleu-1 = 0.6653, Bleu-2 = 0.4233, Bleu-3 = 0.2578, Bleu-4 = 0.1526
+
+Epochs since last improvement: 8
+
+
+DECAYING learning rate.
+The new learning rate is 0.000033
+
+No TF, Rank: 0, Epoch 87, Batch 1/8851
+
+DECAYING learning rate.
+The new learning rate is 0.000033
+
+No TF, Rank: 1, Epoch 87, Batch 1/8851
+No TF, Rank: 0, Epoch 87, Batch 1001/8851
+No TF, Rank: 1, Epoch 87, Batch 1001/8851
+No TF, Rank: 0, Epoch 87, Batch 2001/8851
+No TF, Rank: 1, Epoch 87, Batch 2001/8851
+No TF, Rank: 0, Epoch 87, Batch 3001/8851
+No TF, Rank: 1, Epoch 87, Batch 3001/8851
+No TF, Rank: 0, Epoch 87, Batch 4001/8851
+No TF, Rank: 1, Epoch 87, Batch 4001/8851
+No TF, Rank: 1, Epoch 87, Batch 5001/8851
+No TF, Rank: 0, Epoch 87, Batch 5001/8851
+No TF, Rank: 0, Epoch 87, Batch 6001/8851
+No TF, Rank: 1, Epoch 87, Batch 6001/8851
+No TF, Rank: 0, Epoch 87, Batch 7001/8851
+No TF, Rank: 1, Epoch 87, Batch 7001/8851
+No TF, Rank: 0, Epoch 87, Batch 8001/8851
+No TF, Rank: 1, Epoch 87, Batch 8001/8851
+No TF, Rank: 0, Epoch 87: Training Loss = 4.1826, Top-5 Accuracy = 53.0124
+No TF, Rank: 1, Epoch 87: Training Loss = 4.1826, Top-5 Accuracy = 53.0124
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5334, Top-5 Accuracy = 48.1156, Bleu-1 = 0.6639, Bleu-2 = 0.4234, Bleu-3 = 0.2594, Bleu-4 = 0.1538
+
+Epochs since last improvement: 9
+
+No TF, Rank: 0, Epoch 88, Batch 1/8851
+No TF, Rank: 1, Epoch 88, Batch 1/8851
+No TF, Rank: 0, Epoch 88, Batch 1001/8851
+No TF, Rank: 1, Epoch 88, Batch 1001/8851
+No TF, Rank: 1, Epoch 88, Batch 2001/8851
+No TF, Rank: 0, Epoch 88, Batch 2001/8851
+No TF, Rank: 0, Epoch 88, Batch 3001/8851
+No TF, Rank: 1, Epoch 88, Batch 3001/8851
+No TF, Rank: 0, Epoch 88, Batch 4001/8851
+No TF, Rank: 1, Epoch 88, Batch 4001/8851
+No TF, Rank: 0, Epoch 88, Batch 5001/8851
+No TF, Rank: 1, Epoch 88, Batch 5001/8851
+No TF, Rank: 1, Epoch 88, Batch 6001/8851
+No TF, Rank: 0, Epoch 88, Batch 6001/8851
+No TF, Rank: 0, Epoch 88, Batch 7001/8851
+No TF, Rank: 1, Epoch 88, Batch 7001/8851
+No TF, Rank: 1, Epoch 88, Batch 8001/8851
+No TF, Rank: 0, Epoch 88, Batch 8001/8851
+No TF, Rank: 0, Epoch 88: Training Loss = 4.1822, Top-5 Accuracy = 53.0348
+No TF, Rank: 1, Epoch 88: Training Loss = 4.1822, Top-5 Accuracy = 53.0348
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5368, Top-5 Accuracy = 48.0528, Bleu-1 = 0.6667, Bleu-2 = 0.4258, Bleu-3 = 0.2593, Bleu-4 = 0.1525
+No TF, Rank: 1, Epoch 89, Batch 1/8851
+
+Epochs since last improvement: 10
+
+No TF, Rank: 0, Epoch 89, Batch 1/8851
+No TF, Rank: 0, Epoch 89, Batch 1001/8851
+No TF, Rank: 1, Epoch 89, Batch 1001/8851
+No TF, Rank: 1, Epoch 89, Batch 2001/8851
+No TF, Rank: 0, Epoch 89, Batch 2001/8851
+No TF, Rank: 0, Epoch 89, Batch 3001/8851
+No TF, Rank: 1, Epoch 89, Batch 3001/8851
+No TF, Rank: 1, Epoch 89, Batch 4001/8851
+No TF, Rank: 0, Epoch 89, Batch 4001/8851
+No TF, Rank: 0, Epoch 89, Batch 5001/8851
+No TF, Rank: 1, Epoch 89, Batch 5001/8851
+No TF, Rank: 1, Epoch 89, Batch 6001/8851
+No TF, Rank: 0, Epoch 89, Batch 6001/8851
+No TF, Rank: 0, Epoch 89, Batch 7001/8851
+No TF, Rank: 1, Epoch 89, Batch 7001/8851
+No TF, Rank: 1, Epoch 89, Batch 8001/8851
+No TF, Rank: 0, Epoch 89, Batch 8001/8851
+No TF, Rank: 0, Epoch 89: Training Loss = 4.1800, Top-5 Accuracy = 53.0569
+No TF, Rank: 1, Epoch 89: Training Loss = 4.1800, Top-5 Accuracy = 53.0569
+No TF, Rank: 1, Validation Batch 1/391
+No TF, Rank: 0, Validation Batch 1/391
+No TF, Rank: 1, Validation Batch 101/391
+No TF, Rank: 0, Validation Batch 101/391
+No TF, Rank: 1, Validation Batch 201/391
+No TF, Rank: 0, Validation Batch 201/391
+No TF, Rank: 1, Validation Batch 301/391
+No TF, Rank: 0, Validation Batch 301/391
+No TF, Rank = 0, Validation Loss = 4.5353, Top-5 Accuracy = 48.0936, Bleu-1 = 0.6661, Bleu-2 = 0.4245, Bleu-3 = 0.2583, Bleu-4 = 0.1522
+No TF, Rank: 1, Epoch 90, Batch 1/8851
+
+Epochs since last improvement: 11
+
+No TF, Rank: 0, Epoch 90, Batch 1/8851
+No TF, Rank: 1, Epoch 90, Batch 1001/8851
+No TF, Rank: 0, Epoch 90, Batch 1001/8851

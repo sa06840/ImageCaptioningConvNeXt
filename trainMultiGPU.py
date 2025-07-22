@@ -293,9 +293,9 @@ def main():
         resultsDF = pd.DataFrame(results)
         os.makedirs('results', exist_ok=True)
         if lstmDecoder is True:
-            resultsDF.to_csv('results/metrics-lstmDecoder(trainingTF-inferenceNoTF-noFinetuning).csv', index=False)
+            resultsDF.to_csv('results/metrics-lstmDecoder(trainingNoTF-inferenceNoTF-noFinetuning).csv', index=False)
         else: 
-            resultsDF.to_csv('results/metrics-transformerDecoder(trainingTF-inferenceNoTF-noFinetuning).csv', index=False)
+            resultsDF.to_csv('results/metrics-transformerDecoder(trainingNoTF-inferenceNoTF-noFinetuning).csv', index=False)
 
 
 
