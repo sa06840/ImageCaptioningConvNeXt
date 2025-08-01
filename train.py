@@ -75,10 +75,12 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--checkpoint', type=str, default=None, help='Path to checkpoint file')
 parser.add_argument('--lstmDecoder', action='store_true', help='Use LSTM decoder instead of Transformer')
 parser.add_argument('--teacherForcing', action='store_true', help='Use teacher forcing training strategy')
+parser.add_argument('--startingLayer', type=int, default=5, help='Starting layer index for encoder fine-tuning encoder')
 args = parser.parse_args()
 checkpoint = args.checkpoint
 lstmDecoder = args.lstmDecoder
 teacherForcing = args.teacherForcing
+startingLayer = args.startingLayer
 
 
 def optimizer_to_device(optimizer, device):
@@ -105,7 +107,7 @@ def main():
             # decoder = HFTransformerDecoder(vocab_size=len(wordMap), device=device, wordMap=wordMap)
         decoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, decoder.parameters()), lr=decoderLr)
         encoder = Encoder()
-        encoder.fine_tune(fineTuneEncoder)
+        encoder.fine_tune(fine_tune=False)
         if fineTuneEncoder is True:
             encoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, encoder.parameters()), lr=encoderLr)
         else:
@@ -121,7 +123,13 @@ def main():
         encoder = Encoder()
         checkpoint = torch.load(checkpoint, map_location=device, weights_only=False)
         encoder.load_state_dict(checkpoint['encoder'])
-        encoder.fine_tune(fineTuneEncoder)
+        startEpoch = checkpoint['epoch'] + 1
+        if startEpoch > 20:
+            fineTuneEncoder = True
+            encoder.fine_tune(fine_tune=fineTuneEncoder, startingLayer=startingLayer)
+        else:
+            fineTuneEncoder = False
+            encoder.fine_tune(fine_tune=fineTuneEncoder)
         decoder.load_state_dict(checkpoint['decoder'])
         decoderOptimizer.load_state_dict(checkpoint['decoderOptimizer'])
         optimizer_to_device(decoderOptimizer, device)
@@ -129,10 +137,9 @@ def main():
             encoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, encoder.parameters()), lr=encoderLr)
             if checkpoint['encoderOptimizer'] is not None:
                 encoderOptimizer.load_state_dict(checkpoint['encoderOptimizer'])
-                optimizer_to_device(encoderOptimizer, device)
+            optimizer_to_device(encoderOptimizer, device)
         else:
             encoderOptimizer = None
-        startEpoch = checkpoint['epoch'] + 1
         epochsSinceImprovement = checkpoint['epochsSinceImprovement']
         bestBleu4 = checkpoint['bleu-4']
         results = checkpoint['results']
@@ -151,6 +158,13 @@ def main():
 
     for epoch in range(startEpoch, epochs):
 
+        if epoch == 20:
+            fineTuneEncoder = True
+            encoder.fine_tune(fine_tune=fineTuneEncoder, startingLayer=startingLayer)
+            encoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, encoder.parameters()), lr=encoderLr)
+            optimizer_to_device(encoderOptimizer, device)
+            print(f"Fine-tuning encoder from epoch 20 onwards (starting from layer {startingLayer})", flush=True)
+            
         # Decay learning rate if there is no improvement for 8 consecutive epochs, and terminate training after 20
         if epochsSinceImprovement == 20:
             break
@@ -211,14 +225,14 @@ def main():
         encoderSaved =  encoder.state_dict()
         decoderSaved = decoder.state_dict()
         save_checkpoint(dataName, epoch, epochsSinceImprovement, encoderSaved, decoderSaved, encoderOptimizer,
-                        decoderOptimizer, recentBleu4, isBest, results, lstmDecoder)
+                        decoderOptimizer, recentBleu4, isBest, results, lstmDecoder, startingLayer)
 
     resultsDF = pd.DataFrame(results)
     os.makedirs('results', exist_ok=True)
     if lstmDecoder is True:
-        resultsDF.to_csv('results/metrics-LSTM(trainingTF-inferenceNoTF).csv', index=False)
+        resultsDF.to_csv(f'results/metrics-LSTM(trainingTF-inferenceNoTF-Finetuning{startingLayer}).csv', index=False)
     else: 
-        resultsDF.to_csv('results/metrics-TransformerDecoder(trainingTF-inferenceNoTF).csv', index=False)
+        resultsDF.to_csv(f'results/metrics-TransformerDecoder(trainingTF-inferenceNoTF-Finetuning{startingLayer}).csv', index=False)
 
 
 

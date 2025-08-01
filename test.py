@@ -6,7 +6,6 @@ import numpy as np
 from models.encoder import Encoder 
 from models.decoder import DecoderWithAttention
 from models.transformerDecoder import TransformerDecoder
-from models.transformerDecoderHF import HFTransformerDecoder
 
 def set_seed(seed):
     random.seed(seed)
@@ -64,9 +63,11 @@ cudnn.deterministic = True # for reproducibility
 parser = argparse.ArgumentParser()
 parser.add_argument('--checkpoint', type=str, default=None, help='Path to checkpoint file')
 parser.add_argument('--lstmDecoder', action='store_true', help='Use LSTM decoder instead of Transformer')
+parser.add_argument('--startingLayer', type=int, default=7, help='Starting layer index for encoder fine-tuning encoder')
 args = parser.parse_args()
 modelPath = args.checkpoint
 lstmDecoder = args.lstmDecoder
+startingLayer = args.startingLayer
 
 # def setup_distributed():
 #     rank = int(os.environ['SLURM_PROCID'])
@@ -136,9 +137,9 @@ def main():
     resultsDF = pd.DataFrame(results)
     os.makedirs('results', exist_ok=True)
     if lstmDecoder is True:
-        resultsDF.to_csv('results/test-lstmDecoder-TeacherForcing-noFinetuning.csv', index=False)
+        resultsDF.to_csv(f'results/test-lstmDecoder-NoTeacherForcing-Finetuning{startingLayer}.csv', index=False)
     else:
-        resultsDF.to_csv('results/test-TransformerDecoder-TeacherForcing-noFinetuning.csv', index=False)
+        resultsDF.to_csv(f'results/test-TransformerDecoder-NoTeacherForcing-Finetuning{startingLayer}.csv', index=False)
     
 
 

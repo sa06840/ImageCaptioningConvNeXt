@@ -35,7 +35,7 @@ class Encoder(nn.Module):
         out = out.permute(0, 2, 3, 1)  # (batch_size, encoded_image_size, encoded_image_size, 768)
         return out
     
-    def fine_tune(self, fine_tune=True):
+    def fine_tune(self, fine_tune=True, startingLayer=7):
         """
         Allow or prevent the computation of gradients for convolutional blocks 2 through 4 of the encoder.
         :param fine_tune: Allow?
@@ -43,7 +43,7 @@ class Encoder(nn.Module):
         for p in self.convnext.parameters():
             p.requires_grad = False
         # If fine-tuning, only fine-tune convolutional blocks 2 through 5
-        for c in list(self.convnext.children())[5:]:
+        for c in list(self.convnext.children())[startingLayer:]:
             for p in c.parameters():
                 p.requires_grad = fine_tune
 

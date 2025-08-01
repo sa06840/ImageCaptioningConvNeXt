@@ -16,7 +16,7 @@ from models.decoder import DecoderWithAttention
 from models.transformerDecoder import TransformerDecoder
 from models.transformerDecoderAttVis import TransformerDecoderForAttentionViz
 
-device = torch.device("mps")
+device = torch.device("cpu")
 embDim = 512  # dimension of word embeddings
 attentionDim = 512  # dimension of attention linear layers
 decoderDim = 512  # dimension of decoder RNN
@@ -266,6 +266,42 @@ def caption_image_beam_search_transformer(encoder, decoder, imagePath, wordMap, 
     seq = complete_seqs[i]
     return seq, None
 
+def visualize_att(imagePath, seq, alphas, revWordMap, smooth=True, enc_image_size=7): # Added enc_image_size parameter
+
+    image = Image.open(imagePath)
+    # Resize original image for display, e.g., to enc_image_size*24 x enc_image_size*24 pixels for a 7x7 or 14x14 feature map
+    image = image.resize([enc_image_size * 24, enc_image_size * 24], Image.Resampling.LANCZOS) 
+    words = [revWordMap[ind] for ind in seq]
+    # Calculate subplot grid dimensions
+    num_cols = 5 # Number of subplots per row
+    num_rows = int(np.ceil(len(words) / num_cols))
+    caption = ' '.join(words)
+    print(f"Caption: {caption}")
+    for t in range(len(words)):
+        if t > 50: # Limit displayed words to avoid too many plots
+            break
+        plt.subplot(num_rows, num_cols, t + 1)
+        plt.text(0, 1, '%s' % (words[t]), color='black', backgroundcolor='white', fontsize=12)
+        plt.imshow(image)
+
+        # currentAlpha = alphas[t, :] # Shape (num_pixels,)
+        # currentAlpha_2d = currentAlpha.reshape(enc_image_size, enc_image_size) 
+        # if smooth:
+        #     alpha = skimage.transform.pyramid_expand(currentAlpha_2d.numpy(), upscale=24, sigma=8)
+        # else:
+        #     alpha = skimage.transform.resize(currentAlpha_2d.numpy(), [enc_image_size * 24, enc_image_size * 24]) 
+        
+        # if t == 0: 
+        #     plt.imshow(alpha, alpha=0) 
+        # else:
+        #     plt.imshow(alpha, alpha=0.8) 
+            
+        # plt.set_cmap(cm.Greys_r) 
+
+        plt.axis('off') 
+        
+    plt.show()
+
 def caption_image_beam_search_transformer_attention(encoder, decoder, image_path, word_map, beam_size=3, max_decode_len=51):
     
     k = beam_size
@@ -400,41 +436,7 @@ def caption_image_beam_search_transformer_attention(encoder, decoder, image_path
         final_alphas = complete_seqs_alphas[best_seq_score_idx]
 
     return final_seq, final_alphas
-
-def visualize_att(imagePath, seq, alphas, revWordMap, smooth=True, enc_image_size=7): # Added enc_image_size parameter
-
-    image = Image.open(imagePath)
-    # Resize original image for display, e.g., to enc_image_size*24 x enc_image_size*24 pixels for a 7x7 or 14x14 feature map
-    image = image.resize([enc_image_size * 24, enc_image_size * 24], Image.Resampling.LANCZOS) 
-    words = [revWordMap[ind] for ind in seq]
-    # Calculate subplot grid dimensions
-    num_cols = 5 # Number of subplots per row
-    num_rows = int(np.ceil(len(words) / num_cols))
-    for t in range(len(words)):
-        if t > 50: # Limit displayed words to avoid too many plots
-            break
-        plt.subplot(num_rows, num_cols, t + 1)
-        plt.text(0, 1, '%s' % (words[t]), color='black', backgroundcolor='white', fontsize=12)
-        plt.imshow(image)
-
-        # currentAlpha = alphas[t, :] # Shape (num_pixels,)
-        # currentAlpha_2d = currentAlpha.reshape(enc_image_size, enc_image_size) 
-        # if smooth:
-        #     alpha = skimage.transform.pyramid_expand(currentAlpha_2d.numpy(), upscale=24, sigma=8)
-        # else:
-        #     alpha = skimage.transform.resize(currentAlpha_2d.numpy(), [enc_image_size * 24, enc_image_size * 24]) 
-        
-        # if t == 0: 
-        #     plt.imshow(alpha, alpha=0) 
-        # else:
-        #     plt.imshow(alpha, alpha=0.8) 
-            
-        # plt.set_cmap(cm.Greys_r) 
-
-        plt.axis('off') 
-        
-    plt.show() 
-
+ 
 def remap_transformer_decoder_keys(old_state_dict):
     new_state_dict = {}
     for key, value in old_state_dict.items():
@@ -467,10 +469,18 @@ if __name__ == '__main__':
     # args.beam_size = 5
     # args.smooth = False
 
-    img = 'cocoDataset/trainval2014/val2014/COCO_val2014_000000394240.jpg'
+    # img = 'cocoDataset/trainval2014/val2014/COCO_val2014_000000394240.jpg'
     # img = 'cocoDataset/trainval2014/val2014/COCO_val2014_000000184791.jpg'
+    # img = 'cocoDataset/trainval2014/val2014/COCO_val2014_000000334321.jpg'
+    img = 'cocoDataset/trainval2014/val2014/COCO_val2014_000000292301.jpg'
+    # img = 'cocoDataset/trainval2014/val2014/COCO_val2014_000000154971.jpg'
+
+    # image = Image.open(img)
+    # plt.imshow(image)
+    # plt.axis('off')
+    # plt.show()
     # model = 'bestCheckpoints/mscoco/17-07-2025(lstmDecoder-trainingTF-inferenceNoTF-noFinetuning)/BEST_checkpoint_LSTM_coco_5_cap_per_img_5_min_word_freq.pth.tar'
-    model = 'bestCheckpoints/mscoco/17-07-2025(transformerDecoder-trainingTF-inferenceNoTF-noFinetuning)/BEST_checkpoint_Transformer_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/24-07-2025(transformerDecoder-trainingTF-inferenceNoTF-Finetuning3-lr1e4)/BEST_checkpoint_Transformer_Finetuning3_coco_5_cap_per_img_5_min_word_freq.pth.tar'
     word_map = 'cocoDataset/inputFiles/WORDMAP_coco_5_cap_per_img_5_min_word_freq.json'
     beam_size = 5
     smooth = False

@@ -36,7 +36,6 @@ import pandas as pd
 from models.encoder import Encoder 
 from models.decoder import DecoderWithAttention
 from models.transformerDecoder import TransformerDecoder
-from models.transformerDecoderHF import HFTransformerDecoder
 from dataLoader import CaptionDataset
 from utils.utils import *
 import pickle
@@ -64,7 +63,7 @@ epochs = 120  # number of epochs to train for (if early stopping is not triggere
 epochsSinceImprovement = 0  # keeps track of number of epochs since there's been an improvement in validation BLEU
 batchSize = 32
 workers = 6
-encoderLr = 1e-4  # learning rate for encoder if fine-tuning
+# encoderLr = 1e-4  # learning rate for encoder if fine-tuning
 decoderLr = 1e-4  # learning rate for decoder
 gradClip = 5.  # clip gradients at an absolute value of
 alphaC = 1.  # regularization parameter for 'doubly stochastic attention', as in the paper
@@ -76,11 +75,15 @@ parser.add_argument('--checkpoint', type=str, default=None, help='Path to checkp
 parser.add_argument('--lstmDecoder', action='store_true', help='Use LSTM decoder instead of Transformer')
 parser.add_argument('--port', type=str, default='29500', help='Master port for distributed training')
 parser.add_argument('--teacherForcing', action='store_true', help='Use teacher forcing training strategy')
+parser.add_argument('--startingLayer', type=int, default=7, help='Starting layer index for encoder fine-tuning encoder')
+parser.add_argument('--encoderLr', type=float, default=1e-4, help='Learning rate for encoder if fine-tuning')
 args = parser.parse_args()
 checkpoint = args.checkpoint
 lstmDecoder = args.lstmDecoder
 port = args.port
 teacherForcing = args.teacherForcing
+startingLayer = args.startingLayer
+encoderLr = args.encoderLr
 
 
 def optimizer_to_device(optimizer, device):
@@ -168,7 +171,7 @@ def main():
             decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device)
         decoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, decoder.parameters()), lr=decoderLr)
         encoder = Encoder()
-        encoder.fine_tune(fineTuneEncoder)
+        encoder.fine_tune(fine_tune=False)
         if fineTuneEncoder is True:
             encoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, encoder.parameters()), lr=encoderLr)
         else:
@@ -183,7 +186,13 @@ def main():
         encoder = Encoder()
         checkpoint = torch.load(checkpoint, map_location=device, weights_only=False)
         encoder.load_state_dict(checkpoint['encoder'])
-        encoder.fine_tune(fineTuneEncoder)
+        startEpoch = checkpoint['epoch'] + 1
+        if startEpoch > 20:
+            fineTuneEncoder = True
+            encoder.fine_tune(fine_tune=fineTuneEncoder, startingLayer=startingLayer)
+        else:
+            fineTuneEncoder = False
+            encoder.fine_tune(fine_tune=fineTuneEncoder)
         decoder.load_state_dict(checkpoint['decoder'])
         decoderOptimizer.load_state_dict(checkpoint['decoderOptimizer'])
         optimizer_to_device(decoderOptimizer, device)
@@ -191,10 +200,9 @@ def main():
             encoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, encoder.parameters()), lr=encoderLr)
             if checkpoint['encoderOptimizer'] is not None:
                 encoderOptimizer.load_state_dict(checkpoint['encoderOptimizer'])
-                optimizer_to_device(encoderOptimizer, device)
+            optimizer_to_device(encoderOptimizer, device)
         else:
             encoderOptimizer = None
-        startEpoch = checkpoint['epoch'] + 1
         epochsSinceImprovement = checkpoint['epochsSinceImprovement']
         bestBleu4 = checkpoint['bleu-4']
         results = checkpoint['results']
@@ -209,19 +217,26 @@ def main():
 
     trainDataset = CaptionDataset(dataFolder, dataName, 'TRAIN', transform=transforms.Compose([normalize]))
     trainSampler = torch.utils.data.distributed.DistributedSampler(trainDataset, num_replicas=world_size, rank=rank, shuffle=True, seed=42)
-    # trainDataLoader = DataLoader(trainDataset, batch_size=batchSize, shuffle=False, num_workers=workers, persistent_workers=True, pin_memory=True, sampler=trainSampler, worker_init_fn=seed_worker, generator=g)
     trainDataLoader = DataLoader(trainDataset, batch_size=batchSize, shuffle=False, num_workers=workers, persistent_workers=True, pin_memory=True, sampler=trainSampler)
 
     valDataset = CaptionDataset(dataFolder, dataName, 'VAL', transform=transforms.Compose([normalize]))
     valSampler = torch.utils.data.distributed.DistributedSampler(valDataset, num_replicas=world_size, rank=rank, shuffle=True, seed=42)
-    # valDataLoader = DataLoader(valDataset, batch_size=batchSize, shuffle=False, num_workers=workers, persistent_workers=True, pin_memory=True, sampler=valSampler, worker_init_fn=seed_worker, generator=g)
     valDataLoader = DataLoader(valDataset, batch_size=batchSize, shuffle=False, num_workers=workers, persistent_workers=True, pin_memory=True, sampler=valSampler)
 
     for epoch in range(startEpoch, epochs):
         trainSampler.set_epoch(epoch) 
         valSampler.set_epoch(epoch)  
+
+        if epoch == 20:
+            fineTuneEncoder = True
+            encoder.fine_tune(fine_tune=fineTuneEncoder, startingLayer=startingLayer)
+            encoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, encoder.parameters()), lr=encoderLr)
+            optimizer_to_device(encoderOptimizer, device)
+            encoder = DDP(encoder, device_ids=[local_rank], output_device=local_rank)
+            print(f"Fine-tuning encoder from epoch 20 onwards (starting from layer {startingLayer})", flush=True)
+
         # Decay learning rate if there is no improvement for 8 consecutive epochs, and terminate training after 20
-        if epochsSinceImprovement == 20:
+        if epochsSinceImprovement == 40:   # 20
             break
         if epochsSinceImprovement > 0 and epochsSinceImprovement % 8 == 0:
             adjust_learning_rate(decoderOptimizer, 0.8)
@@ -283,7 +298,7 @@ def main():
             encoderSaved = encoder.module.state_dict() if hasattr(encoder, 'module') else encoder.state_dict()
             decoderSaved = decoder.module.state_dict() if hasattr(decoder, 'module') else decoder.state_dict()
             save_checkpoint(dataName, epoch, epochsSinceImprovement, encoderSaved, decoderSaved, encoderOptimizer,
-                            decoderOptimizer, recentBleu4, isBest, results, lstmDecoder)
+                            decoderOptimizer, recentBleu4, isBest, results, lstmDecoder, startingLayer, encoderLr)
         
         epochsSinceImprovementTensor = torch.tensor(epochsSinceImprovement, device=device)
         dist.broadcast(epochsSinceImprovementTensor, src=0)
@@ -293,9 +308,9 @@ def main():
         resultsDF = pd.DataFrame(results)
         os.makedirs('results', exist_ok=True)
         if lstmDecoder is True:
-            resultsDF.to_csv('results/metrics-lstmDecoder(trainingNoTF-inferenceNoTF-noFinetuning).csv', index=False)
+            resultsDF.to_csv(f'results/metrics-lstmDecoder(trainingTF-inferenceNoTF-Finetuning{startingLayer}-{encoderLr}).csv', index=False)
         else: 
-            resultsDF.to_csv('results/metrics-transformerDecoder(trainingNoTF-inferenceNoTF-noFinetuning).csv', index=False)
+            resultsDF.to_csv(f'results/metrics-transformerDecoder(trainingTF-inferenceNoTF-Finetuning{startingLayer}-{encoderLr}).csv', index=False)
 
 
 
