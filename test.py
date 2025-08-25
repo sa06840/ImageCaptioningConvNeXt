@@ -40,7 +40,7 @@ from torch.serialization import add_safe_globals
 import argparse
 
 
-device = torch.device("cuda")
+device = torch.device("mps")
 
 # Model parameters
 embDim = 512  # dimension of word embeddings
@@ -64,28 +64,17 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--checkpoint', type=str, default=None, help='Path to checkpoint file')
 parser.add_argument('--lstmDecoder', action='store_true', help='Use LSTM decoder instead of Transformer')
 parser.add_argument('--startingLayer', type=int, default=7, help='Starting layer index for encoder fine-tuning encoder')
+parser.add_argument('--embeddingName', type=str, default=None, help='Pretrained embedding name from gensim')
 args = parser.parse_args()
 modelPath = args.checkpoint
 lstmDecoder = args.lstmDecoder
 startingLayer = args.startingLayer
+pretrainedEmbeddingsName = args.embeddingName  # word2vec-google-news-300
 
-# def setup_distributed():
-#     rank = int(os.environ['SLURM_PROCID'])
-#     world_size = int(os.environ['SLURM_NTASKS'])
-#     local_rank = int(os.environ['SLURM_LOCALID'])
-#     os.environ['MASTER_ADDR'] = os.environ.get('MASTER_ADDR', '127.0.0.1')
-#     os.environ['MASTER_PORT'] = os.environ.get('MASTER_PORT', '29500')  # Use a fixed or random free port
-#     dist.init_process_group(
-#         backend='nccl',
-#         init_method='env://',
-#         world_size=world_size,
-#         rank=rank
-#     )
-#     set_seed(42)
-#     torch.cuda.set_device(local_rank)
-#     device = torch.device(f"cuda:{local_rank}")
-#     print(f"[Rank {rank}] is using GPU {local_rank}")
-#     return rank, local_rank, world_size, device
+if pretrainedEmbeddingsName == 'word2vec-google-news-300':
+    embDim = 300
+elif pretrainedEmbeddingsName == 'glove-wiki-gigaword-200':
+    embDim = 200
 
 
 def main():
@@ -105,7 +94,8 @@ def main():
     if lstmDecoder is True:
         decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
     else:
-        decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device)
+        decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device,
+                                    wordMap=wordMap, pretrained_embeddings_name=pretrainedEmbeddingsName, fine_tune_embeddings=False)
     encoder = Encoder()
     encoder.load_state_dict(checkpoint['encoder'])
     decoder.load_state_dict(checkpoint['decoder'])
@@ -139,7 +129,7 @@ def main():
     if lstmDecoder is True:
         resultsDF.to_csv(f'results/test-lstmDecoder-NoTeacherForcing-Finetuning{startingLayer}.csv', index=False)
     else:
-        resultsDF.to_csv(f'results/test-TransformerDecoder-NoTeacherForcing-Finetuning{startingLayer}.csv', index=False)
+        resultsDF.to_csv(f'results/test-TransformerDecoder-TeacherForcing-Finetuning{startingLayer}-PretrainedEmbeddingsGlove.csv', index=False)
     
 
 
@@ -188,9 +178,6 @@ def test(testDataLoader, encoder, decoder, criterion):
             else:
                 scores, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
                 scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, caps, wordMap['<end>'], wordMap['<pad>'], 51)
-                # scores, sequences = decoder(teacherForcing=False, encoder_out=imgs, state='inference', maxDecodeLen=51)
-                # remapped_encoded_captions = decoder.customToT5[caps]
-                # scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, remapped_encoded_captions, wordMap['<end>'], decoder.t5_pad_token_id, 51)
                 loss = criterion(scoresUpdated, targetsUpdated)
 
             top5 = accuracy(scoresUpdated, targetsUpdated, 5, 'single')

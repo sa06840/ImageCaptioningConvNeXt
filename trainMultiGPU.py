@@ -77,6 +77,7 @@ parser.add_argument('--port', type=str, default='29500', help='Master port for d
 parser.add_argument('--teacherForcing', action='store_true', help='Use teacher forcing training strategy')
 parser.add_argument('--startingLayer', type=int, default=7, help='Starting layer index for encoder fine-tuning encoder')
 parser.add_argument('--encoderLr', type=float, default=1e-4, help='Learning rate for encoder if fine-tuning')
+parser.add_argument('--embeddingName', type=str, default=None, help='Pretrained embedding name from gensim')
 args = parser.parse_args()
 checkpoint = args.checkpoint
 lstmDecoder = args.lstmDecoder
@@ -84,6 +85,12 @@ port = args.port
 teacherForcing = args.teacherForcing
 startingLayer = args.startingLayer
 encoderLr = args.encoderLr
+pretrainedEmbeddingsName = args.embeddingName 
+
+if pretrainedEmbeddingsName == 'word2vec-google-news-300':
+    embDim = 300
+elif pretrainedEmbeddingsName == 'glove-wiki-gigaword-200':
+    embDim = 200
 
 
 def optimizer_to_device(optimizer, device):
@@ -168,7 +175,8 @@ def main():
         if lstmDecoder is True:
             decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
         else:
-            decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device)
+            decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device,
+                                        wordMap=wordMap, pretrained_embeddings_name=pretrainedEmbeddingsName, fine_tune_embeddings=False)
         decoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, decoder.parameters()), lr=decoderLr)
         encoder = Encoder()
         encoder.fine_tune(fine_tune=False)
@@ -181,7 +189,8 @@ def main():
         if lstmDecoder is True:
             decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
         else:
-            decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device)
+            decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device,
+                                        wordMap=wordMap, pretrained_embeddings_name=pretrainedEmbeddingsName, fine_tune_embeddings=False)
         decoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, decoder.parameters()), lr=decoderLr)
         encoder = Encoder()
         checkpoint = torch.load(checkpoint, map_location=device, weights_only=False)
@@ -310,7 +319,7 @@ def main():
         if lstmDecoder is True:
             resultsDF.to_csv(f'results/metrics-lstmDecoder(trainingTF-inferenceNoTF-Finetuning{startingLayer}-{encoderLr}).csv', index=False)
         else: 
-            resultsDF.to_csv(f'results/metrics-transformerDecoder(trainingTF-inferenceNoTF-Finetuning{startingLayer}-{encoderLr}).csv', index=False)
+            resultsDF.to_csv(f'results/metrics-transformerDecoder(trainingTF-inferenceNoTF-Finetuning{startingLayer}-{encoderLr}-{pretrainedEmbeddingsName}).csv', index=False)
 
 
 

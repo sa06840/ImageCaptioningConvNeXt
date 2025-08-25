@@ -26,11 +26,11 @@ class Encoder(nn.Module):
         :return: encoded images
         """
         out = self.convnext(images)  # (batch_size, 768, image_size/32, image_size/32)
-        # _, _, h, w = out.shape
-        # pad_h = (self.enc_image_size - h % self.enc_image_size) % self.enc_image_size
-        # pad_w = (self.enc_image_size - w % self.enc_image_size) % self.enc_image_size
-        # # Apply padding
-        # out = F.pad(out, (0, pad_w, 0, pad_h))  # Pad the height and width
+        _, _, h, w = out.shape
+        pad_h = (self.enc_image_size - h % self.enc_image_size) % self.enc_image_size
+        pad_w = (self.enc_image_size - w % self.enc_image_size) % self.enc_image_size
+        # Apply padding
+        out = F.pad(out, (0, pad_w, 0, pad_h))  # Pad the height and width
         out = self.adaptive_pool(out)  # (batch_size, 768, encoded_image_size, encoded_image_size)
         out = out.permute(0, 2, 3, 1)  # (batch_size, encoded_image_size, encoded_image_size, 768)
         return out

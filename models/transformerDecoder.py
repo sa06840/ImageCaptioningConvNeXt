@@ -1,6 +1,8 @@
 import torch.nn as nn
 import math
 import torch
+import gensim.downloader as api
+import numpy as np
 
 
 # device = torch.device("cuda")
@@ -21,20 +23,44 @@ class PositionalEncoding(nn.Module):
         x = x + self.pe[:, :x.size(1)]
         return x
 
+def loadPretrainedWordEmbeddings(word_map, pretrained_embeddings, embed_dim):
+    gensim_model = api.load(pretrained_embeddings)
+    # 1. Initialize a new embedding matrix with zeros.
+    new_embedding_matrix = np.zeros((len(word_map), embed_dim))
+    # 2. Align pre-trained embeddings with your word_map (word -> embedding, id -> embedding)
+    for word, idx in word_map.items():
+        if word in gensim_model:
+            new_embedding_matrix[idx] = gensim_model[word]
+    
+    return torch.tensor(new_embedding_matrix, dtype=torch.float)
 
 class TransformerDecoder(nn.Module):
-    def __init__(self, embed_dim, decoder_dim, vocab_size, maxLen, device, dropout=0.5, encoder_dim=1024, num_heads=8, num_layers=6):
+    def __init__(self, embed_dim, decoder_dim, vocab_size, maxLen, device, wordMap, pretrained_embeddings_name, fine_tune_embeddings,
+                dropout=0.5, encoder_dim=1024, num_heads=8, num_layers=6):
         super(TransformerDecoder, self).__init__()
         
         self.encoder_dim = encoder_dim
         self.decoder_dim = decoder_dim
         self.embed_dim = embed_dim
         self.vocab_size = vocab_size
+        if pretrained_embeddings_name == 'word2vec-google-news-300':
+            num_heads = 6
         self.num_heads = num_heads
         self.num_layers = num_layers
         self.dropout = dropout
+
+        if pretrained_embeddings_name and wordMap:
+            pre_trained_embeddings_tensor = loadPretrainedWordEmbeddings(wordMap, pretrained_embeddings_name, embed_dim)
+            if pre_trained_embeddings_tensor is not None:
+                self.embedding = nn.Embedding.from_pretrained(pre_trained_embeddings_tensor, freeze=not fine_tune_embeddings, padding_idx=wordMap.get('<pad>'))
+                print(f"Loaded and aligned embeddings from '{pretrained_embeddings_name}'")
+            else:
+                print("Falling back to random embedding initialization.")
+                self.embedding = nn.Embedding(vocab_size, embed_dim)
+        else:
+            print("Initializing embeddings randomly.")
+            self.embedding = nn.Embedding(vocab_size, embed_dim)
         
-        self.embedding = nn.Embedding(vocab_size, embed_dim)
         # 2. Positional encoding
         self.pos_encoding = PositionalEncoding(embed_dim, maxLen)
         # 3. Transformer decoder

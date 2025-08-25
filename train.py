@@ -41,7 +41,7 @@ from utils.utils import *
 import argparse
 
 # Set device to GPU (if available) or CPU
-device = torch.device("mps")
+device = torch.device("cuda")
 
 # Data parameters
 # dataFolder = 'flickr8kDataset/inputFiles'
@@ -64,7 +64,7 @@ epochs = 120  # number of epochs to train for (if early stopping is not triggere
 epochsSinceImprovement = 0  # keeps track of number of epochs since there's been an improvement in validation BLEU
 batchSize = 32  #32
 workers = 6
-encoderLr = 1e-4  # learning rate for encoder if fine-tuning
+# encoderLr = 1e-4  # learning rate for encoder if fine-tuning
 decoderLr = 1e-4  # learning rate for decoder
 gradClip = 5.  # clip gradients at an absolute value of
 alphaC = 1.  # regularization parameter for 'doubly stochastic attention', as in the paper
@@ -76,12 +76,20 @@ parser.add_argument('--checkpoint', type=str, default=None, help='Path to checkp
 parser.add_argument('--lstmDecoder', action='store_true', help='Use LSTM decoder instead of Transformer')
 parser.add_argument('--teacherForcing', action='store_true', help='Use teacher forcing training strategy')
 parser.add_argument('--startingLayer', type=int, default=5, help='Starting layer index for encoder fine-tuning encoder')
+parser.add_argument('--encoderLr', type=float, default=1e-4, help='Learning rate for encoder if fine-tuning')
+parser.add_argument('--embeddingName', type=str, default=None, help='Pretrained embedding name from gensim')
 args = parser.parse_args()
 checkpoint = args.checkpoint
 lstmDecoder = args.lstmDecoder
 teacherForcing = args.teacherForcing
 startingLayer = args.startingLayer
+encoderLr = args.encoderLr
+pretrainedEmbeddingsName = args.embeddingName  # word2vec-google-news-300, glove-wiki-gigaword-200
 
+if pretrainedEmbeddingsName == 'word2vec-google-news-300':
+    embDim = 300
+elif pretrainedEmbeddingsName == 'glove-wiki-gigaword-200':
+    embDim = 200
 
 def optimizer_to_device(optimizer, device):
     for state in optimizer.state.values():
@@ -103,8 +111,8 @@ def main():
         if lstmDecoder is True:
             decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
         else:
-            decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device)
-            # decoder = HFTransformerDecoder(vocab_size=len(wordMap), device=device, wordMap=wordMap)
+            decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device,
+                                        wordMap=wordMap, pretrained_embeddings_name=pretrainedEmbeddingsName, fine_tune_embeddings=False)
         decoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, decoder.parameters()), lr=decoderLr)
         encoder = Encoder()
         encoder.fine_tune(fine_tune=False)
@@ -117,8 +125,8 @@ def main():
         if lstmDecoder is True:
             decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
         else:
-            decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device)
-            # decoder = HFTransformerDecoder(vocab_size=len(wordMap), device=device, wordMap=wordMap)
+            decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device,
+                                        wordMap=wordMap, pretrained_embeddings_name=pretrainedEmbeddingsName, fine_tune_embeddings=False)
         decoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, decoder.parameters()), lr=decoderLr)
         encoder = Encoder()
         checkpoint = torch.load(checkpoint, map_location=device, weights_only=False)
@@ -150,10 +158,8 @@ def main():
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 
     trainDataset = CaptionDataset(dataFolder, dataName, 'TRAIN', transform=transforms.Compose([normalize]))
-    # trainDataLoader = DataLoader(trainDataset, batch_size=batchSize, shuffle=True, num_workers=workers, persistent_workers=True, pin_memory=True, worker_init_fn=seed_worker, generator=g)
     trainDataLoader = DataLoader(trainDataset, batch_size=batchSize, shuffle=True, num_workers=workers, persistent_workers=True, pin_memory=True)
     valDataset = CaptionDataset(dataFolder, dataName, 'VAL', transform=transforms.Compose([normalize]))
-    # valDataLoader = DataLoader(valDataset, batch_size=batchSize, shuffle=True, num_workers=workers, persistent_workers=True, pin_memory=True, worker_init_fn=seed_worker, generator=g)
     valDataLoader = DataLoader(valDataset, batch_size=batchSize, shuffle=True, num_workers=workers, persistent_workers=True, pin_memory=True)
 
     for epoch in range(startEpoch, epochs):
@@ -225,14 +231,14 @@ def main():
         encoderSaved =  encoder.state_dict()
         decoderSaved = decoder.state_dict()
         save_checkpoint(dataName, epoch, epochsSinceImprovement, encoderSaved, decoderSaved, encoderOptimizer,
-                        decoderOptimizer, recentBleu4, isBest, results, lstmDecoder, startingLayer)
+                        decoderOptimizer, recentBleu4, isBest, results, lstmDecoder, startingLayer, encoderLr)
 
     resultsDF = pd.DataFrame(results)
     os.makedirs('results', exist_ok=True)
     if lstmDecoder is True:
         resultsDF.to_csv(f'results/metrics-LSTM(trainingTF-inferenceNoTF-Finetuning{startingLayer}).csv', index=False)
     else: 
-        resultsDF.to_csv(f'results/metrics-TransformerDecoder(trainingTF-inferenceNoTF-Finetuning{startingLayer}).csv', index=False)
+        resultsDF.to_csv(f'results/metrics-TransformerDecoder(trainingTF-inferenceNoTF-Finetuning{startingLayer}-{pretrainedEmbeddingsName}).csv', index=False)
 
 
 
@@ -269,9 +275,6 @@ def trainWithTeacherForcing(trainDataLoader, encoder, decoder, criterion, encode
             tgt_key_padding_mask = (caps == wordMap['<pad>'])
             scores, capsSorted, decodeLengths = decoder(teacherForcing=True, encoder_out=imgs, encoded_captions=caps, caption_lengths=caplens, tgt_key_padding_mask=tgt_key_padding_mask)
             targets = capsSorted[:, 1:]
-            # scores, remapped_encoded_captions, decodeLengths = decoder(teacherForcing=True, encoder_out=imgs, encoded_captions=caps, caption_lengths=caplens)
-            # Since we decoded starting with <start>, the targets are all words after <start>, up to <end>
-            # targets = remapped_encoded_captions[:, 1:]  # still in the form of indices
             scores = pack_padded_sequence(scores, decodeLengths, batch_first=True, enforce_sorted=False).data  # scores are logits
             targets = pack_padded_sequence(targets, decodeLengths, batch_first=True, enforce_sorted=False).data
             loss = criterion(scores, targets)
@@ -399,9 +402,6 @@ def validate(valDataLoader, encoder, decoder, criterion, device):
             else:     
                 scores, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
                 scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, caps, wordMap['<end>'], wordMap['<pad>'], 51)
-                # scores, sequences = decoder(teacherForcing=False, encoder_out=imgs, state='inference', maxDecodeLen=51)
-                # remapped_encoded_captions = decoder.customToT5[caps]
-                # scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, remapped_encoded_captions, wordMap['<end>'], decoder.t5_pad_token_id, 51)
                 loss = criterion(scoresUpdated, targetsUpdated)
 
             top5 = accuracy(scoresUpdated, targetsUpdated, 5, 'single')

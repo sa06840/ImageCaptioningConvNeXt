@@ -471,8 +471,8 @@ if __name__ == '__main__':
 
     # img = 'cocoDataset/trainval2014/val2014/COCO_val2014_000000394240.jpg'
     # img = 'cocoDataset/trainval2014/val2014/COCO_val2014_000000184791.jpg'
-    # img = 'cocoDataset/trainval2014/val2014/COCO_val2014_000000334321.jpg'
-    img = 'cocoDataset/trainval2014/val2014/COCO_val2014_000000292301.jpg'
+    img = 'cocoDataset/trainval2014/val2014/COCO_val2014_000000334321.jpg'
+    # img = 'cocoDataset/trainval2014/val2014/COCO_val2014_000000292301.jpg'
     # img = 'cocoDataset/trainval2014/val2014/COCO_val2014_000000154971.jpg'
 
     # image = Image.open(img)
@@ -480,7 +480,7 @@ if __name__ == '__main__':
     # plt.axis('off')
     # plt.show()
     # model = 'bestCheckpoints/mscoco/17-07-2025(lstmDecoder-trainingTF-inferenceNoTF-noFinetuning)/BEST_checkpoint_LSTM_coco_5_cap_per_img_5_min_word_freq.pth.tar'
-    model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/24-07-2025(transformerDecoder-trainingTF-inferenceNoTF-Finetuning3-lr1e4)/BEST_checkpoint_Transformer_Finetuning3_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/01-08-2025(transformerDecoder-trainingTF-inferenceNoTF-Finetuning5-lr1e6-40epochs)/BEST_checkpoint_Transformer_Finetuning5_1e-06_coco_5_cap_per_img_5_min_word_freq.pth.tar'
     word_map = 'cocoDataset/inputFiles/WORDMAP_coco_5_cap_per_img_5_min_word_freq.json'
     beam_size = 5
     smooth = False
