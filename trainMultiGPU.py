@@ -89,8 +89,10 @@ pretrainedEmbeddingsName = args.embeddingName
 
 if pretrainedEmbeddingsName == 'word2vec-google-news-300':
     embDim = 300
+    pretrainedEmbeddingsPath = 'wordEmbeddings/word2vec-google-news-300.gz'
 elif pretrainedEmbeddingsName == 'glove-wiki-gigaword-200':
     embDim = 200
+    pretrainedEmbeddingsPath = 'wordEmbeddings/glove-wiki-gigaword-200.gz'
 
 
 def optimizer_to_device(optimizer, device):
@@ -176,7 +178,7 @@ def main():
             decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
         else:
             decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device,
-                                        wordMap=wordMap, pretrained_embeddings_name=pretrainedEmbeddingsName, fine_tune_embeddings=False)
+                                        wordMap=wordMap, pretrained_embeddings_path=pretrainedEmbeddingsPath, fine_tune_embeddings=True)
         decoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, decoder.parameters()), lr=decoderLr)
         encoder = Encoder()
         encoder.fine_tune(fine_tune=False)
@@ -190,7 +192,7 @@ def main():
             decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
         else:
             decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device,
-                                        wordMap=wordMap, pretrained_embeddings_name=pretrainedEmbeddingsName, fine_tune_embeddings=False)
+                                        wordMap=wordMap, pretrained_embeddings_path=pretrainedEmbeddingsPath, fine_tune_embeddings=True)
         decoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, decoder.parameters()), lr=decoderLr)
         encoder = Encoder()
         checkpoint = torch.load(checkpoint, map_location=device, weights_only=False)
@@ -307,7 +309,8 @@ def main():
             encoderSaved = encoder.module.state_dict() if hasattr(encoder, 'module') else encoder.state_dict()
             decoderSaved = decoder.module.state_dict() if hasattr(decoder, 'module') else decoder.state_dict()
             save_checkpoint(dataName, epoch, epochsSinceImprovement, encoderSaved, decoderSaved, encoderOptimizer,
-                            decoderOptimizer, recentBleu4, isBest, results, lstmDecoder, startingLayer, encoderLr)
+                            decoderOptimizer, recentBleu4, isBest, results, lstmDecoder, startingLayer, encoderLr,
+                            pretrainedEmbeddingsName)
         
         epochsSinceImprovementTensor = torch.tensor(epochsSinceImprovement, device=device)
         dist.broadcast(epochsSinceImprovementTensor, src=0)

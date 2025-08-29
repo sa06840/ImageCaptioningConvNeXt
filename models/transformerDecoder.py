@@ -3,6 +3,7 @@ import math
 import torch
 import gensim.downloader as api
 import numpy as np
+import gzip
 
 
 # device = torch.device("cuda")
@@ -23,19 +24,37 @@ class PositionalEncoding(nn.Module):
         x = x + self.pe[:, :x.size(1)]
         return x
 
-def loadPretrainedWordEmbeddings(word_map, pretrained_embeddings, embed_dim):
-    gensim_model = api.load(pretrained_embeddings)
-    # 1. Initialize a new embedding matrix with zeros.
+def loadPretrainedWordEmbeddings(word_map, pretrained_embeddings_path, embed_dim):
     new_embedding_matrix = np.zeros((len(word_map), embed_dim))
-    # 2. Align pre-trained embeddings with your word_map (word -> embedding, id -> embedding)
+    if '<unk>' in word_map:
+        pass
+    
+    pretrained_embeddings = {}
+    with gzip.open(pretrained_embeddings_path, 'rt', encoding='utf-8', errors='ignore') as f:
+        try:
+            first_line = next(f)
+            if len(first_line.split()) == 2: # Check for the common header format of (vocab_size, embed_dim)
+                pass # This is a header, so continue to the next line
+            else:
+                f.seek(0) # Not a header, so go back to the start of the file
+        except StopIteration:
+            f.seek(0) # Handle empty file
+
+        for line in f:
+            line_parts = line.strip().split()
+            word = line_parts[0]
+            if len(line_parts) == embed_dim + 1: # Ensure a valid vector
+                vector = np.array(line_parts[1:], dtype='float32')
+                pretrained_embeddings[word] = vector
+            
     for word, idx in word_map.items():
-        if word in gensim_model:
-            new_embedding_matrix[idx] = gensim_model[word]
+        if word in pretrained_embeddings:
+            new_embedding_matrix[idx] = pretrained_embeddings[word]
     
     return torch.tensor(new_embedding_matrix, dtype=torch.float)
 
 class TransformerDecoder(nn.Module):
-    def __init__(self, embed_dim, decoder_dim, vocab_size, maxLen, device, wordMap, pretrained_embeddings_name, fine_tune_embeddings,
+    def __init__(self, embed_dim, decoder_dim, vocab_size, maxLen, device, wordMap, pretrained_embeddings_path, fine_tune_embeddings,
                 dropout=0.5, encoder_dim=1024, num_heads=8, num_layers=6):
         super(TransformerDecoder, self).__init__()
         
@@ -43,20 +62,22 @@ class TransformerDecoder(nn.Module):
         self.decoder_dim = decoder_dim
         self.embed_dim = embed_dim
         self.vocab_size = vocab_size
-        if pretrained_embeddings_name == 'word2vec-google-news-300':
+        if pretrained_embeddings_path == 'wordEmbeddings/word2vec-google-news-300.gz':
             num_heads = 6
         self.num_heads = num_heads
         self.num_layers = num_layers
         self.dropout = dropout
 
-        if pretrained_embeddings_name and wordMap:
-            pre_trained_embeddings_tensor = loadPretrainedWordEmbeddings(wordMap, pretrained_embeddings_name, embed_dim)
-            if pre_trained_embeddings_tensor is not None:
-                self.embedding = nn.Embedding.from_pretrained(pre_trained_embeddings_tensor, freeze=not fine_tune_embeddings, padding_idx=wordMap.get('<pad>'))
-                print(f"Loaded and aligned embeddings from '{pretrained_embeddings_name}'")
-            else:
-                print("Falling back to random embedding initialization.")
+        if pretrained_embeddings_path and wordMap:
+            pre_trained_embeddings_tensor = loadPretrainedWordEmbeddings(wordMap, pretrained_embeddings_path, embed_dim)
+            if pre_trained_embeddings_tensor.shape[1] != embed_dim:
+                print(f"Error: Dimension mismatch for pre-trained embeddings. "
+                      f"Found dimension {pre_trained_embeddings_tensor.shape[1]}, "
+                      f"expected {embed_dim}. Falling back to random initialization.")
                 self.embedding = nn.Embedding(vocab_size, embed_dim)
+            else:
+                self.embedding = nn.Embedding.from_pretrained(pre_trained_embeddings_tensor, freeze=not fine_tune_embeddings, padding_idx=wordMap.get('<pad>'))
+                print(f"Loaded and aligned embeddings from '{pretrained_embeddings_path}'")
         else:
             print("Initializing embeddings randomly.")
             self.embedding = nn.Embedding(vocab_size, embed_dim)

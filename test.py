@@ -40,7 +40,7 @@ from torch.serialization import add_safe_globals
 import argparse
 
 
-device = torch.device("mps")
+device = torch.device("cuda")
 
 # Model parameters
 embDim = 512  # dimension of word embeddings
@@ -73,8 +73,10 @@ pretrainedEmbeddingsName = args.embeddingName  # word2vec-google-news-300
 
 if pretrainedEmbeddingsName == 'word2vec-google-news-300':
     embDim = 300
+    pretrainedEmbeddingsPath = 'wordEmbeddings/word2vec-google-news-300.gz'
 elif pretrainedEmbeddingsName == 'glove-wiki-gigaword-200':
     embDim = 200
+    pretrainedEmbeddingsPath = 'wordEmbeddings/glove-wiki-gigaword-200.gz'
 
 
 def main():
@@ -95,7 +97,7 @@ def main():
         decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
     else:
         decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device,
-                                    wordMap=wordMap, pretrained_embeddings_name=pretrainedEmbeddingsName, fine_tune_embeddings=False)
+                                    wordMap=wordMap, pretrained_embeddings_path=pretrainedEmbeddingsPath, fine_tune_embeddings=True)
     encoder = Encoder()
     encoder.load_state_dict(checkpoint['encoder'])
     decoder.load_state_dict(checkpoint['decoder'])
@@ -129,7 +131,7 @@ def main():
     if lstmDecoder is True:
         resultsDF.to_csv(f'results/test-lstmDecoder-NoTeacherForcing-Finetuning{startingLayer}.csv', index=False)
     else:
-        resultsDF.to_csv(f'results/test-TransformerDecoder-TeacherForcing-Finetuning{startingLayer}-PretrainedEmbeddingsGlove.csv', index=False)
+        resultsDF.to_csv(f'results/test-TransformerDecoder-TeacherForcing-Finetuning{startingLayer}-{pretrainedEmbeddingsName}.csv', index=False)
     
 
 

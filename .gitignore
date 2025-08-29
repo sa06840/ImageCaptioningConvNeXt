@@ -3,3 +3,4 @@ cocoDataset/
 flickr8kDataset/
 __pycache__/
 *.tar
+*.gz
