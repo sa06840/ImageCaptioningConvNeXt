@@ -34,6 +34,7 @@ from nltk.translate.bleu_score import corpus_bleu
 import pandas as pd
 from models.encoder import Encoder 
 from models.decoder import DecoderWithAttention
+from models.lstmNoAttention import DecoderWithoutAttention
 from models.transformerDecoder import TransformerDecoder
 from models.transformerDecoderHF import HFTransformerDecoder
 from dataLoader import CaptionDataset
@@ -111,7 +112,8 @@ def main():
 
     if checkpoint is None:
         if lstmDecoder is True:
-            decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
+            # decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
+             decoder = DecoderWithoutAttention(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
         else:
             decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device,
                                         wordMap=wordMap, pretrained_embeddings_path=pretrainedEmbeddingsPath, fine_tune_embeddings=True)
@@ -125,7 +127,8 @@ def main():
         results = []
     else:
         if lstmDecoder is True:
-            decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
+            # decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
+             decoder = DecoderWithAttention(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
         else:
             decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device,
                                         wordMap=wordMap, pretrained_embeddings_path=pretrainedEmbeddingsPath, fine_tune_embeddings=True)
@@ -239,7 +242,7 @@ def main():
     resultsDF = pd.DataFrame(results)
     os.makedirs('results', exist_ok=True)
     if lstmDecoder is True:
-        resultsDF.to_csv(f'results/metrics-LSTM(trainingTF-inferenceNoTF-Finetuning{startingLayer}).csv', index=False)
+        resultsDF.to_csv(f'results/metrics-LSTMdecoderNoAtt(trainingTF-inferenceNoTF-Finetuning{startingLayer}).csv', index=False)
     else: 
         resultsDF.to_csv(f'results/metrics-TransformerDecoder(trainingTF-inferenceNoTF-Finetuning{startingLayer}-{pretrainedEmbeddingsName}).csv', index=False)
 
@@ -268,12 +271,13 @@ def trainWithTeacherForcing(trainDataLoader, encoder, decoder, criterion, encode
 
         imgs = encoder(imgs)
         if lstmDecoder is True:
-            scores, capsSorted, decodeLengths, alphas, sortInd = decoder(teacherForcing=True, encoder_out=imgs, encoded_captions=caps, caption_lengths=caplens)
+            # scores, capsSorted, decodeLengths, alphas, sortInd = decoder(teacherForcing=True, encoder_out=imgs, encoded_captions=caps, caption_lengths=caplens)
+            scores, capsSorted, decodeLengths, sortInd = decoder(teacherForcing=True, encoder_out=imgs, encoded_captions=caps, caption_lengths=caplens)
             targets = capsSorted[:, 1:]  # still in the form of indices
             scores = pack_padded_sequence(scores, decodeLengths, batch_first=True).data  # scores are logits
             targets = pack_padded_sequence(targets, decodeLengths, batch_first=True).data
             loss = criterion(scores, targets)
-            loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
+            # loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
         else: 
             tgt_key_padding_mask = (caps == wordMap['<pad>'])
             scores, capsSorted, decodeLengths = decoder(teacherForcing=True, encoder_out=imgs, encoded_captions=caps, caption_lengths=caplens, tgt_key_padding_mask=tgt_key_padding_mask)
@@ -331,10 +335,11 @@ def trainWithoutTeacherForcing(trainDataLoader, encoder, decoder, criterion, enc
 
             imgs = encoder(imgs)
             if lstmDecoder is True:
-                scores, alphas, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
+                # scores, alphas, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
+                scores, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
                 scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, caps, wordMap['<end>'], wordMap['<pad>'], 51)
                 loss = criterion(scoresUpdated, targetsUpdated)
-                loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
+                # loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
             else: 
                 scores, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
                 scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, caps, wordMap['<end>'], wordMap['<pad>'], 51)
@@ -397,11 +402,12 @@ def validate(valDataLoader, encoder, decoder, criterion, device):
                 imgs = encoder(imgs)
 
             if lstmDecoder is True:
-                scores, alphas, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
+                # scores, alphas, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
+                scores, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
                 scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, caps, wordMap['<end>'], wordMap['<pad>'], 51)
                 loss = criterion(scoresUpdated, targetsUpdated)
                 # Add doubly stochastic attention regularization
-                loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
+                # loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
             else:     
                 scores, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
                 scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, caps, wordMap['<end>'], wordMap['<pad>'], 51)

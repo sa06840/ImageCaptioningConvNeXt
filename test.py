@@ -5,6 +5,7 @@ import random
 import numpy as np
 from models.encoder import Encoder 
 from models.decoder import DecoderWithAttention
+from models.lstmNoAttention import DecoderWithoutAttention
 from models.transformerDecoder import TransformerDecoder
 
 def set_seed(seed):
@@ -94,7 +95,9 @@ def main():
     checkpoint = torch.load(modelPath, map_location=device, weights_only=False)
     
     if lstmDecoder is True:
-        decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
+        # decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
+        decoder = DecoderWithoutAttention(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
+
     else:
         decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device,
                                     wordMap=wordMap, pretrained_embeddings_path=pretrainedEmbeddingsPath, fine_tune_embeddings=True)
@@ -129,7 +132,7 @@ def main():
     resultsDF = pd.DataFrame(results)
     os.makedirs('results', exist_ok=True)
     if lstmDecoder is True:
-        resultsDF.to_csv(f'results/test-lstmDecoder-NoTeacherForcing-Finetuning{startingLayer}.csv', index=False)
+        resultsDF.to_csv(f'results/test-lstmDecoderNoAtt-NoTeacherForcing-Finetuning{startingLayer}.csv', index=False)
     else:
         resultsDF.to_csv(f'results/test-TransformerDecoder-TeacherForcing-Finetuning{startingLayer}-{pretrainedEmbeddingsName}.csv', index=False)
     
@@ -172,11 +175,12 @@ def test(testDataLoader, encoder, decoder, criterion):
                 imgs = encoder(imgs)
 
             if lstmDecoder is True:
-                scores, alphas, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
+                # scores, alphas, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
+                scores, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
                 scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, caps, wordMap['<end>'], wordMap['<pad>'], 51)
                 loss = criterion(scoresUpdated, targetsUpdated)
                 # Add doubly stochastic attention regularization
-                loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
+                # loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
             else:
                 scores, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
                 scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, caps, wordMap['<end>'], wordMap['<pad>'], 51)
