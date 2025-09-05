@@ -7,6 +7,7 @@ from models.encoder import Encoder
 from models.decoder import DecoderWithAttention
 from models.lstmNoAttention import DecoderWithoutAttention
 from models.transformerDecoder import TransformerDecoder
+from models.transformerDecoderAttVis import TransformerDecoderForAttentionViz
 
 def set_seed(seed):
     random.seed(seed)
@@ -64,7 +65,7 @@ cudnn.deterministic = True # for reproducibility
 parser = argparse.ArgumentParser()
 parser.add_argument('--checkpoint', type=str, default=None, help='Path to checkpoint file')
 parser.add_argument('--lstmDecoder', action='store_true', help='Use LSTM decoder instead of Transformer')
-parser.add_argument('--startingLayer', type=int, default=7, help='Starting layer index for encoder fine-tuning encoder')
+parser.add_argument('--startingLayer', type=int, default=None, help='Starting layer index for encoder fine-tuning encoder')
 parser.add_argument('--embeddingName', type=str, default=None, help='Pretrained embedding name from gensim')
 args = parser.parse_args()
 modelPath = args.checkpoint
@@ -78,7 +79,8 @@ if pretrainedEmbeddingsName == 'word2vec-google-news-300':
 elif pretrainedEmbeddingsName == 'glove-wiki-gigaword-200':
     embDim = 200
     pretrainedEmbeddingsPath = 'wordEmbeddings/glove-wiki-gigaword-200.gz'
-
+else:
+    pretrainedEmbeddingsPath = None
 
 def main():
 
@@ -95,9 +97,7 @@ def main():
     checkpoint = torch.load(modelPath, map_location=device, weights_only=False)
     
     if lstmDecoder is True:
-        # decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
-        decoder = DecoderWithoutAttention(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
-
+        decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
     else:
         decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device,
                                     wordMap=wordMap, pretrained_embeddings_path=pretrainedEmbeddingsPath, fine_tune_embeddings=True)
@@ -132,7 +132,7 @@ def main():
     resultsDF = pd.DataFrame(results)
     os.makedirs('results', exist_ok=True)
     if lstmDecoder is True:
-        resultsDF.to_csv(f'results/test-lstmDecoderNoAtt-NoTeacherForcing-Finetuning{startingLayer}.csv', index=False)
+        resultsDF.to_csv(f'results/test-lstmDecoder-TeacherForcing-Finetuning{startingLayer}.csv', index=False)
     else:
         resultsDF.to_csv(f'results/test-TransformerDecoder-TeacherForcing-Finetuning{startingLayer}-{pretrainedEmbeddingsName}.csv', index=False)
     
@@ -175,12 +175,11 @@ def test(testDataLoader, encoder, decoder, criterion):
                 imgs = encoder(imgs)
 
             if lstmDecoder is True:
-                # scores, alphas, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
-                scores, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
+                scores, alphas, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
                 scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, caps, wordMap['<end>'], wordMap['<pad>'], 51)
                 loss = criterion(scoresUpdated, targetsUpdated)
                 # Add doubly stochastic attention regularization
-                # loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
+                loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
             else:
                 scores, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
                 scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, caps, wordMap['<end>'], wordMap['<pad>'], 51)

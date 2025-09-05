@@ -209,7 +209,8 @@ def save_checkpoint(dataName, epoch, epochsSinceImprovement, encoderSaved, decod
     if lstmDecoder is True:
         filename = 'checkpoint_LSTM_Finetuning' + str(startingLayer) + '_' + str(encoderLr) + '_' + dataName + '.pth.tar'
     else:
-        filename = 'checkpoint_Transformer_Finetuning' + str(startingLayer) + '_' + str(encoderLr) + '_' + pretrainedEmbeddingsName + '_' + dataName + '.pth.tar'
+        # filename = 'checkpoint_Transformer_Finetuning' + str(startingLayer) + '_' + str(encoderLr) + '_' + pretrainedEmbeddingsName + '_' + dataName + '.pth.tar'
+        filename = 'checkpoint_TransformerAtt_Finetuning' + str(startingLayer) + '_' + str(encoderLr) + '_' + dataName + '.pth.tar'
     torch.save(state, filename)
     # If this checkpoint is the best so far, store a copy so it doesn't get overwritten by a worse checkpoint
     if isBest:
@@ -245,7 +246,6 @@ def accuracy(scores, targets, k, gpu):
         return correct_total.item(), batch_size
     elif gpu == 'single':
         return correct_total.item() * (100.0 / batch_size)
-
 
 
 def preprocessDecoderOutputForMetrics(predictions, sequences, encodedCaptions, end_token_idx, pad_token_idx, maxDecodeLen):
