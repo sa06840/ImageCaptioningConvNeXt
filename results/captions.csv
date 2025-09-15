@@ -1,0 +1,12 @@
+filename,greedy_caption,beam_caption
+COCO_val2014_000000561100.jpg,<start> a small airplane is parked on the grass <end>,<start> a small blue and white airplane on a grassy field <end>
+COCO_val2014_000000354533.jpg,<start> a motorcycle parked in a dirt field with a fence in the background <end>,<start> a motorcycle parked in a fenced in area <end>
+COCO_val2014_000000334321.jpg,<start> a white dog sitting on a park bench next to a man <end>,<start> a white dog standing next to a park bench <end>
+COCO_val2014_000000368117.jpg,<start> a traffic light with a sky background <end>,<start> a traffic light with a sky background <end>
+COCO_val2014_000000165547.jpg,<start> a table with a vase of flowers on it <end>,<start> a table with a vase of flowers on it <end>
+COCO_val2014_000000455859.jpg,<start> a group of people standing around a park <end>,<start> a group of people that are standing in the street <end>
+COCO_val2014_000000290570.jpg,<start> a herd of sheep standing on top of a lush green field <end>,<start> a herd of sheep standing on top of a lush green field <end>
+COCO_val2014_000000281455.jpg,<start> a group of birds flying over a body of water <end>,<start> a group of birds flying over a body of water <end>
+COCO_val2014_000000017756.jpg,<start> a boat with a flag on it and a flag on the back <end>,<start> a boat filled with lots of items floating on top of a river <end>
+COCO_val2014_000000305821.jpg,<start> a giraffe is standing in the grass next to a tree <end>,<start> a herd of giraffe standing on top of a lush green field <end>
+COCO_val2014_000000459374.jpg,<start> a fire hydrant is spraying water onto a sidewalk <end>,<start> a fire hydrant with water spraying out of it <end>

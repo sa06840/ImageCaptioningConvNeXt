@@ -218,8 +218,10 @@ transformerMetricsNoTF = 'results/mscoco/20-07-2025(trainingNoTF-inferenceNoTF-n
 # plotBleu4Scores(lstmMetricsTF, transformerMetricsTF, lstmMetricsNoTF, transformerMetricsNoTF)
 
 # path = 'results/mscoco/01-08-2025(trainingTF-inferenceNoTF-Finetuning5-lr1e6-40epochs)/metrics-transformerDecoder(trainingTF-inferenceNoTF-Finetuning5-1e-06).csv'
-path = 'results/mscoco/12-08-2025(trainingTF-inferenceNoTF-Finetuning1-lr1e6-40epochs)/metrics-transformerDecoder(trainingTF-inferenceNoTF-Finetuning1-1e-06).csv'
-# print(get_best_bleu4_row(path))
+# path = 'results/mscoco/12-08-2025(trainingTF-inferenceNoTF-Finetuning1-lr1e6-40epochs)/metrics-transformerDecoder(trainingTF-inferenceNoTF-Finetuning1-1e-06).csv'
+# path = 'results/mscoco/01-08-2025(trainingTF-inferenceNoTF-Finetuning5-lr1e6-40epochs)/metrics-transformerAttDecoder(trainingTF-inferenceNoTF-Finetuning5-1e-06).csv'
+path = 'results/mscoco/24-07-2025(trainingTF-inferenceNoTF-Finetuning3-lr1e4)/metrics-transformerAttDecoder(trainingTF-inferenceNoTF-Finetuning3-0.0001).csv'
+print(get_best_bleu4_row(path))
 
 
 noFinetuned = 'results/mscoco/17-07-2025(trainingTF-inferenceNoTF-noFinetuning)/metrics-transformerDecoder(trainingTF-inferenceNoTF-noFinetuning).csv'
@@ -228,13 +230,13 @@ fineTuned2 = 'results/mscoco/28-07-2025(trainingTF-inferenceNoTF-Finetuning5-lr1
 fineTuned3 = 'results/mscoco/01-08-2025(trainingTF-inferenceNoTF-Finetuning5-lr1e6-40epochs)/metrics-transformerDecoder(trainingTF-inferenceNoTF-Finetuning5-1e-06).csv'
 fineTuned4 = 'results/mscoco/24-07-2025(trainingTF-inferenceNoTF-Finetuning3-lr1e4)/metrics-transformerDecoder(trainingTF-inferenceNoTF-Finetuning3).csv'
 fineTuned5 = 'results/mscoco/12-08-2025(trainingTF-inferenceNoTF-Finetuning1-lr1e6-40epochs)/metrics-transformerDecoder(trainingTF-inferenceNoTF-Finetuning1-1e-06).csv'
-plotFinetunedBleu4Scores(
-    noFinetuned,
-    fineTuned1,
-    fineTuned2,
-    fineTuned3,
-    fineTuned4,
-    fineTuned5,
-    title='BLEU-4 Score Comparison for Transformer Decoder with Finetuning ConvNeXt',
-    output_filename='graphs/bleuScoreComparisonFinetuning.png'
-)
+# plotFinetunedBleu4Scores(
+#     noFinetuned,
+#     fineTuned1,
+#     fineTuned2,
+#     fineTuned3,
+#     fineTuned4,
+#     fineTuned5,
+#     title='BLEU-4 Score Comparison for Transformer Decoder with Finetuning ConvNeXt',
+#     output_filename='graphs/bleuScoreComparisonFinetuning.png'
+# )

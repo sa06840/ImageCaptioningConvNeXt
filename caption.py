@@ -16,6 +16,7 @@ from models.decoder import DecoderWithAttention
 from models.lstmNoAttention import DecoderWithoutAttention
 from models.transformerDecoder import TransformerDecoder
 from models.transformerDecoderAttVis import TransformerDecoderForAttentionViz
+import csv
 
 device = torch.device("cpu")
 embDim = 512  # dimension of word embeddings
@@ -262,6 +263,7 @@ def caption_image_beam_search_transformer(encoder, decoder, imagePath, wordMap, 
     end_token_idx = wordMap['<end>']
 
     img = Image.open(imagePath).convert('RGB')
+    # img.save('/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/graphs/' + str(filename)) # Save the image being captioned
     img = img.resize((256, 256), Image.Resampling.BICUBIC) 
     img = np.array(img) 
     if len(img.shape) == 2: 
@@ -348,12 +350,13 @@ def caption_image_beam_search_transformer(encoder, decoder, imagePath, wordMap, 
     seq = completeSeqs[i]
     return seq, None
 
-def caption_image_beam_search_transformer_attention(encoder, decoder, imagePath, wordMap, beamSize=3, max_decode_len=51):
+def caption_image_beam_search_transformer_attention(encoder, decoder, imagePath, wordMap, filename, beamSize=3, max_decode_len=51):
     k = beamSize
     vocab_size = len(wordMap)
     end_token_idx = wordMap['<end>']
 
     img = Image.open(imagePath).convert('RGB')
+    # img.save('/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/graphs/' + str(filename))
     img = img.resize((256, 256), Image.Resampling.BICUBIC) 
     img = np.array(img) 
     if len(img.shape) == 2: 
@@ -486,25 +489,27 @@ def visualize_att(imagePath, seq, alphas, revWordMap, smooth=True, enc_image_siz
         if t > 50: # Limit displayed words to avoid too many plots
             break
         plt.subplot(num_rows, num_cols, t + 1)
-        plt.text(0, 1, '%s' % (words[t]), color='black', backgroundcolor='white', fontsize=12)
+        plt.text(0, 1.09, '%s' % (words[t]), color='black', backgroundcolor='white', fontsize=12, va='bottom', transform=plt.gca().transAxes)
         plt.imshow(image)
 
-        # currentAlpha = alphas[t, :] # Shape (num_pixels,)
-        # currentAlpha_2d = currentAlpha.reshape(enc_image_size, enc_image_size) 
-        # if smooth:
-        #     alpha = skimage.transform.pyramid_expand(currentAlpha_2d.numpy(), upscale=24, sigma=8)
-        # else:
-        #     alpha = skimage.transform.resize(currentAlpha_2d.numpy(), [enc_image_size * 24, enc_image_size * 24]) 
+        currentAlpha = alphas[t, :] # Shape (num_pixels,)
+        currentAlpha_2d = currentAlpha.reshape(enc_image_size, enc_image_size) 
+        if smooth:
+            alpha = skimage.transform.pyramid_expand(currentAlpha_2d.numpy(), upscale=24, sigma=8)
+        else:
+            alpha = skimage.transform.resize(currentAlpha_2d.numpy(), [enc_image_size * 24, enc_image_size * 24]) 
         
-        # if t == 0: 
-        #     plt.imshow(alpha, alpha=0) 
-        # else:
-        #     plt.imshow(alpha, alpha=0.8) 
+        if t == 0: 
+            plt.imshow(alpha, alpha=0) 
+        else:
+            plt.imshow(alpha, alpha=0.8) 
             
-        # plt.set_cmap(cm.Greys_r) 
+        plt.set_cmap(cm.Greys_r) 
 
         plt.axis('off') 
-        
+
+    plt.subplots_adjust(hspace=0.05)
+    plt.savefig('/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/graphs/attentionMaps/Transformertf-noFinetuning-img2.png', bbox_inches='tight', dpi=300)
     plt.show()
  
 def remap_transformer_decoder_keys(old_state_dict):
@@ -542,16 +547,29 @@ if __name__ == '__main__':
     # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/17-07-2025(lstmDecoder-trainingTF-inferenceNoTF-noFinetuning)/BEST_checkpoint_LSTM_coco_5_cap_per_img_5_min_word_freq.pth.tar'
     # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/01-09-2025(lstmNoAttDecoder-trainingTF-inferenceNoTF-noFinetuning)/BEST_checkpoint_LSTM_FinetuningNone_None_coco_5_cap_per_img_5_min_word_freq.pth.tar'
 
+    # training strategies
+    # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/20-07-2025(lstmDecoder-trainingNoTF-inferenceNoTF-noFinetuning)/BEST_checkpoint_LSTM_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/20-07-2025(transformerDecoder-trainingNoTF-inferenceNoTF-noFinetuning)/BEST_checkpoint_Transformer_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/17-07-2025(lstmDecoder-trainingTF-inferenceNoTF-noFinetuning)/BEST_checkpoint_LSTM_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/17-07-2025(transformerDecoder-trainingTF-inferenceNoTF-noFinetuning)/BEST_checkpoint_Transformer_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+
     # Transformer
     # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/17-07-2025(transformerDecoder-trainingTF-inferenceNoTF-noFinetuning)/BEST_checkpoint_Transformer_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/24-07-2025(transformerDecoder-trainingTF-inferenceNoTF-Finetuning5-lr1e4)/BEST_checkpoint_Transformer_Finetuning5_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/28-07-2025(transformerDecoder-trainingTF-inferenceNoTF-Finetuning5-lr1e5-40epochs)/BEST_checkpoint_Transformer_Finetuning5_1e-05_coco_5_cap_per_img_5_min_word_freq.pth.tar'
     # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/01-08-2025(transformerDecoder-trainingTF-inferenceNoTF-Finetuning5-lr1e6-40epochs)/BEST_checkpoint_Transformer_Finetuning5_1e-06_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/24-07-2025(transformerDecoder-trainingTF-inferenceNoTF-Finetuning3-lr1e4)/BEST_checkpoint_Transformer_Finetuning3_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/12-08-2025(transformerDecoder-trainingTF-inferenceNoTF-Finetuning1-lr1e6-40epochs)/BEST_checkpoint_Transformer_Finetuning1_1e-06_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+
     # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/04-09-2025(transformerAttDecoder-trainingTF-inferenceNoTF-noFinetuning)/BEST_checkpoint_TransformerAtt_FinetuningNone_None_coco_5_cap_per_img_5_min_word_freq.pth.tar'
     # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/03-09-2025(transformerAttDecoder-trainingTF-inferenceNoTF-Finetuning5-lr1e4)/BEST_checkpoint_TransformerAtt_Finetuning5_0.0001_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/03-09-2025(transformerAttDecoder-trainingTF-inferenceNoTF-Finetuning3-lr1e4)/BEST_checkpoint_TransformerAtt_Finetuning3_0.0001_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/10-09-2025(transformerAttDecoder-trainingTF-inferenceNoTF-Finetuning5-lr1e6)/BEST_checkpoint_TransformerAtt_Finetuning5_1e-06_coco_5_cap_per_img_5_min_word_freq.pth.tar'
 
     # word embeddings
     # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/01-08-2025(transformerDecoder-trainingTF-inferenceNoTF-Finetuning5-lr1e6-40epochs)/BEST_checkpoint_Transformer_Finetuning5_1e-06_coco_5_cap_per_img_5_min_word_freq.pth.tar'
     # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/31-08-2025(transformerDecoder-trainingTF-Finetuning5-lr1e6-40epochs-wordEmbeddings)/BEST_checkpoint_Transformer_Finetuning5_1e-06_word2vec-google-news-300_coco_5_cap_per_img_5_min_word_freq.pth.tar'
-    model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/31-08-2025(transformerDecoder-trainingTF-Finetuning5-lr1e6-40epochs-wordEmbeddings)/BEST_checkpoint_Transformer_Finetuning5_1e-06_glove-wiki-gigaword-200_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/31-08-2025(transformerDecoder-trainingTF-Finetuning5-lr1e6-40epochs-wordEmbeddings)/BEST_checkpoint_Transformer_Finetuning5_1e-06_glove-wiki-gigaword-200_coco_5_cap_per_img_5_min_word_freq.pth.tar'
 
 
     word_map = 'cocoDataset/inputFiles/WORDMAP_coco_5_cap_per_img_5_min_word_freq.json'
@@ -571,15 +589,15 @@ if __name__ == '__main__':
         # decoder = DecoderWithoutAttention(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
         decoder.load_state_dict(checkpoint['decoder']) 
     else: 
-        # decoder = TransformerDecoderForAttentionViz(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device) 
-        # remapped_decoder_state_dict = remap_transformer_decoder_keys(checkpoint['decoder'])
-        # decoder.load_state_dict(remapped_decoder_state_dict)
+        decoder = TransformerDecoderForAttentionViz(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device) 
+        remapped_decoder_state_dict = remap_transformer_decoder_keys(checkpoint['decoder'])
+        decoder.load_state_dict(remapped_decoder_state_dict)
 
-        decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device,
-                                    wordMap=None, pretrained_embeddings_path=None, fine_tune_embeddings=None)
-        # decoder = TransformerDecoder(embed_dim=300, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device,
-        #                             wordMap=None, pretrained_embeddings_path='wordEmbeddings/word2vec-google-news-300.gz', fine_tune_embeddings=None)
-        decoder.load_state_dict(checkpoint['decoder']) 
+        # decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device,
+        #                             wordMap=None, pretrained_embeddings_path=None, fine_tune_embeddings=None)
+        # decoder = TransformerDecoder(embed_dim=200, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device,
+        #                             wordMap=None, pretrained_embeddings_path='wordEmbeddings/glove-wiki-gigaword-200.gz', fine_tune_embeddings=None)
+        # decoder.load_state_dict(checkpoint['decoder']) 
 
     decoder = decoder.to(device)
     encoder = encoder.to(device)
@@ -587,13 +605,47 @@ if __name__ == '__main__':
     encoder.eval()
 
     revWordMap = {v: k for k, v in wordMap.items()}
+    # results_list = []
+
+    # with open('/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/cocoDataset/caption_datasets/dataset_coco.json', 'r') as f:
+    #     data = json.load(f)
+    # test_images = [img for img in data['images'] if img['split'] == 'test']
+    # selected_images = test_images[20:31]  # You can change this number
+    # for img_data in selected_images:
+    #     filename = img_data['filename']
+    #     img = os.path.join('/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/cocoDataset/trainval2014/val2014', filename)
+
     if lstmDecoder is True:
         seq, alphas = caption_image_beam_search(encoder, decoder, img, wordMap, beamSize)
         # seq, alphas = caption_image_beam_search_noAtt(encoder, decoder, img, wordMap, beamSize)
     else:
-        seq, alphas = caption_image_beam_search_transformer(encoder, decoder, img, wordMap, beamSize, max_decode_len=51)
-        # seq, alphas = caption_image_beam_search_transformer_attention(encoder, decoder, img, wordMap, beamSize, max_decode_len=51)
+        # seq, alphas = caption_image_beam_search_transformer(encoder, decoder, img, wordMap, beamSize, max_decode_len=51)
+        seq, alphas = caption_image_beam_search_transformer_attention(encoder, decoder, img, wordMap, beamSize, max_decode_len=51)
 
-    # alphas = torch.FloatTensor(alphas)
+        # greedySeq, alphas = caption_image_beam_search_transformer(encoder, decoder, img, wordMap, filename, 1, max_decode_len=51)
+        # beamSeq, alphas = caption_image_beam_search_transformer(encoder, decoder, img, wordMap, filename, 5, max_decode_len=51)
+        # greedySeq, alphas = caption_image_beam_search_transformer_attention(encoder, decoder, img, wordMap, filename, 1, max_decode_len=51)
+        # beamSeq, alphas = caption_image_beam_search_transformer_attention(encoder, decoder, img, wordMap, filename, 5, max_decode_len=51)
+
+        # greedyWords = [revWordMap[ind] for ind in greedySeq]
+        # greedyCaption = ' '.join(greedyWords)
+        # beamWords = [revWordMap[ind] for ind in beamSeq]
+        # beamCaption = ' '.join(beamWords)
+        
+        # results_list.append({
+        #     'filename': filename,
+        #     'greedy_caption': greedyCaption,
+        #     'beam_caption': beamCaption
+        # })
+
+    alphas = torch.FloatTensor(alphas)
     visualize_att(img, seq, alphas, revWordMap, smooth)
+
+    # if results_list:
+    #     with open('/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/results/captions.csv', 'w', newline='') as csvfile:
+    #         fieldnames = ['filename', 'greedy_caption', 'beam_caption']
+    #         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    #         writer.writeheader()
+    #         writer.writerows(results_list)
+
 
