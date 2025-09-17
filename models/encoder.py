@@ -1,50 +1,35 @@
 import torch
 from torch import nn
 import torchvision
-from torchvision.models import ConvNeXt_Base_Weights, ConvNeXt_Tiny_Weights, ConvNeXt_Small_Weights, ConvNeXt_Large_Weights
+from torchvision.models import ConvNeXt_Base_Weights
 import torch.nn.functional as F
 
+# This ConvNeXt based encoder class is adapted from the codebase of the original study (Ramos et al., 2024).
+# Link to their GitHub repository: https://github.com/Leo-Thomas/ConvNeXt-for-Image-Captioning/tree/main
+# The original study (Ramos et al., 2024) seem to have adapted their code from another repository (Vinodababu, 2019) 
+# which is a popular open source implementation of the 'Show, Attend and Tell' paper (Xu et al., 2015).
+# Link to the (Vinodababu, 2019) repository: https://github.com/sgrvinod/a-PyTorch-Tutorial-to-Image-Captioning
 
-# device = torch.device("cuda")
 
 class Encoder(nn.Module):
     def __init__(self, encoded_image_size=7):
         super(Encoder, self).__init__()
-        self.enc_image_size = encoded_image_size  #Be aware about encode dim
-        # convnext = torchvision.models.convnext_small(weights=ConvNeXt_Small_Weights.IMAGENET1K_V1)
+        self.enc_image_size = encoded_image_size
         convnext = torchvision.models.convnext_base(weights=ConvNeXt_Base_Weights.IMAGENET1K_V1)
-        # Remove linear and pool layers (since we're not doing classification)
         self.convnext = convnext.features
-        # Resize image to fixed size to allow input images of variable size
         self.adaptive_pool = nn.AdaptiveAvgPool2d((encoded_image_size, encoded_image_size))
         self.fine_tune()
 
     def forward(self, images):
-        """
-        Forward propagation.
-        :param images: images, a tensor of dimensions (batch_size, 3, image_size, image_size)
-        :return: encoded images
-        """
         out = self.convnext(images)  # (batch_size, 768, image_size/32, image_size/32)
-        # _, _, h, w = out.shape
-        # pad_h = (self.enc_image_size - h % self.enc_image_size) % self.enc_image_size
-        # pad_w = (self.enc_image_size - w % self.enc_image_size) % self.enc_image_size
-        # # Apply padding
-        # out = F.pad(out, (0, pad_w, 0, pad_h))  # Pad the height and width
         out = self.adaptive_pool(out)  # (batch_size, 768, encoded_image_size, encoded_image_size)
         out = out.permute(0, 2, 3, 1)  # (batch_size, encoded_image_size, encoded_image_size, 768)
         return out
     
-    def fine_tune(self, fine_tune=True, startingLayer=7):
-        """
-        Allow or prevent the computation of gradients for convolutional blocks 2 through 4 of the encoder.
-        :param fine_tune: Allow?
-        """
-        for p in self.convnext.parameters():
+    def fine_tune(self, fine_tune=True, startingLayer=7):   # A starting layer parameter is added to allow fine-tuning
+        for p in self.convnext.parameters():                # from specific layers in this stidy
             p.requires_grad = False
-        # If fine-tuning, only fine-tune convolutional blocks 2 through 5
         for c in list(self.convnext.children())[startingLayer:]:
             for p in c.parameters():
                 p.requires_grad = fine_tune
-
 

@@ -4,22 +4,14 @@ import torchvision
 from torchvision.models import ConvNeXt_Base_Weights
 import torch.nn.functional as F
 
+# This LSTM without Attention based decoder class is a replication of the DecoderWithAttention class in decoder.py
+# with the attention mechanism removed which is explored in this study as a baseline.
+# The citations in decoder.py also apply to this class.
 
-# device = torch.device("cuda")
+
 
 class DecoderWithoutAttention(nn.Module):
-    """
-    Decoder.
-    """
     def __init__(self, embed_dim, decoder_dim, vocab_size, device, encoder_dim=1024, dropout=0.5):
-        """
-        :param attention_dim: size of attention network
-        :param embed_dim: embedding size
-        :param decoder_dim: size of decoder's RNN
-        :param vocab_size: size of vocabulary
-        :param encoder_dim: feature size of encoded images
-        :param dropout: dropout
-        """
         super(DecoderWithoutAttention, self).__init__()
 
         self.encoder_dim = encoder_dim
@@ -44,21 +36,6 @@ class DecoderWithoutAttention(nn.Module):
         self.embedding.weight.data.uniform_(-0.1, 0.1)
         self.fc.bias.data.fill_(0)
         self.fc.weight.data.uniform_(-0.1, 0.1)
-
-    def load_pretrained_embeddings(self, embeddings):
-        """
-        Loads embedding layer with pre-trained embeddings.
-        :param embeddings: pre-trained embeddings
-        """
-        self.embedding.weight = nn.Parameter(embeddings)
-
-    def fine_tune_embeddings(self, fine_tune=True):
-        """
-        Allow fine-tuning of embedding layer? (Only makes sense to not-allow if using pre-trained embeddings).
-        :param fine_tune: Allow?
-        """
-        for p in self.embedding.parameters():
-            p.requires_grad = fine_tune
 
     def init_hidden_state(self, encoder_out):
         """
@@ -98,9 +75,6 @@ class DecoderWithoutAttention(nn.Module):
         # Create tensors to hold word predicion scores and alphas
         predictions = torch.zeros(batch_size, max(decode_lengths), vocab_size).to(self.device)
 
-        # At each time-step, decode by
-        # attention-weighing the encoder's output based on the decoder's previous hidden state output
-        # then generate a new word in the decoder with the previous word and the attention weighted encoding
         for t in range(max(decode_lengths)):
             batch_size_t = sum([l > t for l in decode_lengths])
             h, c = self.decode_step(
@@ -111,9 +85,9 @@ class DecoderWithoutAttention(nn.Module):
 
         return predictions, encoded_captions, decode_lengths, sort_ind
 
-    def forwardWithoutTeacherForcing(self, encoder_out, wordMap, maxDecodeLen):
-        batch_size = encoder_out.size(0)
-        encoder_dim = encoder_out.size(-1)
+    def forwardWithoutTeacherForcing(self, encoder_out, wordMap, maxDecodeLen):   # This method adapts the forward with teacher forcing method
+        batch_size = encoder_out.size(0)                                          # from (Vinodababu, 2019) to implement forward without 
+        encoder_dim = encoder_out.size(-1)                                        # teacher forcing. This is a contribution of my study.
         vocab_size = self.vocab_size
 
         encoder_out = encoder_out.view(batch_size, -1, encoder_dim)  # (batch_size, num_pixels, encoder_dim)
@@ -144,21 +118,14 @@ class DecoderWithoutAttention(nn.Module):
             
             predicted_ids = preds.argmax(dim=1)  # (active_batch_size) # Greedy prediction: choose the word with the highest probability
             sequences[active_indices, t] = predicted_ids   # stores the generated captions in the form of indices
-            finished[active_indices] |= predicted_ids == end_token_idx    # Update finished flags: mark sequences that predicted the <end> token
-            inputs[active_indices] = self.embedding(predicted_ids)   #  # Prepare inputs for the next step: embed the newly predicted IDs
+            finished[active_indices] |= predicted_ids == end_token_idx    # Update finished flags
+            inputs[active_indices] = self.embedding(predicted_ids)   #  # Prepare inputs for the next step
             h[active_indices] = h_new    # Update hidden and cell states for active sequences
             c[active_indices] = c_new
 
         return predictions, sequences
 
     def forward(self, teacherForcing, encoder_out, encoded_captions=None, caption_lengths=None, wordMap=None, maxDecodeLen=None):
-        """
-        Forward propagation.
-        :param encoder_out: encoded images, a tensor of dimension (batch_size, enc_image_size, enc_image_size, encoder_dim)
-        :param encoded_captions: encoded captions, a tensor of dimension (batch_size, max_caption_length)
-        :param caption_lengths: caption lengths, a tensor of dimension (batch_size, 1)
-        :return: scores for vocabulary, sorted encoded captions, decode lengths, weights, sort indices
-        """
         if teacherForcing is True:
             predictions, encoded_captions, decode_lengths, sort_ind = self.forwardWithTeacherForcing(encoder_out, encoded_captions, caption_lengths)
             return predictions, encoded_captions, decode_lengths, sort_ind
