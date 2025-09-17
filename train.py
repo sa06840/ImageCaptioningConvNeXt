@@ -36,7 +36,6 @@ from models.encoder import Encoder
 from models.decoder import DecoderWithAttention
 from models.lstmNoAttention import DecoderWithoutAttention
 from models.transformerDecoder import TransformerDecoder
-from models.transformerDecoderHF import HFTransformerDecoder
 from dataLoader import CaptionDataset
 from utils.utils import *
 import argparse

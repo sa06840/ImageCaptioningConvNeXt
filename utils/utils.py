@@ -10,6 +10,15 @@ from collections import Counter
 from random import seed, choice, sample
 
 
+# The helper functions create_input_files, AverageMeter, clip_gradient, save_checkpoint,
+# adjust_learning_rate and accuracy are adapted from the codebase of the original study (Ramos et al., 2024).
+# Link to their GitHub repository: https://github.com/Leo-Thomas/ConvNeXt-for-Image-Captioning/tree/main
+# The original study (Ramos et al., 2024) seem to have adapted their code from another repository (Vinodababu, 2019)
+# which is a popular open source implementation of the 'Show, Attend and Tell' paper (Xu et al., 2015).
+# Link to the (Vinodababu, 2019) repository: https://github.com/sgrvinod/a-PyTorch-Tutorial-to-Image-Captioning
+# The save_checkpoint function is modified to include parameters relevant to my study.
+# The accuracy function is modified to support multi-GPU training in my study.
+
 def create_input_files(dataset, karpathy_json_path, image_folder, captions_per_image, min_word_freq, output_folder,
                        max_len=100):
     """
@@ -209,8 +218,8 @@ def save_checkpoint(dataName, epoch, epochsSinceImprovement, encoderSaved, decod
     if lstmDecoder is True:
         filename = 'checkpoint_LSTM_Finetuning' + str(startingLayer) + '_' + str(encoderLr) + '_' + dataName + '.pth.tar'
     else:
-        # filename = 'checkpoint_Transformer_Finetuning' + str(startingLayer) + '_' + str(encoderLr) + '_' + pretrainedEmbeddingsName + '_' + dataName + '.pth.tar'
-        filename = 'checkpoint_TransformerAtt_Finetuning' + str(startingLayer) + '_' + str(encoderLr) + '_' + dataName + '.pth.tar'
+        filename = 'checkpoint_Transformer_Finetuning' + str(startingLayer) + '_' + str(encoderLr) + '_' + pretrainedEmbeddingsName + '_' + dataName + '.pth.tar'
+        # filename = 'checkpoint_TransformerAtt_Finetuning' + str(startingLayer) + '_' + str(encoderLr) + '_' + dataName + '.pth.tar'
     torch.save(state, filename)
     # If this checkpoint is the best so far, store a copy so it doesn't get overwritten by a worse checkpoint
     if isBest:
@@ -248,6 +257,10 @@ def accuracy(scores, targets, k, gpu):
         return correct_total.item() * (100.0 / batch_size)
 
 
+# The preprocessDecoderOutputForMetrics is contribution of my study. It is used the align the predicted logits,
+# generated sequences and ground truth captions in the case of forward without teacher forcing to compute the 
+# evaluation metrics.
+
 def preprocessDecoderOutputForMetrics(predictions, sequences, encodedCaptions, end_token_idx, pad_token_idx, maxDecodeLen):
     batchSize = predictions.size(0)
     allFilteredPredictedLogitsList = []
@@ -278,9 +291,6 @@ def preprocessDecoderOutputForMetrics(predictions, sequences, encodedCaptions, e
         allFilteredPredictedLogitsList.append(predictedLogitsFiltered)
         allFilteredTargetIdsList.append(groundTruthIdsFiltered)
         totalValidTokenCount += numValidTokensInSequence
-
-    if totalValidTokenCount == 0:    # Handle case where no valid tokens across the whole batch
-        return torch.empty(0, predictions.size(-1), device=predictions.device), torch.empty(0, dtype=torch.long, device=predictions.device), 0
 
     # Concatenate all filtered tensors to get the final flattened output
     finalFilteredPredictedLogits = torch.cat(allFilteredPredictedLogitsList, dim=0) # (N_total_valid, vocab_size)

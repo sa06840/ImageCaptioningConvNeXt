@@ -168,8 +168,6 @@ def setup_distributed():
 def main():
 
     rank, local_rank, world_size, device = setup_distributed()
-    # g = torch.Generator()
-    # g.manual_seed(42 + rank)
     global bestBleu4, epochsSinceImprovement, checkpoint, startEpoch, fineTuneEncoder, dataName, wordMap
 
     # Load word map
@@ -181,9 +179,9 @@ def main():
         if lstmDecoder is True:
             decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
         else:
-            # decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device,
-            #                             wordMap=wordMap, pretrained_embeddings_path=pretrainedEmbeddingsPath, fine_tune_embeddings=True)
-            decoder = TransformerDecoderForAttentionViz(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device)
+            decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device,
+                                        wordMap=wordMap, pretrained_embeddings_path=pretrainedEmbeddingsPath, fine_tune_embeddings=True)
+            # decoder = TransformerDecoderForAttentionViz(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device)
         decoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, decoder.parameters()), lr=decoderLr)
         encoder = Encoder()
         encoder.fine_tune(fine_tune=False)
@@ -196,9 +194,9 @@ def main():
         if lstmDecoder is True:
             decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
         else:
-            # decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device,
-            #                             wordMap=wordMap, pretrained_embeddings_path=pretrainedEmbeddingsPath, fine_tune_embeddings=True)
-            decoder = TransformerDecoderForAttentionViz(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device)
+            decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device,
+                                        wordMap=wordMap, pretrained_embeddings_path=pretrainedEmbeddingsPath, fine_tune_embeddings=True)
+            # decoder = TransformerDecoderForAttentionViz(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device)
         decoderOptimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, decoder.parameters()), lr=decoderLr)
         encoder = Encoder()
         checkpoint = torch.load(checkpoint, map_location=device, weights_only=False)
@@ -326,9 +324,9 @@ def main():
         resultsDF = pd.DataFrame(results)
         os.makedirs('results', exist_ok=True)
         if lstmDecoder is True:
-            resultsDF.to_csv(f'results/metrics-lstmDecoder(trainingTF-inferenceNoTF-Finetuning{startingLayer}-{encoderLr}).csv', index=False)
+            resultsDF.to_csv(f'results/metrics-lstmDecoder(trainingTF-inferenceNoTF-Finetuning{startingLayer}-{encoderLr}-{pretrainedEmbeddingsName}).csv', index=False)
         else: 
-            resultsDF.to_csv(f'results/metrics-transformerAttDecoder(trainingTF-inferenceNoTF-Finetuning{startingLayer}-{encoderLr}).csv', index=False)
+            resultsDF.to_csv(f'results/metrics-transformerAttDecoder(trainingTF-inferenceNoTF-Finetuning{startingLayer}-{encoderLr}-{pretrainedEmbeddingsName}).csv', index=False)
 
 
 
@@ -368,14 +366,14 @@ def trainWithTeacherForcing(trainDataLoader, encoder, decoder, criterion, encode
             loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
         else: 
             tgt_key_padding_mask = (caps == wordMap['<pad>'])
-            # scores, capsSorted, decodeLengths = decoder(teacherForcing=True, encoder_out=imgs, encoded_captions=caps, caption_lengths=caplens, tgt_key_padding_mask=tgt_key_padding_mask)
-            scores, capsSorted, decodeLengths, alphas = decoder(teacherForcing=True, encoder_out=imgs, encoded_captions=caps, caption_lengths=caplens, tgt_key_padding_mask=tgt_key_padding_mask)
+            scores, capsSorted, decodeLengths = decoder(teacherForcing=True, encoder_out=imgs, encoded_captions=caps, caption_lengths=caplens, tgt_key_padding_mask=tgt_key_padding_mask)
+            # scores, capsSorted, decodeLengths, alphas = decoder(teacherForcing=True, encoder_out=imgs, encoded_captions=caps, caption_lengths=caplens, tgt_key_padding_mask=tgt_key_padding_mask)
             targets = capsSorted[:, 1:]  # still in the form of indices
             scores = pack_padded_sequence(scores, decodeLengths, batch_first=True, enforce_sorted=False).data  # scores are logits
             targets = pack_padded_sequence(targets, decodeLengths, batch_first=True, enforce_sorted=False).data
             loss = criterion(scores, targets)
             # Add doubly stochastic attention regularization
-            loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
+            # loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
 
         if encoderOptimizer is not None:
             encoderOptimizer.zero_grad()
@@ -450,11 +448,11 @@ def trainWithoutTeacherForcing(trainDataLoader, encoder, decoder, criterion, enc
             loss = criterion(scoresUpdated, targetsUpdated)
             loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
         else: 
-            # scores, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
-            scores, sequences, alphas = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
+            scores, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
+            # scores, sequences, alphas = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
             scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, caps, wordMap['<end>'], wordMap['<pad>'], 51)
             loss = criterion(scoresUpdated, targetsUpdated)
-            loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
+            # loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
 
         if encoderOptimizer is not None:
             encoderOptimizer.zero_grad()
@@ -536,11 +534,11 @@ def validate(valDataLoader, encoder, decoder, criterion, device, world_size):
                 # Add doubly stochastic attention regularization
                 loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
             else: 
-                # scores, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
-                scores, sequences, alphas = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
+                scores, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
+                # scores, sequences, alphas = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
                 scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, caps, wordMap['<end>'], wordMap['<pad>'], 51)
                 loss = criterion(scoresUpdated, targetsUpdated)
-                loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
+                # loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
 
 
             globalLoss, totalTokens = reduceLossAndTokens(loss, totalTokensEvaluated, device)

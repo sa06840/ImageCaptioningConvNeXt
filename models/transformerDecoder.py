@@ -2,11 +2,14 @@ import torch.nn as nn
 import math
 import torch
 import gensim.downloader as api
+from gensim.models import KeyedVectors
 import numpy as np
 import gzip
 
 
-# device = torch.device("cuda")
+# The PositionalEncoding class is adapted from a Datacamp tutorial on how to build a Transformer
+# using PyTorch (Sarkar, 2025).
+# Link to tutorial: https://www.datacamp.com/tutorial/building-a-transformer-with-py-torch
 
 class PositionalEncoding(nn.Module):
     def __init__(self, embed_dim, maxLen):
@@ -24,34 +27,25 @@ class PositionalEncoding(nn.Module):
         x = x + self.pe[:, :x.size(1)]
         return x
 
-def loadPretrainedWordEmbeddings(word_map, pretrained_embeddings_path, embed_dim):
-    new_embedding_matrix = np.zeros((len(word_map), embed_dim))
-    if '<unk>' in word_map:
-        pass
-    
-    pretrained_embeddings = {}
-    with gzip.open(pretrained_embeddings_path, 'rt', encoding='utf-8', errors='ignore') as f:
-        try:
-            first_line = next(f)
-            if len(first_line.split()) == 2: # Check for the common header format of (vocab_size, embed_dim)
-                pass # This is a header, so continue to the next line
-            else:
-                f.seek(0) # Not a header, so go back to the start of the file
-        except StopIteration:
-            f.seek(0) # Handle empty file
+def loadPretrainedWordEmbeddings(wordMap, pretrained_embeddings_path, embed_dim):
+    newEmbeddingMatrix = np.zeros((len(wordMap), embed_dim))
+    if pretrained_embeddings_path == 'wordEmbeddings/word2vec-google-news-300.gz':
+        # This line is adapted from a GeeksForGeeks tutorial (GeeksforGeeks, 2025).
+        # Link to tutorial: https://www.geeksforgeeks.org/nlp/pre-trained-word-embedding-in-nlp/
+        pretrainedEmbeddings = KeyedVectors.load_word2vec_format(pretrained_embeddings_path, binary=True) 
+    else:
+        pretrainedEmbeddings = KeyedVectors.load_word2vec_format(pretrained_embeddings_path, binary=False)
 
-        for line in f:
-            line_parts = line.strip().split()
-            word = line_parts[0]
-            if len(line_parts) == embed_dim + 1: # Ensure a valid vector
-                vector = np.array(line_parts[1:], dtype='float32')
-                pretrained_embeddings[word] = vector
-            
-    for word, idx in word_map.items():
-        if word in pretrained_embeddings:
-            new_embedding_matrix[idx] = pretrained_embeddings[word]
+    for word, idx in wordMap.items():
+        if word in pretrainedEmbeddings:
+            newEmbeddingMatrix[idx] = pretrainedEmbeddings[word]
     
-    return torch.tensor(new_embedding_matrix, dtype=torch.float)
+    return torch.tensor(newEmbeddingMatrix, dtype=torch.float)
+
+
+# The TransformerDecoder class is a contribution of this study. The Datacamp tutorial (Sarkar, 2025) 
+# was used to understand the general structure of the transformer deocder whereas the TransformerDecoderLayer
+# and TransformerDecoder classes from the PyTorch documentation were used to implement this class. 
 
 class TransformerDecoder(nn.Module):
     def __init__(self, embed_dim, decoder_dim, vocab_size, maxLen, device, wordMap, pretrained_embeddings_path, fine_tune_embeddings,
@@ -71,9 +65,7 @@ class TransformerDecoder(nn.Module):
         if pretrained_embeddings_path and wordMap:
             pre_trained_embeddings_tensor = loadPretrainedWordEmbeddings(wordMap, pretrained_embeddings_path, embed_dim)
             if pre_trained_embeddings_tensor.shape[1] != embed_dim:
-                print(f"Error: Dimension mismatch for pre-trained embeddings. "
-                      f"Found dimension {pre_trained_embeddings_tensor.shape[1]}, "
-                      f"expected {embed_dim}. Falling back to random initialization.")
+                print('Dimension mismatch for pre-trained embeddings')
                 self.embedding = nn.Embedding(vocab_size, embed_dim)
             else:
                 self.embedding = nn.Embedding.from_pretrained(pre_trained_embeddings_tensor, freeze=not fine_tune_embeddings, padding_idx=wordMap.get('<pad>'))
@@ -82,15 +74,11 @@ class TransformerDecoder(nn.Module):
             print("Initializing embeddings randomly.")
             self.embedding = nn.Embedding(vocab_size, embed_dim)
         
-        # 2. Positional encoding
         self.pos_encoding = PositionalEncoding(embed_dim, maxLen)
-        # 3. Transformer decoder
         self.dropout = nn.Dropout(p=self.dropout)
         decoder_layer = nn.TransformerDecoderLayer(d_model=embed_dim, nhead=num_heads, dim_feedforward=decoder_dim, dropout=dropout)
         self.transformer_decoder = nn.TransformerDecoder(decoder_layer, num_layers=num_layers)
-        # 4. Linear projection to vocab
         self.fc_out = nn.Linear(embed_dim, vocab_size)
-        # 5. Optional projection for encoder output
         self.encoder_proj = nn.Linear(encoder_dim, embed_dim) if encoder_dim != embed_dim else nn.Identity()
         self.device = device
 

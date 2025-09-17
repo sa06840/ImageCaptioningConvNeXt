@@ -5,6 +5,11 @@ from typing import Optional, Tuple
 import torch.nn.functional as F 
 
 
+
+# The PositionalEncoding class is adapted from a Datacamp tutorial on how to build a Transformer
+# using PyTorch (Sarkar, 2025).
+# Link to tutorial: https://www.datacamp.com/tutorial/building-a-transformer-with-py-torch
+
 class PositionalEncoding(nn.Module):
     def __init__(self, embed_dim, maxLen):
         super(PositionalEncoding, self).__init__()
@@ -15,16 +20,23 @@ class PositionalEncoding(nn.Module):
         pe[:, 1::2] = torch.cos(position * div_term)
         pe = pe.unsqueeze(0)  # shape (1, max_len, embed_dim)
         self.register_buffer('pe', pe)
+
     def forward(self, x):
         x = x + self.pe[:, :x.size(1)]
         return x
     
+# Helper func for CustomTransformerDecoderLayer taken PyTorch's Transformer's official GitHub repository.
+def _get_activation_fn(activation): 
+    if activation == "relu": 
+        return F.relu
+    elif activation == "gelu": 
+        return F.gelu
 
-def _get_activation_fn(activation): # Helper func for CustomTransformerDecoderLayer
-    if activation == "relu": return F.relu
-    elif activation == "gelu": return F.gelu
-    raise RuntimeError(f"activation should be relu/gelu, not {activation}")
-
+# The CustomTransformerDecoderLayer class is adapted from PyTorch's Transformer's official GitHub repository
+# linked to its TransformerDecoderLayer documentation section. 
+# Link to the GitHub repository: https://github.com/pytorch/pytorch/blob/v2.8.0/torch/nn/modules/transformer.py#L966
+# The forward function is modified to support capturing self-attention and cross-attention weights which are returned
+# for each layer.
 
 class CustomTransformerDecoderLayer(nn.Module):
     __constants__ = ['batch_first', 'norm_first']
@@ -51,22 +63,44 @@ class CustomTransformerDecoderLayer(nn.Module):
     def forward(self, tgt, memory= None, tgt_mask= None, memory_mask = None, tgt_key_padding_mask= None, memory_key_padding_mask= None, is_causal= False, output_attentions = False):
         x = tgt; 
         attn_weights_sa = None
-        _self_attn_input = self.norm1(x) if self.norm_first else x
+        if self.norm_first:
+            _self_attn_input = self.norm1(x)
+        else:
+            _self_attn_input = x
         _self_attn_output, attn_weights_sa = self.self_attn(_self_attn_input, _self_attn_input, _self_attn_input, attn_mask=tgt_mask, key_padding_mask=tgt_key_padding_mask, is_causal=is_causal, need_weights=output_attentions, average_attn_weights=False)
         x = x + self.dropout1(_self_attn_output)
-        if not self.norm_first: x = self.norm1(x)
+        if not self.norm_first: 
+            x = self.norm1(x)
+
         attn_weights_ca = None
         if memory is not None:
-            _cross_attn_input = self.norm2(x) if self.norm_first else x
+            if  self.norm_first:
+                _cross_attn_input = self.norm2(x)
+            else:
+                _cross_attn_input = x
             _cross_attn_output, attn_weights_ca = self.multihead_attn(_cross_attn_input, memory, memory, attn_mask=memory_mask, key_padding_mask=memory_key_padding_mask, need_weights=output_attentions, average_attn_weights=False)
             x = x + self.dropout2(_cross_attn_output)
-            if not self.norm_first: x = self.norm2(x)
-        _ffn_input = self.norm3(x) if self.norm_first else x
+            if not self.norm_first: 
+                x = self.norm2(x)
+
+        if self.norm_first:
+            _ffn_input = self.norm3(x)
+        else:
+            _ffn_input = x
         _ffn_output = self.linear2(self.dropout_ffn(self.activation(self.linear1(_ffn_input))))
         x = x + self.dropout3(_ffn_output)
-        if not self.norm_first: x = self.norm3(x)
+        if not self.norm_first: 
+            x = self.norm3(x)
+
         return x, attn_weights_sa, attn_weights_ca
-    
+
+
+# The TransformerDecoderForAttentionViz class is a contribution of this study. It is adapted from the  
+# TransformerDecoder class defined in transformerDecoder.py however, PyTorch's default TransformerDecoderLayer
+# is replaced by the CustomerTransformerDecoderLayer defined above to incorporate getting the self-attention and
+# cross-attention weights from each decoder layer. The general structure is understood from the Datacamp tutorial (
+# Sarkar, 2025) whereas PyTorch's Transformer's official GitHub repository linked to its TransformerDecoderLayer 
+# documentation section is used for implementing the CustomerTransformerDecoderLayer.
 
 class TransformerDecoderForAttentionViz(nn.Module): 
     def __init__(self, embed_dim, decoder_dim, vocab_size, maxLen, device, dropout=0.5, encoder_dim=1024, num_heads=8, num_layers=6):
