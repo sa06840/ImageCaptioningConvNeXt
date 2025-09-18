@@ -44,8 +44,12 @@ def loadPretrainedWordEmbeddings(wordMap, pretrained_embeddings_path, embed_dim)
 
 
 # The TransformerDecoder class is a contribution of this study. The Datacamp tutorial (Sarkar, 2025) 
-# was used to understand the general structure of the transformer deocder whereas the TransformerDecoderLayer
+# was used to understand the general structure of the transformer decoder whereas the TransformerDecoderLayer
 # and TransformerDecoder classes from the PyTorch documentation were used to implement this class. 
+# 1. PyTorch. TransformerDecoderLayer - PyTorch 2.8 documentation. 
+# Available at: https://docs.pytorch.org/docs/stable/generated/torch.nn.TransformerDecoderLayer.html 
+# 2. PyTorch. TransformerDecoder - PyTorch 2.8 documentation. 
+# Available at: https://docs.pytorch.org/docs/stable/generated/torch.nn.TransformerDecoder.html 
 
 class TransformerDecoder(nn.Module):
     def __init__(self, embed_dim, decoder_dim, vocab_size, maxLen, device, wordMap, pretrained_embeddings_path, fine_tune_embeddings,

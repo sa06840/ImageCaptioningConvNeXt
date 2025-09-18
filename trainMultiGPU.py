@@ -165,7 +165,7 @@ def setup_distributed():
 # required to setup multi-GPU using DPP along with sample code is referenced from the following sources:
 # 1. PyTorch. DistributedDataParallel - PyTorch 2.8 documentation. 
 # Available at: https://docs.pytorch.org/docs/stable/generated/torch.nn.parallel.DistributedDataParallel.html  
-# 2. namespace-Pt (2021) A comprehensive tutorial to pytorch distributeddataparallel, Medium. 
+# 2. namespace-Pt (2021) A Comprehensive Tutorial to Pytorch DistributedDataParallel, Medium. 
 # Available at: https://medium.com/codex/a-comprehensive-tutorial-to-pytorch-distributeddataparallel-1f4b42bb1b51 
 # 3. PyTorch (2017) Distributed communication package - torch.distributed - PyTorch 2.8 documentation. 
 # Available at: https://docs.pytorch.org/docs/2.8/distributed.html
@@ -341,10 +341,10 @@ def trainWithTeacherForcing(trainDataLoader, encoder, decoder, criterion, encode
     encoder.train()
     decoder.train()
 
-    batchTime = AverageMeter()  # forward prop. + back prop. time
-    dataTime = AverageMeter()  # data loading time
-    losses = AverageMeter()  # loss (per word decoded)
-    top5accs = AverageMeter()  # top5 accuracy
+    batchTime = AverageMeter() 
+    dataTime = AverageMeter() 
+    losses = AverageMeter()  
+    top5accs = AverageMeter() 
     start = time.time()
 
     for i, (imgs, caps, caplens) in enumerate(trainDataLoader):

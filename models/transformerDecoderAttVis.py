@@ -5,7 +5,6 @@ from typing import Optional, Tuple
 import torch.nn.functional as F 
 
 
-
 # The PositionalEncoding class is adapted from a Datacamp tutorial on how to build a Transformer
 # using PyTorch (Sarkar, 2025).
 # Link to tutorial: https://www.datacamp.com/tutorial/building-a-transformer-with-py-torch
@@ -98,9 +97,10 @@ class CustomTransformerDecoderLayer(nn.Module):
 # The TransformerDecoderForAttentionViz class is a contribution of this study. It is adapted from the  
 # TransformerDecoder class defined in transformerDecoder.py however, PyTorch's default TransformerDecoderLayer
 # is replaced by the CustomerTransformerDecoderLayer defined above to incorporate getting the self-attention and
-# cross-attention weights from each decoder layer. The general structure is understood from the Datacamp tutorial (
-# Sarkar, 2025) whereas PyTorch's Transformer's official GitHub repository linked to its TransformerDecoderLayer 
+# cross-attention weights from each decoder layer. The general structure is understood from the Datacamp tutorial
+# (Sarkar, 2025) whereas PyTorch's Transformer's official GitHub repository linked to its TransformerDecoderLayer 
 # documentation section is used for implementing the CustomerTransformerDecoderLayer.
+# Link to the GitHub repository: https://github.com/pytorch/pytorch/blob/v2.8.0/torch/nn/modules/transformer.py#L966
 
 class TransformerDecoderForAttentionViz(nn.Module): 
     def __init__(self, embed_dim, decoder_dim, vocab_size, maxLen, device, dropout=0.5, encoder_dim=1024, num_heads=8, num_layers=6):
@@ -142,8 +142,8 @@ class TransformerDecoderForAttentionViz(nn.Module):
 
         tgt_seq_len = tgt.size(0)
         tgt_mask = nn.Transformer.generate_square_subsequent_mask(tgt_seq_len).to(self.device).bool() 
-        output = tgt # Initial input to the first layer is the embedded sequence
-        all_cross_attentions_for_all_steps = [] # Collect cross-attention from each layer for *all* steps
+        output = tgt 
+        all_cross_attentions_for_all_steps = [] 
         
         for layer_idx, layer in enumerate(self.decoder_layers):
             output, self_attn_weights, cross_attn_weights = layer(
@@ -151,16 +151,16 @@ class TransformerDecoderForAttentionViz(nn.Module):
                 encoder_out, 
                 tgt_mask=tgt_mask, 
                 tgt_key_padding_mask=tgt_key_padding_mask,
-                output_attentions=True # Pass True to custom layer
+                output_attentions=True 
             )
             all_cross_attentions_for_all_steps.append(cross_attn_weights)
 
         decoder_out = output.permute(1, 0, 2) # [batch_size, max_caption_length, embed_dim]
         predictions = self.fc_out(decoder_out)
         
-        stacked_cross_attentions = torch.stack(all_cross_attentions_for_all_steps, dim=0) # 1. Stack all layers' cross-attentions: (num_layers, seq_len, batch_size, num_heads, num_pixels)
-        alphas = stacked_cross_attentions.mean(dim=(0, 3)) # Average over num_layers (dim 0) and num_heads (dim 3).  Resulting shape: (seq_len, batch_size, num_pixels)
-        alphas = alphas.permute(1, 0, 2)  # 3. Permute to (batch_size, seq_len, num_pixels) for consistency with LSTM output
+        stacked_cross_attentions = torch.stack(all_cross_attentions_for_all_steps, dim=0)
+        alphas = stacked_cross_attentions.mean(dim=(0, 3)) 
+        alphas = alphas.permute(1, 0, 2)  
 
         return predictions, encoded_captions, decode_lengths, alphas 
 
@@ -177,7 +177,7 @@ class TransformerDecoderForAttentionViz(nn.Module):
         inputs = torch.full((batch_size, 1), start_token_idx, dtype=torch.long, device=self.device) 
         predictions = torch.zeros(batch_size, maxDecodeLen, self.vocab_size, device=self.device) 
         sequences = torch.zeros(batch_size, maxDecodeLen, dtype=torch.long, device=self.device) 
-        alphas = torch.zeros(batch_size, maxDecodeLen, encoder_out.size(0), device=self.device) # Store avg alphas
+        alphas = torch.zeros(batch_size, maxDecodeLen, encoder_out.size(0), device=self.device) 
         finished = torch.zeros(batch_size, dtype=torch.bool, device=self.device) 
 
         for t in range(maxDecodeLen): 
@@ -185,7 +185,7 @@ class TransformerDecoderForAttentionViz(nn.Module):
             if len(active_indices) == 0: break  
 
             embeddings = self.embedding(inputs[active_indices]) 
-            embeddings = self.pos_encoding(self.dropout(embeddings)) # Use dropout_layer
+            embeddings = self.pos_encoding(self.dropout(embeddings)) 
 
             tgt = embeddings.permute(1, 0, 2)
             tgt_mask = nn.Transformer.generate_square_subsequent_mask(tgt.size(0)).to(self.device).bool() 
@@ -193,12 +193,12 @@ class TransformerDecoderForAttentionViz(nn.Module):
             current_layer_output = tgt 
             all_layer_cross_attentions_for_step = [] 
 
-            for layer_idx, layer in enumerate(self.decoder_layers): # Iterate CustomTransformerDecoderLayer
+            for layer_idx, layer in enumerate(self.decoder_layers): 
                 layer_output, self_attn_weights, cross_attn_weights = layer( 
                     current_layer_output, 
                     encoder_out[:, active_indices, :], 
                     tgt_mask=tgt_mask,
-                    output_attentions=True # Request attention weights here
+                    output_attentions=True 
                 )
                 current_layer_output = layer_output 
                 all_layer_cross_attentions_for_step.append(cross_attn_weights) 
@@ -216,8 +216,8 @@ class TransformerDecoderForAttentionViz(nn.Module):
             inputs = new_full_inputs 
 
             stacked_cross_attentions = torch.stack(all_layer_cross_attentions_for_step, dim=0)
-            cross_attn_for_current_token = stacked_cross_attentions[:, :, :, -1, :]     # last token
-            avg_cross_attention_per_token = cross_attn_for_current_token.mean(dim=(0, 2))  # avg over layers + heads
+            cross_attn_for_current_token = stacked_cross_attentions[:, :, :, -1, :]    
+            avg_cross_attention_per_token = cross_attn_for_current_token.mean(dim=(0, 2)) 
             alphas[active_indices, t, :] = avg_cross_attention_per_token
 
         return predictions, sequences, alphas
