@@ -52,8 +52,6 @@ dropout = 0.5
 maxLen = 52 # maximum length of captions (in words), used for padding
 
 # Data parameters
-# dataFolder = 'flickr8kDataset/inputFiles'
-# dataName = 'flickr8k_5_cap_per_img_5_min_word_freq'
 dataFolder = 'cocoDataset/inputFiles'
 dataName = 'coco_5_cap_per_img_5_min_word_freq'
 
@@ -82,9 +80,10 @@ elif pretrainedEmbeddingsName == 'glove-wiki-gigaword-200':
 else:
     pretrainedEmbeddingsPath = None
 
-def main():
+# The main function has been adapted from the main function in train.py hence the same citations apply.
+# It has been modified to handle testing the Transformer decoder as well which is a contribution of this study.
 
-    # rank, local_rank, world_size, device = setup_distributed()
+def main():
     g = torch.Generator()
     g.manual_seed(42)
 
@@ -137,18 +136,12 @@ def main():
         resultsDF.to_csv(f'results/test-TransformerDecoder-TeacherForcing-Finetuning{startingLayer}-{pretrainedEmbeddingsName}.csv', index=False)
     
 
-
+# The original study (Ramos et al., 2024) did not have a test function hence this test function has been adapted from
+# the validation function in train.py thus the same citations apply. The test method calls the corresponding non-teacher 
+# forcing forward method of each decoder and aligns their outputs in the preprocessDecoderOutputForMetrics function for 
+# the evaluation metrics. It also calculates all four BLEU scores. These are contribution of this study.
 
 def test(testDataLoader, encoder, decoder, criterion):
-    """
-    Test the model on the test dataset.
-    :param testDataLoader: DataLoader for the test dataset
-    :param encoder: Encoder model
-    :param decoder: Decoder model
-    :param criterion: Loss function
-    :return: Average loss and accuracy on the test set
-    """
-
     decoder.eval()  
     if encoder is not None:
         encoder.eval()

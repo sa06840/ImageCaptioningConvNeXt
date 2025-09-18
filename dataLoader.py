@@ -9,8 +9,8 @@ import os
 # The original study (Ramos et al., 2024) seem to have adapted their code from another repository (Vinodababu, 2019) 
 # which is a popular open source implementation of the 'Show, Attend and Tell' paper (Xu et al., 2015).
 # Link to the (Vinodababu, 2019) repository: https://github.com/sgrvinod/a-PyTorch-Tutorial-to-Image-Captioning
-# The original class is modified to support lazy loading of images to avoid OOM issues and faster loading which is 
-# a contribution of this study.
+# The original class is modified to support multiple workers, lazy loading of images to avoid OOM issues and faster loading 
+# which is a contribution of this study.
 
 class CaptionDataset(Dataset):
     def __init__(self, dataFolder, dataName, split, transform=None):

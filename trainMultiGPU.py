@@ -1,5 +1,4 @@
 import os
-# os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
 import torch
 import random
 import numpy as np
@@ -10,15 +9,6 @@ def set_seed(seed):
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
-    # torch.cuda.manual_seed(seed)
-    # torch.cuda.manual_seed_all(seed)
-    # os.environ["PYTHONHASHSEED"] = str(seed)
-    # torch.use_deterministic_algorithms(True)
-
-# def seed_worker(worker_id):
-#     worker_seed = torch.initial_seed() % 2**32
-#     np.random.seed(worker_seed)
-#     random.seed(worker_seed)
 
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
@@ -45,8 +35,6 @@ import argparse
 
 
 # Data parameters
-# dataFolder = 'flickr8kDataset/inputFiles'
-# dataName = 'flickr8k_5_cap_per_img_5_min_word_freq'
 dataFolder = 'cocoDataset/inputFiles'
 dataName = 'coco_5_cap_per_img_5_min_word_freq'
 
@@ -120,22 +108,19 @@ def reduceLossAndTokens(loss, batchTokenCount, device):
     return globalLoss, totalTokens
 
 def gather_all_data(data, world_size, device):
-    # Serialize local data (list of lists)
     data_bytes = pickle.dumps(data)
     data_tensor = torch.ByteTensor(list(data_bytes)).to(device)
-    # Gather sizes from all processes
     local_size = torch.tensor([data_tensor.numel()], device=device)
     sizes = [torch.tensor([0], device=device) for _ in range(world_size)]
     dist.all_gather(sizes, local_size)
     max_size = max([s.item() for s in sizes])
-    # Pad data tensors to max size
+    
     if local_size.item() < max_size:
         padding = torch.zeros(max_size - local_size.item(), dtype=torch.uint8, device=device)
         data_tensor = torch.cat([data_tensor, padding], dim=0)
-    # Gather all tensors
+    
     gathered = [torch.zeros(max_size, dtype=torch.uint8, device=device) for _ in range(world_size)]
     dist.all_gather(gathered, data_tensor)
-    # Deserialize and combine on rank 0
     all_data = []
     if dist.get_rank() == 0:
         for i, tensor in enumerate(gathered):
@@ -145,24 +130,45 @@ def gather_all_data(data, world_size, device):
             all_data.extend(data_i)
     return all_data
 
+# The setup_distributed functon is used to setup the environment for multi-gpu training using PyTorch's
+# DistributedDataParallel (DDP) package in a SLURM cluster. The information required to setup this function
+# along with sample code is referenced from the following sources:
+# 1. Manna, S. (2025) The Practical Guide to distributed training using PYTORCH - part 4: On multiple nodes using Slurm, Medium. 
+# Available at: https://medium.com/the-owl/the-practical-guide-to-distributed-training-using-pytorch-part-4-on-multiple-nodes-using-slurm-83cf306a3373 
+# 2. PyTorch. Multi-node training using slurm, Multi-Node Training using SLURM. 
+# Available at: https://pytorch-geometric.readthedocs.io/en/2.6.0/tutorial/multi_node_multi_gpu_vanilla.html 
+# 3. Diakogiannis, F. (2024) Distributed training on Slurm Cluster, PyTorch Forums. 
+# Available at: https://discuss.pytorch.org/t/distributed-training-on-slurm-cluster/150417/13 
+
 def setup_distributed():
     rank = int(os.environ['SLURM_PROCID'])
     world_size = int(os.environ['SLURM_NTASKS'])
     local_rank = int(os.environ['SLURM_LOCALID'])
     os.environ['MASTER_ADDR'] = os.environ.get('MASTER_ADDR', '127.0.0.1')
-    # os.environ['MASTER_PORT'] = os.environ.get('MASTER_PORT', '29500')  # Use a fixed or random free port
     os.environ['MASTER_PORT'] = port
     dist.init_process_group(
         backend='nccl',
         init_method='env://',
         world_size=world_size,
-        rank=rank
-    )
+        rank=rank)
     set_seed(42)
     torch.cuda.set_device(local_rank)
     device = torch.device(f"cuda:{local_rank}")
     print(f"[Rank {rank}] is using GPU {local_rank}", flush=True)
     return rank, local_rank, world_size, device
+
+
+# The main function, training with and without teacher forciing and validation functions are adapted from the
+# ones in train.py hence the same citations apply. Some additions have been made to support multi-GPU training
+# using PyTorch's DistributedDataParallel package. These additions include wrapping the models in the DPP package,
+# splitting the data across multiple GPUs and syncing the losses and outputs from multiple GPUs. The information
+# required to setup multi-GPU using DPP along with sample code is referenced from the following sources:
+# 1. PyTorch. DistributedDataParallel - PyTorch 2.8 documentation. 
+# Available at: https://docs.pytorch.org/docs/stable/generated/torch.nn.parallel.DistributedDataParallel.html  
+# 2. namespace-Pt (2021) A comprehensive tutorial to pytorch distributeddataparallel, Medium. 
+# Available at: https://medium.com/codex/a-comprehensive-tutorial-to-pytorch-distributeddataparallel-1f4b42bb1b51 
+# 3. PyTorch (2017) Distributed communication package - torch.distributed - PyTorch 2.8 documentation. 
+# Available at: https://docs.pytorch.org/docs/2.8/distributed.html
 
 
 def main():
@@ -390,7 +396,6 @@ def trainWithTeacherForcing(trainDataLoader, encoder, decoder, criterion, encode
             encoderOptimizer.step()
         decoderOptimizer.step()
 
-
         globalLoss, totalTokens = reduceLossAndTokens(loss, sum(decodeLengths), device)
 
         correct5, total = accuracy(scores, targets, 5, 'multi')
@@ -415,7 +420,6 @@ def trainWithTeacherForcing(trainDataLoader, encoder, decoder, criterion, encode
     dataTimeAvg = dataTimeTensor.item() / world_size
 
     print(f"TF, Rank: {rank}, Epoch {epoch}: Training Loss = {losses.avg:.4f}, Top-5 Accuracy = {top5accs.avg:.4f}", flush=True)
-    # return losses.avg, top5accs.avg, batchTime.avg, dataTime.avg
     return losses.avg, top5accs.avg, batchTimeAvg, dataTimeAvg
 
 
@@ -494,7 +498,6 @@ def trainWithoutTeacherForcing(trainDataLoader, encoder, decoder, criterion, enc
     dataTimeAvg = dataTimeTensor.item() / world_size
 
     print(f"No TF, Rank: {rank}, Epoch {epoch}: Training Loss = {losses.avg:.4f}, Top-5 Accuracy = {top5accs.avg:.4f}", flush=True)
-    # return losses.avg, top5accs.avg, batchTime.avg, dataTime.avg
     return losses.avg, top5accs.avg, batchTimeAvg, dataTimeAvg
 
 
@@ -539,7 +542,6 @@ def validate(valDataLoader, encoder, decoder, criterion, device, world_size):
                 scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, caps, wordMap['<end>'], wordMap['<pad>'], 51)
                 loss = criterion(scoresUpdated, targetsUpdated)
                 # loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
-
 
             globalLoss, totalTokens = reduceLossAndTokens(loss, totalTokensEvaluated, device)
 

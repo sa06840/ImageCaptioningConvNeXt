@@ -1,5 +1,4 @@
 import os
-# os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
 import torch
 import random
 import numpy as np
@@ -8,19 +7,8 @@ def set_seed(seed=42):
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
-    # torch.cuda.manual_seed(seed)
-    # torch.cuda.manual_seed_all(seed)
-    # os.environ["PYTHONHASHSEED"] = str(seed)
-    # torch.use_deterministic_algorithms(True)
-
-# def seed_worker(worker_id):
-#     worker_seed = torch.initial_seed() % 2**32
-#     np.random.seed(worker_seed)
-#     random.seed(worker_seed)
 
 set_seed(42)
-# g = torch.Generator()
-# g.manual_seed(42)
 
 from torch.utils.data import DataLoader
 import torch.backends.cudnn as cudnn
@@ -44,8 +32,6 @@ import argparse
 device = torch.device("cuda")
 
 # Data parameters
-# dataFolder = 'flickr8kDataset/inputFiles'
-# dataName = 'flickr8k_5_cap_per_img_5_min_word_freq'
 dataFolder = 'cocoDataset/inputFiles'
 dataName = 'coco_5_cap_per_img_5_min_word_freq'
 
@@ -55,7 +41,6 @@ attentionDim = 512  # dimension of attention linear layers
 decoderDim = 512  # dimension of decoder RNN
 dropout = 0.5
 cudnn.benchmark = True  # set to true only if inputs to model are fixed size; otherwise lot of computational overhead
-# cudnn.deterministic = True # for reproducibility
 maxLen = 52 # maximum length of captions (in words), used for padding
 
 # Training parameters
@@ -99,6 +84,13 @@ def optimizer_to_device(optimizer, device):
             if isinstance(v, torch.Tensor):
                 state[k] = v.to(device)
 
+# This main function, training with teacher forcing and validate functions have been adapted from the codebase of the original 
+# study (Ramos et al., 2024). Link to their GitHub repository: https://github.com/Leo-Thomas/ConvNeXt-for-Image-Captioning/tree/main
+# The original study (Ramos et al., 2024) seem to have adapted their code from another repository (Vinodababu, 2019) 
+# which is a popular open source implementation of the 'Show, Attend and Tell' paper (Xu et al., 2015).
+# Link to the (Vinodababu, 2019) repository: https://github.com/sgrvinod/a-PyTorch-Tutorial-to-Image-Captioning
+# Significant sections have been modified/added to these functions to handle training the Transformer decoder, fine-tuning the encoder 
+# and using pretrained word embeddings which are contributions of this study.
 
 def main():
 
@@ -111,8 +103,8 @@ def main():
 
     if checkpoint is None:
         if lstmDecoder is True:
-            # decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
-             decoder = DecoderWithoutAttention(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
+            decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
+            #  decoder = DecoderWithoutAttention(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
         else:
             decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device,
                                         wordMap=wordMap, pretrained_embeddings_path=pretrainedEmbeddingsPath, fine_tune_embeddings=True)
@@ -126,8 +118,8 @@ def main():
         results = []
     else:
         if lstmDecoder is True:
-            # decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
-             decoder = DecoderWithAttention(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
+            decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
+            #  decoder = DecoderWithAttention(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
         else:
             decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device,
                                         wordMap=wordMap, pretrained_embeddings_path=pretrainedEmbeddingsPath, fine_tune_embeddings=True)
@@ -311,6 +303,8 @@ def trainWithTeacherForcing(trainDataLoader, encoder, decoder, criterion, encode
     print(f"TF, Epoch {epoch}: Training Loss = {losses.avg:.4f}, Top-5 Accuracy = {top5accs.avg:.4f}", flush=True)
     return losses.avg, top5accs.avg, batchTime.avg, dataTime.avg
 
+# The trainWithoutTeacherForcing method calls the corresponding non-teacher forcing forward method of each decoder and 
+# aligns their outputs in the preprocessDecoderOutputForMetrics function for the evaluation metrics. This is a contribution of this study.
 
 def trainWithoutTeacherForcing(trainDataLoader, encoder, decoder, criterion, encoderOptimizer, decoderOptimizer, epoch, device):
         encoder.train()
@@ -334,17 +328,14 @@ def trainWithoutTeacherForcing(trainDataLoader, encoder, decoder, criterion, enc
 
             imgs = encoder(imgs)
             if lstmDecoder is True:
-                # scores, alphas, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
-                scores, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
+                scores, alphas, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
+                # scores, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
                 scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, caps, wordMap['<end>'], wordMap['<pad>'], 51)
                 loss = criterion(scoresUpdated, targetsUpdated)
-                # loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
+                loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
             else: 
                 scores, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
                 scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, caps, wordMap['<end>'], wordMap['<pad>'], 51)
-                # scores, sequences = decoder(teacherForcing=False, encoder_out=imgs, state='train', maxDecodeLen=51)
-                # remapped_encoded_captions = decoder.customToT5[caps]
-                # scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, remapped_encoded_captions, wordMap['<end>'], decoder.t5_pad_token_id, 51)
                 loss = criterion(scoresUpdated, targetsUpdated)
 
             if encoderOptimizer is not None:
@@ -371,6 +362,9 @@ def trainWithoutTeacherForcing(trainDataLoader, encoder, decoder, criterion, enc
         print(f"No TF, Epoch {epoch}: Training Loss = {losses.avg:.4f}, Top-5 Accuracy = {top5accs.avg:.4f}", flush=True)
         return losses.avg, top5accs.avg, batchTime.avg, dataTime.avg
 
+# The validate method calls the corresponding non-teacher forcing forward method of each decoder and aligns their outputs in the
+# preprocessDecoderOutputForMetrics function for the evaluation metrics. It also calculates all four BLEU scores. 
+# These are contributions of this study.
 
 def validate(valDataLoader, encoder, decoder, criterion, device):
 
@@ -401,12 +395,12 @@ def validate(valDataLoader, encoder, decoder, criterion, device):
                 imgs = encoder(imgs)
 
             if lstmDecoder is True:
-                # scores, alphas, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
-                scores, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
+                scores, alphas, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
+                # scores, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
                 scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, caps, wordMap['<end>'], wordMap['<pad>'], 51)
                 loss = criterion(scoresUpdated, targetsUpdated)
                 # Add doubly stochastic attention regularization
-                # loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
+                loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
             else:     
                 scores, sequences = decoder(teacherForcing=False, encoder_out=imgs, wordMap=wordMap, maxDecodeLen=51)
                 scoresUpdated, targetsUpdated, totalTokensEvaluated, actualDecodeLengths = preprocessDecoderOutputForMetrics(scores, sequences, caps, wordMap['<end>'], wordMap['<pad>'], 51)
