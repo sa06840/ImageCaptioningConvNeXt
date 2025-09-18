@@ -1,7 +1,83 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import os
+import json
+import operator 
 
+
+# EDA
+
+def visualizeWordFrequencies(baseDataPath, baseFilename, topN):
+    wordFreqDict = {}
+    wordMapPath = os.path.join(baseDataPath, 'WORDMAP_' + baseFilename + '.json')
+    with open(wordMapPath, 'r') as j:
+        wordMap = json.load(j)
+
+    specialTokens = {wordMap['<start>'], wordMap['<end>'], wordMap['<pad>'], wordMap['<unk>']}
+    stopWords = {'a', 'an', 'the', 'and', 'but', 'or', 'on', 'in', 'at', 'with', 'by', 'of', 'for', 'is', 'it', 'its', 'to',
+        'from', 'as', 'that', 'this', 'he', 'she', 'his', 'her', 'we', 'our', 'they', 'their', 'be', 'are', 'was', 'were'}
+    revWordMap = {v: k for k, v in wordMap.items()}
+
+    for split in ['TRAIN', 'VAL', 'TEST']:
+        captionsFilePath = os.path.join(baseDataPath, split + '_CAPTIONS_' + baseFilename + '.json')
+        with open(captionsFilePath, 'r') as j:
+            allCaptionsList = json.load(j)
+            for captionIds in allCaptionsList:
+                for wordId in captionIds:
+                    wordString = revWordMap.get(wordId)
+                    if wordId not in specialTokens and wordString and wordString not in stopWords:
+                        wordFreqDict[wordId] = wordFreqDict.get(wordId, 0) + 1
+  
+    sortedWordFreq = sorted(wordFreqDict.items(), key=lambda item: item[1], reverse=True)
+    topWordsIdsWithFreqs = sortedWordFreq[:topN]
+    topWordsIds = [item[0] for item in topWordsIdsWithFreqs]
+    topWordsFreqs = [item[1] for item in topWordsIdsWithFreqs]
+    topWordsStrings = []
+    for wordId in topWordsIds:
+        wordString = revWordMap.get(wordId)
+        topWordsStrings.append(wordString)
+
+    plt.figure(figsize=(20, 5))
+    plt.barh(topWordsStrings[::-1], topWordsFreqs[::-1], color='steelblue', alpha=0.9)
+    plt.title(f'Top {topN} Most Frequent Words in the Dataset (Excluding Stop Words)', fontsize=16, fontweight='bold', pad=20)
+    plt.xlabel('Frequency', fontsize=14, labelpad=15)
+    plt.ylabel('Words', fontsize=14, labelpad=15)
+    plt.xticks(fontsize=12, rotation=0) 
+    plt.yticks(fontsize=12) 
+    plt.tight_layout()
+    plt.grid(axis='x', linestyle='--', alpha=0.6) 
+    outputPath = 'graphs/EDA/wordFrequencies.png'
+    plt.savefig(outputPath, dpi=300)
+    plt.show()
+
+def visualizeCaptionLengths(baseDataPath, baseFilename, numBins):
+    allCaptionLengths = []
+    for split in ['TRAIN', 'VAL', 'TEST']:
+        caplensFilePath = os.path.join(baseDataPath, split + '_CAPLENS_' + baseFilename + '.json')
+        with open(caplensFilePath, 'r') as j:
+            captionLengthsList = json.load(j)
+            allCaptionLengths.extend(captionLengthsList)
+
+    lengthsArray = np.array(allCaptionLengths)
+    
+    plt.figure(figsize=(12, 7))
+    plt.hist(lengthsArray, bins=numBins, color='steelblue', edgecolor='black', alpha=0.9)
+    plt.title('Distribution of Caption Lengths in the Dataset', fontsize=16, fontweight='bold', pad=20)
+    plt.xlabel('Caption Length (including special tokens)', fontsize=14, labelpad=15)
+    plt.ylabel('Frequency', fontsize=14, labelpad=15)
+    meanLength = lengthsArray.mean()
+    plt.axvline(meanLength, color='red', linestyle='--', linewidth=2, label=f'Mean Length: {meanLength:.2f}')
+    plt.legend(fontsize=12)
+    plt.tight_layout()
+    plt.grid(axis='y', linestyle='--', alpha=0.6)
+    
+    outputPath = 'graphs/EDA/captionLengths.png'
+    plt.savefig(outputPath, dpi=300)
+    plt.show()
+
+
+# Results
 
 def plotDecoderLosses(transformerCsvPath, lstmCsvPath):
     """
@@ -221,7 +297,7 @@ transformerMetricsNoTF = 'results/mscoco/20-07-2025(trainingNoTF-inferenceNoTF-n
 # path = 'results/mscoco/12-08-2025(trainingTF-inferenceNoTF-Finetuning1-lr1e6-40epochs)/metrics-transformerDecoder(trainingTF-inferenceNoTF-Finetuning1-1e-06).csv'
 # path = 'results/mscoco/01-08-2025(trainingTF-inferenceNoTF-Finetuning5-lr1e6-40epochs)/metrics-transformerAttDecoder(trainingTF-inferenceNoTF-Finetuning5-1e-06).csv'
 path = 'results/mscoco/24-07-2025(trainingTF-inferenceNoTF-Finetuning3-lr1e4)/metrics-transformerAttDecoder(trainingTF-inferenceNoTF-Finetuning3-0.0001).csv'
-print(get_best_bleu4_row(path))
+# print(get_best_bleu4_row(path))
 
 
 noFinetuned = 'results/mscoco/17-07-2025(trainingTF-inferenceNoTF-noFinetuning)/metrics-transformerDecoder(trainingTF-inferenceNoTF-noFinetuning).csv'
@@ -240,3 +316,7 @@ fineTuned5 = 'results/mscoco/12-08-2025(trainingTF-inferenceNoTF-Finetuning1-lr1
 #     title='BLEU-4 Score Comparison for Transformer Decoder with Finetuning ConvNeXt',
 #     output_filename='graphs/bleuScoreComparisonFinetuning.png'
 # )
+
+
+visualizeWordFrequencies('cocoDataset/inputFiles', 'coco_5_cap_per_img_5_min_word_freq', 20)
+# visualizeCaptionLengths(baseDataPath='cocoDataset/inputFiles', baseFilename='coco_5_cap_per_img_5_min_word_freq', numBins=40)
