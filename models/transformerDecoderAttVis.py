@@ -17,7 +17,7 @@ class PositionalEncoding(nn.Module):
         div_term = torch.exp(torch.arange(0, embed_dim, 2).float() * (-math.log(10000.0) / embed_dim))
         pe[:, 0::2] = torch.sin(position * div_term)
         pe[:, 1::2] = torch.cos(position * div_term)
-        pe = pe.unsqueeze(0)  # shape (1, max_len, embed_dim)
+        pe = pe.unsqueeze(0)
         self.register_buffer('pe', pe)
 
     def forward(self, x):
@@ -118,8 +118,7 @@ class TransformerDecoderForAttentionViz(nn.Module):
         self.dropout = nn.Dropout(p=self.dropout)
 
         self.decoder_layers = nn.ModuleList([
-            CustomTransformerDecoderLayer(d_model=embed_dim, nhead=num_heads, dim_feedforward=decoder_dim, dropout=dropout,
-                                        batch_first=False) 
+            CustomTransformerDecoderLayer(d_model=embed_dim, nhead=num_heads, dim_feedforward=decoder_dim, dropout=dropout, batch_first=False) 
             for _ in range(num_layers)
         ])
 
@@ -133,7 +132,7 @@ class TransformerDecoderForAttentionViz(nn.Module):
         caption_lengths_squeezed = caption_lengths.squeeze(1)
         decode_lengths = (caption_lengths_squeezed - 1).tolist()
         
-        encoder_out = encoder_out.view(batch_size, -1, encoder_dim)  # (batch_size, num_pixels, encoder_dim)
+        encoder_out = encoder_out.view(batch_size, -1, encoder_dim)  # [batch_size, num_pixels, encoder_dim]
         encoder_out = self.encoder_proj(encoder_out).permute(1, 0, 2)  # [num_pixels, batch_size, embed_dim]
 
         embeddings = self.embedding(encoded_captions) 
@@ -169,7 +168,7 @@ class TransformerDecoderForAttentionViz(nn.Module):
         batch_size = encoder_out.size(0)
         encoder_dim = encoder_out.size(-1)
 
-        encoder_out = encoder_out.view(batch_size, -1, encoder_dim)  # (batch_size, num_pixels, encoder_dim)
+        encoder_out = encoder_out.view(batch_size, -1, encoder_dim)  # [batch_size, num_pixels, encoder_dim]
         encoder_out = self.encoder_proj(encoder_out).permute(1, 0, 2)  # [num_pixels, batch_size, embed_dim]
         start_token_idx = wordMap['<start>']
         end_token_idx = wordMap['<end>']
@@ -210,7 +209,7 @@ class TransformerDecoderForAttentionViz(nn.Module):
             sequences[active_indices, t] = pred_ids 
             finished[active_indices] |= (pred_ids == end_token_idx) 
 
-            new_full_inputs = torch.full( (batch_size, t + 2), wordMap['<pad>'], dtype=torch.long, device=self.device)
+            new_full_inputs = torch.full((batch_size, t + 2), wordMap['<pad>'], dtype=torch.long, device=self.device)
             new_full_inputs[:, :t+1] = inputs 
             new_full_inputs[active_indices, t+1] = pred_ids
             inputs = new_full_inputs 

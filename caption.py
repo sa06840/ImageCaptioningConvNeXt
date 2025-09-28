@@ -305,7 +305,7 @@ def caption_image_beam_search_transformer_attention(encoder, decoder, imagePath,
         kPrevWordsIdsActive = kPrevWordsIds[active] # (active_k, current_seq_len)
         encoderOutActive = encoderOutExpanded[:, active, :] # (num_pixels, active_k, embed_dim)
         embeddingsActive = decoder.embedding(kPrevWordsIdsActive)
-        embeddingsActive = decoder.pos_encoding(decoder.dropout(embeddingsActive)) # Use dropout_layer
+        embeddingsActive = decoder.pos_encoding(decoder.dropout(embeddingsActive)) 
         
         tgtActive = embeddingsActive.permute(1, 0, 2)
         tgtMask = nn.Transformer.generate_square_subsequent_mask(tgtActive.size(0)).to(device).bool()
@@ -321,7 +321,7 @@ def caption_image_beam_search_transformer_attention(encoder, decoder, imagePath,
             currentLayerOutput = layer_output
             allLayerCrossAttentionsForStep.append(cross_attn_weights_current_layer)
 
-        lastTokenOutputActive = currentLayerOutput[-1, :, :] # Shape: [active_k, embed_dim]
+        lastTokenOutputActive = currentLayerOutput[-1, :, :] # [active_k, embed_dim]
         # Project to vocabulary size to get logits
         scoresActive = decoder.fc_out(lastTokenOutputActive) # [active_k, vocab_size]
         scoresActive = F.log_softmax(scoresActive, dim=1) 
@@ -346,7 +346,7 @@ def caption_image_beam_search_transformer_attention(encoder, decoder, imagePath,
 
         if step > 0:
             newSeqsALphas[:, :step, :] = seqsAlphas[originalKIndicesForNextStep, :step, :] 
-        newSeqsALphas[:, step, :] = avgCrossAttentionPerToken[prevWordActiveIndices] # Add current step's alpha
+        newSeqsALphas[:, step, :] = avgCrossAttentionPerToken[prevWordActiveIndices] 
 
         newTopKScores = topKScoresNew.unsqueeze(1) 
         justCompletedMask = (nextWordIds == end_token_idx)

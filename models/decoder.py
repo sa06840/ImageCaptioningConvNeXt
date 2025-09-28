@@ -156,7 +156,7 @@ class DecoderWithAttention(nn.Module):
             predicted_ids = preds.argmax(dim=1)  # (active_batch_size) # Greedy prediction: choose the word with the highest probability
             sequences[active_indices, t] = predicted_ids   # stores the generated captions in the form of indices
             finished[active_indices] |= predicted_ids == end_token_idx    # Update finished flags
-            inputs[active_indices] = self.embedding(predicted_ids)   #  # Prepare inputs for the next step
+            inputs[active_indices] = self.embedding(predicted_ids)        # Prepare inputs for the next step
             h[active_indices] = h_new    # Update hidden and cell states for active sequences
             c[active_indices] = c_new
 

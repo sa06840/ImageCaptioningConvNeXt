@@ -47,7 +47,7 @@ maxLen = 52 # maximum length of captions (in words), used for padding
 startEpoch = 0
 epochs = 120  # number of epochs to train for (if early stopping is not triggered)
 epochsSinceImprovement = 0  # keeps track of number of epochs since there's been an improvement in validation BLEU
-batchSize = 32  #32
+batchSize = 32 
 workers = 6
 # encoderLr = 1e-4  # learning rate for encoder if fine-tuning
 decoderLr = 1e-4  # learning rate for decoder
@@ -104,7 +104,6 @@ def main():
     if checkpoint is None:
         if lstmDecoder is True:
             decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
-            #  decoder = DecoderWithoutAttention(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
         else:
             decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device,
                                         wordMap=wordMap, pretrained_embeddings_path=pretrainedEmbeddingsPath, fine_tune_embeddings=True)
@@ -119,7 +118,6 @@ def main():
     else:
         if lstmDecoder is True:
             decoder = DecoderWithAttention(attention_dim=attentionDim, embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
-            #  decoder = DecoderWithAttention(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
         else:
             decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device,
                                         wordMap=wordMap, pretrained_embeddings_path=pretrainedEmbeddingsPath, fine_tune_embeddings=True)
@@ -262,13 +260,13 @@ def trainWithTeacherForcing(trainDataLoader, encoder, decoder, criterion, encode
 
         imgs = encoder(imgs)
         if lstmDecoder is True:
-            # scores, capsSorted, decodeLengths, alphas, sortInd = decoder(teacherForcing=True, encoder_out=imgs, encoded_captions=caps, caption_lengths=caplens)
-            scores, capsSorted, decodeLengths, sortInd = decoder(teacherForcing=True, encoder_out=imgs, encoded_captions=caps, caption_lengths=caplens)
+            scores, capsSorted, decodeLengths, alphas, sortInd = decoder(teacherForcing=True, encoder_out=imgs, encoded_captions=caps, caption_lengths=caplens)
+            # scores, capsSorted, decodeLengths, sortInd = decoder(teacherForcing=True, encoder_out=imgs, encoded_captions=caps, caption_lengths=caplens)
             targets = capsSorted[:, 1:]  # still in the form of indices
             scores = pack_padded_sequence(scores, decodeLengths, batch_first=True).data  # scores are logits
             targets = pack_padded_sequence(targets, decodeLengths, batch_first=True).data
             loss = criterion(scores, targets)
-            # loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
+            loss += alphaC * ((1. - alphas.sum(dim=1)) ** 2).mean()
         else: 
             tgt_key_padding_mask = (caps == wordMap['<pad>'])
             scores, capsSorted, decodeLengths = decoder(teacherForcing=True, encoder_out=imgs, encoded_captions=caps, caption_lengths=caplens, tgt_key_padding_mask=tgt_key_padding_mask)
@@ -415,16 +413,16 @@ def validate(valDataLoader, encoder, decoder, criterion, device):
 
             # References
             allcaps = allcaps.to(device)
-            for j in range(allcaps.shape[0]): # Iterate through each image in the batch
-                imgCaps = allcaps[j].tolist() # This would be a list of lists, where each inner list is a reference
+            for j in range(allcaps.shape[0]): 
+                imgCaps = allcaps[j].tolist() 
                 imgCaptions = []
-                for c_list in imgCaps: # Iterate through each reference caption for the current image
+                for c_list in imgCaps: 
                     filtered_caption = [w for w in c_list if w not in {wordMap['<start>'], wordMap['<pad>']}]
                     imgCaptions.append(filtered_caption)
                 references.append(imgCaptions)
             
             # Hypotheses
-            batchHypotheses = [] # Create a temporary list to hold all captions for this batch
+            batchHypotheses = [] 
             for j, p_seq_tensor in enumerate(sequences):
                 truncated_predicted_list = p_seq_tensor[:actualDecodeLengths[j]].tolist()
                 batchHypotheses.append(truncated_predicted_list) 
@@ -432,7 +430,7 @@ def validate(valDataLoader, encoder, decoder, criterion, device):
 
             assert len(references) == len(hypotheses)
         
-        # bleu4 = corpus_bleu(references, hypotheses)
+
         bleu1 = corpus_bleu(references, hypotheses, weights=(1.0, 0.0, 0.0, 0.0))
         bleu2 = corpus_bleu(references, hypotheses, weights=(0.5, 0.5, 0.0, 0.0))
         bleu3 = corpus_bleu(references, hypotheses, weights=(0.33, 0.33, 0.33, 0.0))

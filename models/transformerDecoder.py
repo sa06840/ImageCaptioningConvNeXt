@@ -19,11 +19,10 @@ class PositionalEncoding(nn.Module):
         div_term = torch.exp(torch.arange(0, embed_dim, 2).float() * (-math.log(10000.0) / embed_dim))
         pe[:, 0::2] = torch.sin(position * div_term)
         pe[:, 1::2] = torch.cos(position * div_term)
-        pe = pe.unsqueeze(0)  # shape (1, max_len, embed_dim)
+        pe = pe.unsqueeze(0)
         self.register_buffer('pe', pe)
 
     def forward(self, x):
-        # x shape: (batch_size, seq_len, embed_dim)
         x = x + self.pe[:, :x.size(1)]
         return x
 

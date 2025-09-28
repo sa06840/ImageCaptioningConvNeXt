@@ -257,7 +257,7 @@ def main():
             print(f"Fine-tuning encoder from epoch 20 onwards (starting from layer {startingLayer})", flush=True)
 
         # Decay learning rate if there is no improvement for 8 consecutive epochs, and terminate training after 20
-        if epochsSinceImprovement == 40:   # 20
+        if epochsSinceImprovement == 40:  
             break
         if epochsSinceImprovement > 0 and epochsSinceImprovement % 8 == 0:
             adjust_learning_rate(decoderOptimizer, 0.8)
@@ -361,10 +361,7 @@ def trainWithTeacherForcing(trainDataLoader, encoder, decoder, criterion, encode
         imgs = encoder(imgs)
         if lstmDecoder is True:
             scores, capsSorted, decodeLengths, alphas, sortInd = decoder(teacherForcing=True, encoder_out=imgs, encoded_captions=caps, caption_lengths=caplens)
-            # Since we decoded starting with <start>, the targets are all words after <start>, up to <end>
             targets = capsSorted[:, 1:]  # still in the form of indices
-            # Remove timesteps that we didn't decode at, or are pads
-            # pack_padded_sequence is an easy trick to do this
             scores = pack_padded_sequence(scores, decodeLengths, batch_first=True).data  # scores are logits
             targets = pack_padded_sequence(targets, decodeLengths, batch_first=True).data
             loss = criterion(scores, targets)
@@ -560,16 +557,16 @@ def validate(valDataLoader, encoder, decoder, criterion, device, world_size):
 
             # References
             allcaps = allcaps.to(device)
-            for j in range(allcaps.shape[0]): # Iterate through each image in the batch
-                imgCaps = allcaps[j].tolist() # This would be a list of lists, where each inner list is a reference
+            for j in range(allcaps.shape[0]): 
+                imgCaps = allcaps[j].tolist() 
                 imgCaptions = []
-                for c_list in imgCaps: # Iterate through each reference caption for the current image
+                for c_list in imgCaps: 
                     filtered_caption = [w for w in c_list if w not in {wordMap['<start>'], wordMap['<pad>']}]
                     imgCaptions.append(filtered_caption)
                 references.append(imgCaptions)
             
             # Hypotheses
-            batchHypotheses = [] # Create a temporary list to hold all captions for this batch
+            batchHypotheses = [] 
             for j, p_seq_tensor in enumerate(sequences):
                 truncated_predicted_list = p_seq_tensor[:actualDecodeLengths[j]].tolist()
                 batchHypotheses.append(truncated_predicted_list) 

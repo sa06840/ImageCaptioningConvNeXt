@@ -187,16 +187,16 @@ def test(testDataLoader, encoder, decoder, criterion):
 
             # References
             allcaps = allcaps.to(device)
-            for j in range(allcaps.shape[0]): # Iterate through each image in the batch
-                imgCaps = allcaps[j].tolist() # This would be a list of lists, where each inner list is a reference
+            for j in range(allcaps.shape[0]): 
+                imgCaps = allcaps[j].tolist() 
                 imgCaptions = []
-                for c_list in imgCaps: # Iterate through each reference caption for the current image
+                for c_list in imgCaps: 
                     filtered_caption = [w for w in c_list if w not in {wordMap['<start>'], wordMap['<pad>']}]
                     imgCaptions.append(filtered_caption)
                 references.append(imgCaptions)
             
             # Hypotheses
-            batchHypotheses = [] # Create a temporary list to hold all captions for this batch
+            batchHypotheses = [] 
             for j, p_seq_tensor in enumerate(sequences):
                 truncated_predicted_list = p_seq_tensor[:actualDecodeLengths[j]].tolist()
                 batchHypotheses.append(truncated_predicted_list) 
@@ -204,7 +204,7 @@ def test(testDataLoader, encoder, decoder, criterion):
 
             assert len(references) == len(hypotheses)
         
-        # bleu4 = corpus_bleu(references, hypotheses)
+        
         bleu1 = corpus_bleu(references, hypotheses, weights=(1.0, 0.0, 0.0, 0.0))
         bleu2 = corpus_bleu(references, hypotheses, weights=(0.5, 0.5, 0.0, 0.0))
         bleu3 = corpus_bleu(references, hypotheses, weights=(0.33, 0.33, 0.33, 0.0))

@@ -3,7 +3,6 @@ import numpy as np
 import torch
 import h5py
 import json
-# from scipy.misc import imread, imresize
 from PIL import Image
 from tqdm import tqdm
 from collections import Counter
@@ -249,7 +248,6 @@ def accuracy(scores, targets, k, gpu):
     _, ind = scores.topk(k, 1, True, True)
     correct = ind.eq(targets.view(-1, 1).expand_as(ind))
     correct_total = correct.view(-1).float().sum()  # 0D tensor
-    # return correct_total.item() * (100.0 / batch_size)
     if gpu == 'multi':
         return correct_total.item(), batch_size
     elif gpu == 'single':

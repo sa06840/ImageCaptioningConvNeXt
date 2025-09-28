@@ -202,15 +202,15 @@ def plotFinetunedBleu4Scores(no_finetune_csv, ft_5_7_1e4_20_csv, ft_5_7_1e5_40_c
     plt.show()
 
 
-# visualizeWordFrequencies('cocoDataset/inputFiles', 'coco_5_cap_per_img_5_min_word_freq', 20)
-# visualizeCaptionLengths(baseDataPath='cocoDataset/inputFiles', baseFilename='coco_5_cap_per_img_5_min_word_freq', numBins=40)
+visualizeWordFrequencies('cocoDataset/inputFiles', 'coco_5_cap_per_img_5_min_word_freq', 20)
+visualizeCaptionLengths(baseDataPath='cocoDataset/inputFiles', baseFilename='coco_5_cap_per_img_5_min_word_freq', numBins=40)
 
 lstmMetricsTF = 'results/mscoco/17-07-2025(trainingTF-inferenceNoTF-noFinetuning)/metrics-lstmDecoder(trainingTF-inferenceNoTF-noFinetuning).csv'
 transformerMetricsTF = 'results/mscoco/17-07-2025(trainingTF-inferenceNoTF-noFinetuning)/metrics-transformerDecoder(trainingTF-inferenceNoTF-noFinetuning).csv'
 lstmMetricsNoTF = 'results/mscoco/20-07-2025(trainingNoTF-inferenceNoTF-noFinetuning)/metrics-lstmDecoder(trainingNoTF-inferenceNoTF-noFinetuning).csv'
 transformerMetricsNoTF = 'results/mscoco/20-07-2025(trainingNoTF-inferenceNoTF-noFinetuning)/metrics-transformerDecoder(trainingNoTF-inferenceNoTF-noFinetuning).csv'
-# plotDecoderLosses(transformerMetricsTF, lstmMetricsTF, lstmMetricsNoTF, transformerMetricsNoTF)
-# plotBleu4Scores(lstmMetricsTF, transformerMetricsTF, lstmMetricsNoTF, transformerMetricsNoTF)
+plotDecoderLosses(transformerMetricsTF, lstmMetricsTF, lstmMetricsNoTF, transformerMetricsNoTF)
+plotBleu4Scores(lstmMetricsTF, transformerMetricsTF, lstmMetricsNoTF, transformerMetricsNoTF)
 
 
 noFinetuned = 'results/mscoco/03_17-07-2025(trainingTF-inferenceNoTF-noFinetuning)/metrics-transformerDecoder(trainingTF-inferenceNoTF-noFinetuning).csv'

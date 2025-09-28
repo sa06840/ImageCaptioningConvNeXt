@@ -21,9 +21,9 @@ class Encoder(nn.Module):
         self.fine_tune()
 
     def forward(self, images):
-        out = self.convnext(images)  # (batch_size, 768, image_size/32, image_size/32)
-        out = self.adaptive_pool(out)  # (batch_size, 768, encoded_image_size, encoded_image_size)
-        out = out.permute(0, 2, 3, 1)  # (batch_size, encoded_image_size, encoded_image_size, 768)
+        out = self.convnext(images)  # (batch_size, 1024, image_size/32, image_size/32)
+        out = self.adaptive_pool(out)  # (batch_size, 1024, encoded_image_size, encoded_image_size)
+        out = out.permute(0, 2, 3, 1)  # (batch_size, encoded_image_size, encoded_image_size, 1024)
         return out
     
     def fine_tune(self, fine_tune=True, startingLayer=7):   # A starting layer parameter is added to allow fine-tuning
