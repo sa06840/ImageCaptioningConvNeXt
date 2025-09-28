@@ -24,7 +24,7 @@ class PositionalEncoding(nn.Module):
         x = x + self.pe[:, :x.size(1)]
         return x
     
-# Helper func for CustomTransformerDecoderLayer taken PyTorch's Transformer's official GitHub repository.
+# Helper functon for CustomTransformerDecoderLayer taken PyTorch's Transformer's official GitHub repository.
 def _get_activation_fn(activation): 
     if activation == "relu": 
         return F.relu

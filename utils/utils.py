@@ -219,7 +219,6 @@ def save_checkpoint(dataName, epoch, epochsSinceImprovement, encoderSaved, decod
         filename = 'checkpoint_LSTM_Finetuning' + str(startingLayer) + '_' + str(encoderLr) + '_' + dataName + '.pth.tar'
     else:
         filename = 'checkpoint_Transformer_Finetuning' + str(startingLayer) + '_' + str(encoderLr) + '_' + pretrainedEmbeddingsName + '_' + dataName + '.pth.tar'
-        # filename = 'checkpoint_TransformerAtt_Finetuning' + str(startingLayer) + '_' + str(encoderLr) + '_' + dataName + '.pth.tar'
     torch.save(state, filename)
     # If this checkpoint is the best so far, store a copy so it doesn't get overwritten by a worse checkpoint
     if isBest:

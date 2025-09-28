@@ -332,7 +332,7 @@ def main():
         if lstmDecoder is True:
             resultsDF.to_csv(f'results/metrics-lstmDecoder(trainingTF-inferenceNoTF-Finetuning{startingLayer}-{encoderLr}-{pretrainedEmbeddingsName}).csv', index=False)
         else: 
-            resultsDF.to_csv(f'results/metrics-transformerAttDecoder(trainingTF-inferenceNoTF-Finetuning{startingLayer}-{encoderLr}-{pretrainedEmbeddingsName}).csv', index=False)
+            resultsDF.to_csv(f'results/metrics-transformerDecoder(trainingTF-inferenceNoTF-Finetuning{startingLayer}-{encoderLr}-{pretrainedEmbeddingsName}).csv', index=False)
 
 
 

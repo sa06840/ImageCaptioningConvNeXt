@@ -112,9 +112,13 @@ class DecoderWithAttention(nn.Module):
 
         return predictions, encoded_captions, decode_lengths, alphas, sort_ind
 
-    def forwardWithoutTeacherForcing(self, encoder_out, wordMap, maxDecodeLen):   # This method adapts the forward with teacher forcing method
-        batch_size = encoder_out.size(0)                                          # from (Vinodababu, 2019) to implement forward without 
-        encoder_dim = encoder_out.size(-1)                                        # teacher forcing. This is a contribution of my study.
+
+    # This method adapts the forward with teacher forcing method from (Vinodababu, 2019) to implement forward without 
+    # teacher forcing. This is a contribution of my study.
+
+    def forwardWithoutTeacherForcing(self, encoder_out, wordMap, maxDecodeLen):   
+        batch_size = encoder_out.size(0) 
+        encoder_dim = encoder_out.size(-1)
         vocab_size = self.vocab_size
 
         encoder_out = encoder_out.view(batch_size, -1, encoder_dim)  # (batch_size, num_pixels, encoder_dim)

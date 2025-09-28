@@ -16,6 +16,7 @@ from models.lstmNoAttention import DecoderWithoutAttention
 from models.transformerDecoder import TransformerDecoder
 from models.transformerDecoderAttVis import TransformerDecoderForAttentionViz
 import csv
+import pandas as pd
 
 device = torch.device("cpu")
 embDim = 512  
@@ -408,7 +409,6 @@ def visualize_att(imagePath, seq, alphas, revWordMap, smooth=True, enc_image_siz
         plt.axis('off') 
 
     plt.subplots_adjust(hspace=0.05)
-    plt.savefig('graphs/attentionMaps/Transformertf-noFinetuning-img2.png', bbox_inches='tight', dpi=300)
     plt.show()
  
 def remap_transformer_decoder_keys(old_state_dict):
@@ -441,37 +441,43 @@ if __name__ == '__main__':
     img = 'cocoDataset/trainval2014/val2014/COCO_val2014_000000334321.jpg'
     # img = 'cocoDataset/trainval2014/val2014/COCO_val2014_000000292301.jpg'
     # img = 'cocoDataset/trainval2014/val2014/COCO_val2014_000000154971.jpg'
+    # image_list = ['COCO_val2014_000000561100.jpg', 'COCO_val2014_000000354533.jpg', 'COCO_val2014_000000334321.jpg', 
+    #               'COCO_val2014_000000368117.jpg', 'COCO_val2014_000000165547.jpg', 'COCO_val2014_000000455859.jpg',
+    #               'COCO_val2014_000000290570.jpg', 'COCO_val2014_000000017756.jpg', 'COCO_val2014_000000305821.jpg', 
+    #               'COCO_val2014_000000459374.jpg']
 
     # LSTM
-    # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/17-07-2025(lstmDecoder-trainingTF-inferenceNoTF-noFinetuning)/BEST_checkpoint_LSTM_coco_5_cap_per_img_5_min_word_freq.pth.tar'
-    # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/01-09-2025(lstmNoAttDecoder-trainingTF-inferenceNoTF-noFinetuning)/BEST_checkpoint_LSTM_FinetuningNone_None_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    # model = 'bestCheckpoints/mscoco/17-07-2025(lstmDecoder-trainingTF-inferenceNoTF-noFinetuning)/BEST_checkpoint_LSTM_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    # model = 'bestCheckpoints/mscoco/01-09-2025(lstmNoAttDecoder-trainingTF-inferenceNoTF-noFinetuning)/BEST_checkpoint_LSTM_FinetuningNone_None_coco_5_cap_per_img_5_min_word_freq.pth.tar'
 
     # training strategies
-    # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/20-07-2025(lstmDecoder-trainingNoTF-inferenceNoTF-noFinetuning)/BEST_checkpoint_LSTM_coco_5_cap_per_img_5_min_word_freq.pth.tar'
-    # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/20-07-2025(transformerDecoder-trainingNoTF-inferenceNoTF-noFinetuning)/BEST_checkpoint_Transformer_coco_5_cap_per_img_5_min_word_freq.pth.tar'
-    # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/17-07-2025(lstmDecoder-trainingTF-inferenceNoTF-noFinetuning)/BEST_checkpoint_LSTM_coco_5_cap_per_img_5_min_word_freq.pth.tar'
-    model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/05_17-07-2025(transformerDecoder-trainingTF-inferenceNoTF-noFinetuning)/BEST_checkpoint_Transformer_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    # model = 'bestCheckpoints/mscoco/06_20-07-2025(lstmDecoder-trainingNoTF-inferenceNoTF-noFinetuning)/BEST_checkpoint_LSTM_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    # model = 'bestCheckpoints/mscoco/07_20-07-2025(transformerDecoder-trainingNoTF-inferenceNoTF-noFinetuning)/BEST_checkpoint_Transformer_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    # model = 'bestCheckpoints/mscoco/04_17-07-2025(lstmDecoder-trainingTF-inferenceNoTF-noFinetuning)/BEST_checkpoint_LSTM_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    # model = 'bestCheckpoints/mscoco/05_17-07-2025(transformerDecoder-trainingTF-inferenceNoTF-noFinetuning)/BEST_checkpoint_Transformer_coco_5_cap_per_img_5_min_word_freq.pth.tar'
 
     # Transformer
-    # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/17-07-2025(transformerDecoder-trainingTF-inferenceNoTF-noFinetuning)/BEST_checkpoint_Transformer_coco_5_cap_per_img_5_min_word_freq.pth.tar'
-    # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/24-07-2025(transformerDecoder-trainingTF-inferenceNoTF-Finetuning5-lr1e4)/BEST_checkpoint_Transformer_Finetuning5_coco_5_cap_per_img_5_min_word_freq.pth.tar'
-    # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/28-07-2025(transformerDecoder-trainingTF-inferenceNoTF-Finetuning5-lr1e5-40epochs)/BEST_checkpoint_Transformer_Finetuning5_1e-05_coco_5_cap_per_img_5_min_word_freq.pth.tar'
-    # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/01-08-2025(transformerDecoder-trainingTF-inferenceNoTF-Finetuning5-lr1e6-40epochs)/BEST_checkpoint_Transformer_Finetuning5_1e-06_coco_5_cap_per_img_5_min_word_freq.pth.tar'
-    # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/24-07-2025(transformerDecoder-trainingTF-inferenceNoTF-Finetuning3-lr1e4)/BEST_checkpoint_Transformer_Finetuning3_coco_5_cap_per_img_5_min_word_freq.pth.tar'
-    # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/12-08-2025(transformerDecoder-trainingTF-inferenceNoTF-Finetuning1-lr1e6-40epochs)/BEST_checkpoint_Transformer_Finetuning1_1e-06_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    # model = 'bestCheckpoints/mscoco/05_17-07-2025(transformerDecoder-trainingTF-inferenceNoTF-noFinetuning)/BEST_checkpoint_Transformer_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    # model = 'bestCheckpoints/mscoco/08_24-07-2025(transformerDecoder-trainingTF-inferenceNoTF-Finetuning5-lr1e4)/BEST_checkpoint_Transformer_Finetuning5_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    # model = 'bestCheckpoints/mscoco/10_28-07-2025(transformerDecoder-trainingTF-inferenceNoTF-Finetuning5-lr1e5-40epochs)/BEST_checkpoint_Transformer_Finetuning5_1e-05_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    # model = 'bestCheckpoints/mscoco/11_01-08-2025(transformerDecoder-trainingTF-inferenceNoTF-Finetuning5-lr1e6-40epochs)/BEST_checkpoint_Transformer_Finetuning5_1e-06_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    # model = 'bestCheckpoints/mscoco/09_24-07-2025(transformerDecoder-trainingTF-inferenceNoTF-Finetuning3-lr1e4)/BEST_checkpoint_Transformer_Finetuning3_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    # model = 'bestCheckpoints/mscoco/12_12-08-2025(transformerDecoder-trainingTF-inferenceNoTF-Finetuning1-lr1e6-40epochs)/BEST_checkpoint_Transformer_Finetuning1_1e-06_coco_5_cap_per_img_5_min_word_freq.pth.tar'
 
-    # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/04-09-2025(transformerAttDecoder-trainingTF-inferenceNoTF-noFinetuning)/BEST_checkpoint_TransformerAtt_FinetuningNone_None_coco_5_cap_per_img_5_min_word_freq.pth.tar'
-    # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/03-09-2025(transformerAttDecoder-trainingTF-inferenceNoTF-Finetuning5-lr1e4)/BEST_checkpoint_TransformerAtt_Finetuning5_0.0001_coco_5_cap_per_img_5_min_word_freq.pth.tar'
-    # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/03-09-2025(transformerAttDecoder-trainingTF-inferenceNoTF-Finetuning3-lr1e4)/BEST_checkpoint_TransformerAtt_Finetuning3_0.0001_coco_5_cap_per_img_5_min_word_freq.pth.tar'
-    # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/10-09-2025(transformerAttDecoder-trainingTF-inferenceNoTF-Finetuning5-lr1e6)/BEST_checkpoint_TransformerAtt_Finetuning5_1e-06_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    # model = 'bestCheckpoints/mscoco/04-09-2025(transformerAttDecoder-trainingTF-inferenceNoTF-noFinetuning)/BEST_checkpoint_TransformerAtt_FinetuningNone_None_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    # model = 'bestCheckpoints/mscoco/03-09-2025(transformerAttDecoder-trainingTF-inferenceNoTF-Finetuning5-lr1e4)/BEST_checkpoint_TransformerAtt_Finetuning5_0.0001_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    # model = 'bestCheckpoints/mscoco/03-09-2025(transformerAttDecoder-trainingTF-inferenceNoTF-Finetuning3-lr1e4)/BEST_checkpoint_TransformerAtt_Finetuning3_0.0001_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    # model = 'bestCheckpoints/mscoco/10-09-2025(transformerAttDecoder-trainingTF-inferenceNoTF-Finetuning5-lr1e6)/BEST_checkpoint_TransformerAtt_Finetuning5_1e-06_coco_5_cap_per_img_5_min_word_freq.pth.tar'
 
     # word embeddings
-    # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/01-08-2025(transformerDecoder-trainingTF-inferenceNoTF-Finetuning5-lr1e6-40epochs)/BEST_checkpoint_Transformer_Finetuning5_1e-06_coco_5_cap_per_img_5_min_word_freq.pth.tar'
-    # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/31-08-2025(transformerDecoder-trainingTF-Finetuning5-lr1e6-40epochs-wordEmbeddings)/BEST_checkpoint_Transformer_Finetuning5_1e-06_word2vec-google-news-300_coco_5_cap_per_img_5_min_word_freq.pth.tar'
-    # model = '/Users/sajeelnadeemalam/Documents/dissertationImageCaptioning/ImageCaptioningConvNeXt/bestCheckpoints/mscoco/31-08-2025(transformerDecoder-trainingTF-Finetuning5-lr1e6-40epochs-wordEmbeddings)/BEST_checkpoint_Transformer_Finetuning5_1e-06_glove-wiki-gigaword-200_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    # model = 'bestCheckpoints/mscoco/11_01-08-2025(transformerDecoder-trainingTF-inferenceNoTF-Finetuning5-lr1e6-40epochs)/BEST_checkpoint_Transformer_Finetuning5_1e-06_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    # model = 'bestCheckpoints/mscoco/14_31-08-2025(transformerDecoder-trainingTF-Finetuning5-lr1e6-40epochs-wordEmbeddings)/BEST_checkpoint_Transformer_Finetuning5_1e-06_word2vec-google-news-300_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    # model = 'bestCheckpoints/mscoco/14_31-08-2025(transformerDecoder-trainingTF-Finetuning5-lr1e6-40epochs-wordEmbeddings)/BEST_checkpoint_Transformer_Finetuning5_1e-06_glove-wiki-gigaword-200_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    # model = 'bestCheckpoints/mscoco/20_26-09-2025(transformerDecoder-trainingTF-Finetuning5-lr1e6-40epochs-wordEmbeddings)/BEST_checkpoint_Transformer_Finetuning5_1e-06_word2vec-google-news-300_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    model = 'bestCheckpoints/mscoco/20_26-09-2025(transformerDecoder-trainingTF-Finetuning5-lr1e6-40epochs-wordEmbeddings)/BEST_checkpoint_Transformer_Finetuning5_1e-06_glove-wiki-gigaword-200_coco_5_cap_per_img_5_min_word_freq.pth.tar'
 
     word_map = 'cocoDataset/inputFiles/WORDMAP_coco_5_cap_per_img_5_min_word_freq.json'
-    beamSize = 5
+    beamSize = 1
     smooth = False
 
     wordMapFile = os.path.join(dataFolder, 'WORDMAP_' + dataName + '.json')
@@ -487,14 +493,14 @@ if __name__ == '__main__':
         # decoder = DecoderWithoutAttention(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), dropout=dropout, device=device)
         decoder.load_state_dict(checkpoint['decoder']) 
     else: 
-        decoder = TransformerDecoderForAttentionViz(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device) 
-        remapped_decoder_state_dict = remap_transformer_decoder_keys(checkpoint['decoder'])
-        decoder.load_state_dict(remapped_decoder_state_dict)
+        # decoder = TransformerDecoderForAttentionViz(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device) 
+        # remapped_decoder_state_dict = remap_transformer_decoder_keys(checkpoint['decoder'])
+        # decoder.load_state_dict(remapped_decoder_state_dict)
         # decoder = TransformerDecoder(embed_dim=embDim, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device,
         #                             wordMap=None, pretrained_embeddings_path=None, fine_tune_embeddings=None)
-        # decoder = TransformerDecoder(embed_dim=200, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device,
-        #                             wordMap=None, pretrained_embeddings_path='wordEmbeddings/glove-wiki-gigaword-200.gz', fine_tune_embeddings=None)
-        # decoder.load_state_dict(checkpoint['decoder']) 
+        decoder = TransformerDecoder(embed_dim=200, decoder_dim=decoderDim, vocab_size=len(wordMap), maxLen=maxLen, dropout=dropout, device=device,
+                                    wordMap=None, pretrained_embeddings_path='wordEmbeddings/glove-wiki-gigaword-200.gz', fine_tune_embeddings=None)
+        decoder.load_state_dict(checkpoint['decoder']) 
 
     decoder = decoder.to(device)
     encoder = encoder.to(device)
@@ -506,8 +512,8 @@ if __name__ == '__main__':
         seq, alphas = caption_image_beam_search(encoder, decoder, img, wordMap, beamSize)
         # seq, alphas = caption_image_beam_search_noAtt(encoder, decoder, img, wordMap, beamSize)
     else:
-        # seq, alphas = caption_image_beam_search_transformer(encoder, decoder, img, wordMap, beamSize, max_decode_len=51)
-        seq, alphas = caption_image_beam_search_transformer_attention(encoder, decoder, img, wordMap, beamSize, max_decode_len=51)
+        seq, alphas = caption_image_beam_search_transformer(encoder, decoder, img, wordMap, beamSize, max_decode_len=51)
+        # seq, alphas = caption_image_beam_search_transformer_attention(encoder, decoder, img, wordMap, beamSize, max_decode_len=51)
 
     alphas = torch.FloatTensor(alphas)
     visualize_att(img, seq, alphas, revWordMap, smooth)

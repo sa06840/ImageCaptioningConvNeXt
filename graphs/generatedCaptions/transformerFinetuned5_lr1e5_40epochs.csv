@@ -1,0 +1,11 @@
+imageFile,generatedCaption
+cocoDataset/trainval2014/val2014/COCO_val2014_000000561100.jpg,<start> a small blue and white airplane flying in a field <end>
+cocoDataset/trainval2014/val2014/COCO_val2014_000000354533.jpg,<start> a motorcycle is parked in a fenced in area <end>
+cocoDataset/trainval2014/val2014/COCO_val2014_000000334321.jpg,<start> a man sitting on a bench with a dog <end>
+cocoDataset/trainval2014/val2014/COCO_val2014_000000368117.jpg,<start> a couple of traffic lights on a pole <end>
+cocoDataset/trainval2014/val2014/COCO_val2014_000000165547.jpg,<start> a table with a vase of flowers on it <end>
+cocoDataset/trainval2014/val2014/COCO_val2014_000000455859.jpg,<start> a group of people walking down a street <end>
+cocoDataset/trainval2014/val2014/COCO_val2014_000000290570.jpg,<start> a herd of sheep standing on top of a lush green field <end>
+cocoDataset/trainval2014/val2014/COCO_val2014_000000017756.jpg,<start> a boat with a flag hanging on the side of it <end>
+cocoDataset/trainval2014/val2014/COCO_val2014_000000305821.jpg,<start> a giraffe standing next to another giraffe in a field <end>
+cocoDataset/trainval2014/val2014/COCO_val2014_000000459374.jpg,<start> a fire hydrant with water flowing out of it <end>

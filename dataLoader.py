@@ -18,10 +18,10 @@ class CaptionDataset(Dataset):
         assert self.split in {'TRAIN', 'VAL', 'TEST'}
         self.dataFolder = dataFolder
         self.dataName = dataName
-        # We store path instead of opening hdf5 here
+        # Store path instead of opening hdf5
         self.h5_path = os.path.join(dataFolder, self.split + '_IMAGES_' + dataName + '.hdf5')
         self.h = None  # lazy open
-        # Load captions fully into memory (lightweight)
+        # Load captions fully into memory
         with open(os.path.join(dataFolder, self.split + '_CAPTIONS_' + dataName + '.json'), 'r') as j:
             self.captions = json.load(j)
         with open(os.path.join(dataFolder, self.split + '_CAPLENS_' + dataName + '.json'), 'r') as j:
