@@ -59,8 +59,11 @@ class CustomTransformerDecoderLayer(nn.Module):
         self.norm_first = norm_first
         self.batch_first = batch_first
 
+    # This section of the function was generated using Gemini. It consolidates the logic of _sa_block, 
+    # _mha_block, and _ff_block from PyTorch's Transformer's official GitHub repository into a single forward method
+    
     def forward(self, tgt, memory= None, tgt_mask= None, memory_mask = None, tgt_key_padding_mask= None, memory_key_padding_mask= None, is_causal= False, output_attentions = False):
-        x = tgt; 
+        x = tgt 
         attn_weights_sa = None
         if self.norm_first:
             _self_attn_input = self.norm1(x)
