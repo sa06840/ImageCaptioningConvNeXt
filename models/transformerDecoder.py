@@ -136,7 +136,7 @@ class TransformerDecoder(nn.Module):
             decoder_output_sliced = self.transformer_decoder(
                 tgt,                                    # [current_seq_len, active_batch_size, embed_dim]
                 encoder_out[:, active_indices, :],      # [num_pixels, active_batch_size, embed_dim]
-                tgt_mask=tgt_mask) # Output shape: [current_seq_len, active_batch_size, embed_dim]
+                tgt_mask=tgt_mask)  # [current_seq_len, active_batch_size, embed_dim]
 
             last_token_output_sliced = decoder_output_sliced[-1, :, :] # [active_batch_size, embed_dim]
 

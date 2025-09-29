@@ -254,6 +254,7 @@ def caption_image_beam_search_transformer(encoder, decoder, imagePath, wordMap, 
     seq = completeSeqs[i]
     return seq, None
 
+
 # This function generates a caption using the transformer decoder and it also returns the attention weights since it uses the
 # TransformerDecoderForAttentionViz class in transformerDecoderAttVis.py
 def caption_image_beam_search_transformer_attention(encoder, decoder, imagePath, wordMap, filename, beamSize=3, max_decode_len=51):
@@ -327,6 +328,9 @@ def caption_image_beam_search_transformer_attention(encoder, decoder, imagePath,
         scoresActive = F.log_softmax(scoresActive, dim=1) 
         topKScoresActive = topKScores[active] 
         scoresActive = topKScoresActive.expand_as(scoresActive) + scoresActive # (active_k, vocab_size)
+
+        # This section of the function was generated using Gemini. It computes the average cross-attention weights
+        # across all layers for the current word and updates the alphas tensor accordingly
 
         stackedCrossAttentions = torch.stack(allLayerCrossAttentionsForStep, dim=0)
         crossAttnForCurrentToken = stackedCrossAttentions[:, :, :, -1, :]

@@ -214,6 +214,9 @@ class TransformerDecoderForAttentionViz(nn.Module):
             new_full_inputs[active_indices, t+1] = pred_ids
             inputs = new_full_inputs 
 
+            # This section of the function was generated using Gemini. It computes the average cross-attention weights
+            # across all layers for the current word and updates the alphas tensor accordingly
+
             stacked_cross_attentions = torch.stack(all_layer_cross_attentions_for_step, dim=0)
             cross_attn_for_current_token = stacked_cross_attentions[:, :, :, -1, :]    
             avg_cross_attention_per_token = cross_attn_for_current_token.mean(dim=(0, 2)) 
