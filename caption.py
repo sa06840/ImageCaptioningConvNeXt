@@ -329,7 +329,7 @@ def caption_image_beam_search_transformer_attention(encoder, decoder, imagePath,
         topKScoresActive = topKScores[active] 
         scoresActive = topKScoresActive.expand_as(scoresActive) + scoresActive # (active_k, vocab_size)
 
-        # This section of the function was generated using Gemini. It computes the average cross-attention weights
+        # This next 3 lines of the function were generated using Gemini. It computes the average cross-attention weights
         # across all layers for the current word and updates the alphas tensor accordingly
 
         stackedCrossAttentions = torch.stack(allLayerCrossAttentionsForStep, dim=0)
