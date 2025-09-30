@@ -2,5 +2,8 @@
 cocoDataset/
 flickr8kDataset/
 __pycache__/
+submission/
 *.tar
 *.gz
+*.docx
+*.pdf
