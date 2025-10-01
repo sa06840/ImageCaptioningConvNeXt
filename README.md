@@ -32,6 +32,7 @@ The following steps can be followed to run the code:
     
     srun python3 trainMultiGPU.py --port 29500 --teacherForcing     # trainMultiGPU.py can be replaced by train.py for training using a single GPU and test.py to test a desired model.  
 
+
 4. Arguemnts for "srun python3 trainMultiGPU.py --port 29500 --teacherForcing": 
     - 'checkpoint', type=str, default=None, help='Path to checkpoint file'  
     - 'lstmDecoder', action='store_true', help='Use LSTM decoder instead of Transformer'  
@@ -41,6 +42,8 @@ The following steps can be followed to run the code:
     - 'encoderLr', type=float, default=1e-4, help='Learning rate for encoder if fine-tuning'  
     - 'embeddingName', type=str, default=None, help='Pretrained embedding name from gensim'  
 
-    Replace/add the required arguments in the line "srun python3 trainMulticopy.py --port 29500 --teacherForcing". There is a single GPU training scrput (train.py) and a multi-GPU training           script (trainMultiGPU.py). The file test.py evaluates the provided models and returns the test loss and BLEU scores.
+    Replace/add the required arguments in the line "srun python3 trainMulticopy.py --port 29500 --teacherForcing".
 
-5. Caption.py is run locally to generate a caption and attention map for a sample image using a trained model by providing the relevant paths.
+    There is a single GPU training scrput (train.py) and a multi-GPU training script (trainMultiGPU.py). The file test.py evaluates the provided models and returns the test loss and BLEU scores.
+
+6. Caption.py is run locally to generate a caption and attention map for a sample image using a trained model by providing the relevant paths.
