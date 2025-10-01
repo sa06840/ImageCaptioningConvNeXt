@@ -11,9 +11,9 @@ The following steps can be followed to run the code:
 3. Connect to the HPC node and run the job script to train/test the desired model:
 
     #!/bin/bash
-    #SBATCH -D <your working directory>            # Working directory \n
-    #SBATCH --job-name=image_captioning_Transformer    # Job name \n
-    #SBATCH --partition=gengpu              # GPU partition \n
+    #SBATCH -D <your working directory>            # Working directory \\
+    #SBATCH --job-name=image_captioning_Transformer    # Job name \\
+    #SBATCH --partition=gengpu              # GPU partition \\
     #SBATCH --nodes=1                       # Use 1 node
     #SBATCH --ntasks=2                      # 2 tasks total (1 per GPU). Keep this as 1 for train.py and test.py
     #SBATCH --ntasks-per-node=2             # Run 2 task on the node. Keep this as 1 for train.py and test.py
@@ -24,14 +24,12 @@ The following steps can be followed to run the code:
     #SBATCH -e results/%x_%j.e              # Standard error log
     #SBATCH -o results/%x_%j.o              # Standard output log
     
-    # Enable Flight Centre and activate Conda or pyenv environment
     source /opt/flight/etc/setup.sh
     flight env activate gridware  # Activate the gridware environment (system environment)
     
     module add compilers/gcc gnu
     export https_proxy=http://hpc-proxy00.city.ac.uk:3128
     
-    # Run the Python script
     srun python3 trainMultiGPU.py --port 29500 --teacherForcing     # trainMultiGPU.py can be replaced by train.py for training using a single GPU and test.py to test a desired model.
 
 4. Arguemnts for "srun python3 trainMultiGPU.py --port 29500 --teacherForcing": 
@@ -43,6 +41,6 @@ The following steps can be followed to run the code:
     parser.add_argument('--encoderLr', type=float, default=1e-4, help='Learning rate for encoder if fine-tuning')
     parser.add_argument('--embeddingName', type=str, default=None, help='Pretrained embedding name from gensim')
 
-Replace/add the required arguments in the line "srun python3 trainMulticopy.py --port 29500 --teacherForcing". There is a single GPU training scrput (train.py) and a multi-GPU training script (trainMultiGPU.py). The file test.py evaluates the provided models and returns the test loss and BLEU scores.
+    Replace/add the required arguments in the line "srun python3 trainMulticopy.py --port 29500 --teacherForcing". There is a single GPU training scrput (train.py) and a multi-GPU training           script (trainMultiGPU.py). The file test.py evaluates the provided models and returns the test loss and BLEU scores.
 
 5. Caption.py is run locally to generate a caption and attention map for a sample image using a trained model by providing the relevant paths.
