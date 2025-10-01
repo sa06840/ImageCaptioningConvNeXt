@@ -6,7 +6,7 @@ The encoder is a ConvNeXt in encoder.py. The two decoders that are compared are 
 
 The following steps can be followed to run the code:
 
-1. Download the 2014 MS COCO train and validation dataset linked at https://cocodataset.org/#download and the Karpathy split files linked at https://cs.stanford.edu/people/karpathy/deepimagesent/
+1. Download the 2014 MS COCO train and validation dataset from https://cocodataset.org/#download and the Karpathy split files from https://cs.stanford.edu/people/karpathy/deepimagesent/
 2. Replace the file paths and run createInputFiles.py to get the images .HDF5 files and JSON files for captions and caption lengths
 3. Connect to the HPC node and run the following job script to train/test the desired model:
 
