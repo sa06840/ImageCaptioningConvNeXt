@@ -11,9 +11,9 @@ The following steps can be followed to run the code:
 3. Connect to the HPC node and run the job script to train/test the desired model:
 
     #!/bin/bash
-    #SBATCH -D <your working directory>            # Working directory
-    #SBATCH --job-name=image_captioning_Transformer    # Job name
-    #SBATCH --partition=gengpu              # GPU partition
+    #SBATCH -D <your working directory>            # Working directory \n
+    #SBATCH --job-name=image_captioning_Transformer    # Job name \n
+    #SBATCH --partition=gengpu              # GPU partition \n
     #SBATCH --nodes=1                       # Use 1 node
     #SBATCH --ntasks=2                      # 2 tasks total (1 per GPU). Keep this as 1 for train.py and test.py
     #SBATCH --ntasks-per-node=2             # Run 2 task on the node. Keep this as 1 for train.py and test.py
